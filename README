@@ -9,3 +9,12 @@ git add (file or folder name)
 git commit -a (quick commit changed files)
 git push (push files after you "git commit" locally, so we can see them)
 git pull (get latest changes from the remote repository)
+git dongs -inmymouth (prints ascii dicks)
+
+                        _,-%/%|
+                    _,-'    \//%\
+                _,-'        \%/|%
+              / / )    __,--  /%\
+              \__/_,-'%(%  ;  %)%
+                      %\%,   %\
+                        '--%'         
