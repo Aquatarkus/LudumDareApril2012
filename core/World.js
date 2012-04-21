@@ -23,6 +23,7 @@ Turtles.World = function() {
 	
 	// How long it takes, in ms, for a single unit of energy to be drained from a person.
     self.energyDrainRate : 500;
+
 };
 
 Turtles.World.prototype = {
@@ -122,8 +123,7 @@ Turtles.World.prototype = {
     },
 
     update: function() {
-        alert(stepLength);
-        platter.update(stepLength);
+        this.platter.update(stepLength);
         
         // people
         for (var i in this.people) {
