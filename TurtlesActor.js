@@ -43,6 +43,7 @@ function geometryFromShape(shape)
 }
 
 //An actor binds a body to a mesh, and handles updating the mesh with the position of the shape.
+<<<<<<< HEAD
 Turtles.meshFromBody = function(body)
 {
     var shape = body.GetShapeList();
@@ -56,6 +57,10 @@ var Actor = function (body, mesh)
 {
 	this.body = body;
 	this.mesh = Turtles.meshFromBody(body);
+=======
+var Actor = function (gameEntity){
+	this.gameEntity = gameEntity;
+>>>>>>> dev
 };
 
 Actor.prototype = 
@@ -64,10 +69,21 @@ Actor.prototype =
 	
 	update : function ()
 	{
+<<<<<<< HEAD
 		var pos = this.body.m_position;
 		this.mesh.position.x = pos.x;
 		this.mesh.position.y = pos.y;
         
         this.mesh.rotation.z = this.body.m_rotation;
+=======
+        if (this.gameEntity.isPhysicsSimulated) {
+            var pos = this.gameEntity.body.m_position;
+            this.gameEntity.mesh.position.x = pos.x;
+            this.gameEntity.mesh.position.y = pos.y;
+        } else {
+            this.gameEntity.mesh.position.x = this.x;
+            this.gameEntity.mesh.position.y = this.y;
+        }
+>>>>>>> dev
 	}
 };

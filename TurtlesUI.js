@@ -1,3 +1,4 @@
+
 // TurtlesUI.js
 // LudumDare420
 
@@ -272,6 +273,7 @@ function onMouseUp(event)
     event.preventDefault();
     var eventCoords = getEventCoords(event);
     Log.event('onMouseUp', eventCoords);
+<<<<<<< HEAD
     var worldCoords = turtlesUI.getWorldCoords(eventCoords);
     if (true)
     {
@@ -286,6 +288,13 @@ function onMouseUp(event)
         // var intersections = turtlesUI.castRay(eventCoords[0].x, eventCoords[0].y);
         // Log.debug('onMouseUp intersections count', intersections.length);
     }
+=======
+	
+	World.createBuilding(eventCoords[0].x, eventCoords[0].y);
+	    
+    var intersections = turtlesUI.castRay(eventCoords[0].x, eventCoords[0].y);
+    Log.debug('onMouseUp intersections count', intersections.length);
+>>>>>>> dev
     
     mouseIsDown = false;
     mouseDidMove = false;
@@ -389,10 +398,10 @@ var renderer = turtlesUI.renderer;
 var scene = turtlesUI.scene;
 var camera = turtlesUI.camera;
 
+var World = new Turtles.World();
 
-var actors;
-var pWorld;
 
+<<<<<<< HEAD
 function init(){
 	var gameIsDirty = true;
 	actors = new Array();
@@ -470,6 +479,32 @@ function animate()
 	turtlesUI.draw();
     stats.update();
 };
+=======
+function animate() {
+	requestAnimationFrame(animate);
+	turtlesUI.draw();
+	stats.update();
+	World.update();
+}
 
-init();
+World.init();
+
+>>>>>>> dev
+
 animate();
+
+var building = new Turtles.Building();
+var person = new Turtles.Person();
+building.build(person);
+for (var i = 0; i < 1000; i++) {
+    building.update(1000.0 / 60.0);
+}
+
+building.build(person);
+for (var i = 0; i < 1000; i++) {
+    building.update(1000.0 / 60.0);
+}
+building.build(person);
+for (var i = 0; i < 1000; i++) {
+    building.update(1000.0 / 60.0);
+}
