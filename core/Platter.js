@@ -15,9 +15,6 @@ Turtles.Platter.prototype = new Turtles.GameEntity();
 
 Turtles.Platter.prototype.constructor = Turtles.Platter;
 
-Turtles.Platter.prototype.update = function() {
-    
-};
 
 Turtles.Platter.prototype.getMesh = function() {
     if (this.mesh == null) {

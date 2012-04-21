@@ -33,9 +33,12 @@ Turtles.GameEntity.prototype.updateActor = function(timeElapsed) {
     this.actor.update(timeElapsed);
 };
 
+Turtles.GameEntity.prototype.update = function(timeElapsed) {
+    this.updateActor(timeElapsed);
+};
 
 Turtles.GameEntity.prototype._createActor = function() {
-    this.actor = new Actor(this.physicsBody, this.mesh);
+    this.actor = new Actor(this);
     
     return this.actor;
 };

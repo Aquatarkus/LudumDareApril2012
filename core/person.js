@@ -42,7 +42,6 @@ Assumes:
 
 
 Turtles.Person = function() {
-	var self = this;
 	
 	this.isPhysicsSimulated = false,
 	this.density = 1.0;
@@ -52,13 +51,13 @@ Turtles.Person = function() {
 	this.color = 0xffffff;
 	this.alpha = 0;
 	
-	self.platterPosition = 0;
-	self.moveSpeed = 5.0;
-	self.maxEnergy = 5.0;
-	self.energy = 5.0;
-	self.state = "IDLE";
-	self.goalPlatterPosition = 0;
-	self.goalObject = null;
+	this.platterPosition = 0;
+	this.moveSpeed = 5.0;
+	this.maxEnergy = 5.0;
+	this.energy = 5.0;
+	this.state = "IDLE";
+	this.goalPlatterPosition = 0;
+	this.goalObject = null;
 };
 
 Turtles.Person.prototype = new Turtles.GameEntity();
@@ -66,58 +65,60 @@ Turtles.Person.prototype = new Turtles.GameEntity();
 Turtles.Person.prototype.constructor = Turtles.Person;
 
 Turtles.Person.prototype.buildComplete = function(building) {
-	self.state = "IDLE";
-	self.goalObject = null;
+	this.state = "IDLE";
+	this.goalObject = null;
 };
 
 Turtles.Person.prototype.update = function(deltaMs) {
+    this.updateActor(deltaMs);
+
 	// Check for panic/exiting panic.
 	if (World.isOnTerrain(self)) {
-		if (self.state == "PANIC") {
-			self.state = "IDLE";
+		if (this.state == "PANIC") {
+			this.state = "IDLE";
 		}
 	} else {
-		self.state = "PANIC";
+		this.state = "PANIC";
 	}
 	
 	// Update energy.
-	if (self.state != SLEEP) {
-		self.energy -=  World.energyDrainRate * deltaMs;
+	if (this.state != SLEEP) {
+		this.energy -=  World.energyDrainRate * deltaMs;
 	}
 
-	switch(self.state) {
+	switch(this.state) {
 		case "IDLE":
-			if (self.energy <= 0) {
-				self.state = "MOVE_TO_SLEEP";
-				var building = World.getClosestUnoccupiedBuilding(self.platterPosition);
+			if (this.energy <= 0) {
+				this.state = "MOVE_TO_SLEEP";
+				var building = World.getClosestUnoccupiedBuilding(this.platterPosition);
 			
-				self.goalPlatterPosition = building.platterPosition;
-				self.goalObject = building;
+				this.goalPlatterPosition = building.platterPosition;
+				this.goalObject = building;
 			} else {
-				self.state = "MOVE_TO_BUILD_SITE";
-				self.goalPlatterPosition = World.getBuildPosition();
+				this.state = "MOVE_TO_BUILD_SITE";
+				this.goalPlatterPosition = World.getBuildPosition();
 			}
 			break;
 		case "MOVE_TO_BUILD_SITE":
-			if (self.platterPosition == self.goalPlatterPosition) {
+			if (this.platterPosition == this.goalPlatterPosition) {
 				var building = World.initBuilding(self);
-				self.goalObject = building;
-				self.state = "BUILD";
+				this.goalObject = building;
+				this.state = "BUILD";
 			}
 			break;
 		case "BUILD":
 			break;
 		case "MOVE_TO_SLEEP":
-			if (self.platterPosition == self.goalPlatterPosition) {
-				self.goalObject.occupy(self);
-				self.state = "SLEEP";
+			if (this.platterPosition == this.goalPlatterPosition) {
+				this.goalObject.occupy(self);
+				this.state = "SLEEP";
 			}
 			break;
 		case "SLEEP":
-			self.energy +=  self.goalObject.energyChargeRate * deltaMs;
-			if (self.energy >= self.maxEnergy) {
-				self.goalObject.unoccupy(this);
-				self.state = "IDLE";
+			this.energy +=  this.goalObject.energyChargeRate * deltaMs;
+			if (this.energy >= this.maxEnergy) {
+				this.goalObject.unoccupy(this);
+				this.state = "IDLE";
 			}
 			break;
 		case "PANIC":
