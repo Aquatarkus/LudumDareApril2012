@@ -273,28 +273,9 @@ function onMouseUp(event)
     event.preventDefault();
     var eventCoords = getEventCoords(event);
     Log.event('onMouseUp', eventCoords);
-<<<<<<< HEAD
+    
     var worldCoords = turtlesUI.getWorldCoords(eventCoords);
-    if (true)
-    {
-        // spawn duder
-        var meteorPosition = worldCoords[0];
-        var meteorVelocity = {x:0, y:0};
-        spawnMeteor(meteorPosition, meteorVelocity);
-    }
-    else
-    {
-        // cast rays for duders
-        // var intersections = turtlesUI.castRay(eventCoords[0].x, eventCoords[0].y);
-        // Log.debug('onMouseUp intersections count', intersections.length);
-    }
-=======
-	
-	World.createBuilding(eventCoords[0].x, eventCoords[0].y);
-	    
-    var intersections = turtlesUI.castRay(eventCoords[0].x, eventCoords[0].y);
-    Log.debug('onMouseUp intersections count', intersections.length);
->>>>>>> dev
+	World.createBuilding(worldCoords[0]);
     
     mouseIsDown = false;
     mouseDidMove = false;
@@ -399,112 +380,14 @@ var scene = turtlesUI.scene;
 var camera = turtlesUI.camera;
 
 var World = new Turtles.World();
-
-
-<<<<<<< HEAD
-function init(){
-	var gameIsDirty = true;
-	actors = new Array();
-	
-	//Init pWorld
-	var worldAABB = new b2AABB();
-	worldAABB.minVertex.Set(-1000, -1000);
-	worldAABB.maxVertex.Set(1000, 1000);
-	var gravity = new b2Vec2(0, -9.81);
-	var doSleep = true;
-	pWorld = new b2World(worldAABB, gravity, doSleep);
-	
-	//init ground
-	var groundShapeDef = new b2BoxDef();
-	groundShapeDef.extents.Set(200, 10);
-	groundShapeDef.restitution = 1.0;
-	var groundBodyDef = new b2BodyDef();
-	groundBodyDef.AddShape(groundShapeDef);
-	groundBodyDef.position.Set(0, 0);
-	var groundBody = pWorld.CreateBody(groundBodyDef);
-    var groundActor = new Actor(groundBody);
-    actors.push(groundActor);
-    
-    var groundMesh = groundActor.mesh;
-    turtlesUI.addClickableObject(groundMesh);
-	
-	//init platter
-	var platterSd = new b2BoxDef();
-	platterSd.extents.Set(100, 10);
-	platterSd.density = 1.0;
-	var platterBd = new b2BodyDef();
-	platterBd.AddShape(platterSd);
-	platterBd.position.Set(0, 200);
-	var platterBody = pWorld.CreateBody(platterBd);
-    platterActor = new Actor(platterBody);
-	actors.push(platterActor);
-    
-    platterMesh = platterActor.mesh;
-    turtlesUI.addClickableObject(platterMesh);
-    
-    //init turtle
-	var turtleShapeDef = new b2CircleDef();
-	turtleShapeDef.radius = 50;
-	var turtleBodyDef = new b2BodyDef();
-	turtleBodyDef.AddShape(turtleShapeDef);
-	turtleBodyDef.position.Set(0, 100);
-	var turtleBody = pWorld.CreateBody(turtleBodyDef);
-    
-    var turtleActor = new Actor(turtleBody);
-	actors.push(turtleActor);
-    
-    turtlesUI.addClickableObject(turtleActor.mesh);
-}
-
-function update()
-{
-	//update physics
-	var stepping = false;
-	pWorld.Step(1.0/60.0, 1);
-	
-	//update graphics
-	var actorLen = actors.length;
-	var i;
-    for (i = 0; i < actorLen; i++)
-    {
-		var actor = actors[i];
-		actor.update();
-	}
-}
-
-function animate()
-{
-    requestAnimationFrame(animate);
-    update();
-	turtlesUI.draw();
-    stats.update();
-};
-=======
-function animate() {
-	requestAnimationFrame(animate);
-	turtlesUI.draw();
-	stats.update();
-	World.update();
-}
-
 World.init();
 
->>>>>>> dev
+
+function animate() {
+	requestAnimationFrame(animate);
+    World.update();
+    turtlesUI.draw();
+	stats.update();
+}
 
 animate();
-
-var building = new Turtles.Building();
-var person = new Turtles.Person();
-building.build(person);
-for (var i = 0; i < 1000; i++) {
-    building.update(1000.0 / 60.0);
-}
-
-building.build(person);
-for (var i = 0; i < 1000; i++) {
-    building.update(1000.0 / 60.0);
-}
-building.build(person);
-for (var i = 0; i < 1000; i++) {
-    building.update(1000.0 / 60.0);
-}

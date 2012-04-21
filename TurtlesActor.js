@@ -3,7 +3,7 @@
 var Log = Log || {};
 var Turtles = Turtles || {};
 
-function geometryFromShape(shape)
+Turtles.geometryFromShape = function(shape)
 {
     var shapeGeometry = null;
     switch (shape.m_type)
@@ -43,11 +43,10 @@ function geometryFromShape(shape)
 }
 
 //An actor binds a body to a mesh, and handles updating the mesh with the position of the shape.
-<<<<<<< HEAD
 Turtles.meshFromBody = function(body)
 {
     var shape = body.GetShapeList();
-    var meshGeometry = geometryFromShape(shape);
+    var meshGeometry = Turtles.geometryFromShape(shape);
     var meshMaterial = new THREE.MeshBasicMaterial({color:0xff0000});
     var mesh = new THREE.Mesh(meshGeometry, meshMaterial);
     return mesh;
@@ -69,13 +68,12 @@ Actor.prototype =
 	
 	update : function ()
 	{
-<<<<<<< HEAD
 		var pos = this.body.m_position;
 		this.mesh.position.x = pos.x;
 		this.mesh.position.y = pos.y;
         
         this.mesh.rotation.z = this.body.m_rotation;
-=======
+
         if (this.gameEntity.isPhysicsSimulated) {
             var pos = this.gameEntity.body.m_position;
             this.gameEntity.mesh.position.x = pos.x;
@@ -84,6 +82,5 @@ Actor.prototype =
             this.gameEntity.mesh.position.x = this.x;
             this.gameEntity.mesh.position.y = this.y;
         }
->>>>>>> dev
 	}
 };

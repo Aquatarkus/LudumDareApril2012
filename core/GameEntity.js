@@ -1,5 +1,54 @@
-
 // shape = "BOX" | "CIRCLE"
+
+Turtles.geometryFromShape = function(shape)
+{
+    var shapeGeometry = null;
+    switch (shape.m_type)
+    {
+        case b2Shape.e_circleShape:
+            {
+                var circle = shape;
+                var pos = circle.m_position;
+                var r = circle.m_radius;
+                var segments = 5;
+                
+                shapeGeometry = new THREE.SphereGeometry(r, segments, segments);
+            }
+            break;
+        case b2Shape.e_boxShape:
+            {
+                var box = shape;
+                var extents = box.extents;
+                var depth = 20;
+                shapeGeometry = new THREE.CubeGeometry(extents.x, extents.y, depth);
+            }
+            break;
+        case b2Shape.e_polyShape:
+            {
+                var poly = shape;
+                var extents = poly.m_localOBB.extents;
+                var depth = 20;
+                shapeGeometry = new THREE.CubeGeometry(2*extents.x, 2*extents.y, depth);
+            }
+            break;
+        default:
+            {
+                Log.debug('invalid shape type', shape.m_type);
+            }
+	}
+    
+    return shapeGeometry;
+}
+
+//An actor binds a body to a mesh, and handles updating the mesh with the position of the shape.
+Turtles.meshFromBody = function(body, hexColor)
+{
+    var shape = body.GetShapeList();
+    var meshGeometry = Turtles.geometryFromShape(shape);
+    var meshMaterial = new THREE.MeshBasicMaterial({color:hexColor, wireframe:true});
+    var mesh = new THREE.Mesh(meshGeometry, meshMaterial);
+    return mesh;
+}
 
 Turtles.GameEntity = function() {
     this.isPhysicsSimulated = true,
@@ -21,78 +70,50 @@ Turtles.GameEntity.prototype = {
     textureUri: ''
 };
 
-
-
 Turtles.GameEntity.prototype.init = function() {
-    this._createMesh();
     this._createPhysicsBody();
-    this._createActor();
-};
-
-Turtles.GameEntity.prototype.updateActor = function(timeElapsed) {
-    this.actor.update(timeElapsed);
+    this._createMesh();
 };
 
 Turtles.GameEntity.prototype.update = function(timeElapsed) {
-    this.updateActor(timeElapsed);
+    var pos = this.physicsBody.m_position;
+    this.mesh.position.x = pos.x;
+    this.mesh.position.y = pos.y;
+    
+    this.mesh.rotation.z = this.physicsBody.m_rotation;
 };
 
-Turtles.GameEntity.prototype._createActor = function() {
-    this.actor = new Actor(this);
+Turtles.GameEntity.prototype._createMesh = function(){
     
-    return this.actor;
-};
-
-
-Turtles.GameEntity.prototype._createMesh = function() {
-    var geometry = null;
+    this.mesh = Turtles.meshFromBody(this.physicsBody, this.color);
     
-    switch (this.shape) {
-        case "CIRCLE":
-            geometry = new THREE.SphereGeometry(50.0, 20.0, 20.0);
-            break;
-        case "BOX":
-            geometry = new THREE.CubeGeometry(200, 10, 200);
-            break;
-        default:
-            alert("Invalid geometry '" + this.shape + "'");
-            break;
-    }
-    
-    var material = new THREE.MeshBasicMaterial({color: this.color });
-    this.mesh = new THREE.Mesh(geometry, material);
-    this.mesh.position.set(0, 50, 0);
     turtlesUI.addClickableObject(this.mesh);
     
     return this.mesh;
 };
 
-
 Turtles.GameEntity.prototype._createPhysicsBody = function() {
-    if (!this.isPhysicsSimulated) {
-        return null;
-    }
     
-    var physicsObj = null;
-    if (this.isPhysicsSimulated) {
-        switch(this.shape) {
-            case "BOX":
-                physicsObj = new b2BoxDef();
-                physicsObj.extents.Set(this.width, this.height);
-                physicsObj.density = this.density;
-                break;
-            case "CIRCLE":
-                alert("Not implemented '" + this.shape + "'.");
-                break;
-            default:
-                alert("Unknown entity type '" + this.shape + "'.");
-                break;
-        }
-        this.physicsBodyDef = new b2BodyDef();
-        this.physicsBodyDef.AddShape(physicsObj);
-        this.physicsBodyDef.position.Set(this.x, this.y);
-        this.physicsBody = World.pWorld.CreateBody(this.physicsBodyDef);
+    var physicsShapeDef = null;
+    switch(this.shape) {
+        case "BOX":
+            physicsShapeDef = new b2BoxDef();
+            physicsShapeDef.extents.Set(this.width, this.height);
+            physicsShapeDef.density = this.density;
+            break;
+        case "CIRCLE":
+            physicsShapeDef = new b2CircleDef();
+            physicsShapeDef.radius = this.width/2;
+            physicsShapeDef.density = this.density;
+            break;
+        default:
+            alert("Unknown entity type '" + this.shape + "'.");
+            break;
     }
+    this.physicsBodyDef = new b2BodyDef();
+    this.physicsBodyDef.AddShape(physicsShapeDef);
+    this.physicsBodyDef.position.Set(this.x, this.y);
+    this.physicsBody = World.pWorld.CreateBody(this.physicsBodyDef);
     
     return this.physicsBody;
 };
