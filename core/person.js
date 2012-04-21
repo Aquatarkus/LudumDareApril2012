@@ -27,12 +27,12 @@ Assumes:
 	Turtles.World
 		.energyDrainRate : float
 		.isOnTerrain(b2Vec2) : RETURN bool
-		.getClosestUnoccupiedBuilding(platePosition) : RETURN Turtles.Building
-		.getBuildPosition() : RETURN platePosition
+		.getClosestUnoccupiedBuilding(platterPosition) : RETURN Turtles.Building
+		.getBuildPosition() : RETURN platterPosition
 		.initBuilding(Turtles.Person) : RETURN Turtles.Building
 	Turtles.Building
 		.occupier : reference to Turtles.Person, or null if unoccupied (reference to Person, or null if no occupier)
-		.platePosition
+		.platterPosition
 		.buildStartAtTime
 		.isBuilt
 		.occupy(Turtles.Person) : Has person occupy building
@@ -41,20 +41,29 @@ Assumes:
 
 
 
-Turtles.Person = function(box2dObj) {
-	Turtles.GameEntity.call(box2dObj);
+Turtles.Person = function() {
 	var self = this;
-	self.platePosition = platePosition;
+	
+	this.isPhysicsSimulated = false,
+	this.density = 1.0;
+	this.width = 0.07;
+	this.length = 0.1;
+	this.shape = "CIRCLE";
+	this.color = 0xffffff;
+	this.alpha = 0;
+	
+	self.platterPosition = 0;
 	self.moveSpeed = 5.0;
 	self.maxEnergy = 5.0;
 	self.energy = 5.0;
 	self.state = "IDLE";
-	self.goalPosition = platePosition;
+	self.goalPlatterPosition = 0;
 	self.goalObject = null;
 };
 
 Turtles.Person.prototype = new Turtles.GameEntity();
 
+Turtles.Person.prototype.constructor = Turtles.Person;
 
 Turtles.Person.prototype.buildComplete = function(building) {
 	self.state = "IDLE";
@@ -80,17 +89,17 @@ Turtles.Person.prototype.update = function(deltaMs) {
 		case "IDLE":
 			if (self.energy <= 0) {
 				self.state = "MOVE_TO_SLEEP";
-				var building = World.getClosestUnoccupiedBuilding(self.platePosition);
+				var building = World.getClosestUnoccupiedBuilding(self.platterPosition);
 			
-				self.goalPosition = building.platePosition;
+				self.goalPlatterPosition = building.platterPosition;
 				self.goalObject = building;
 			} else {
 				self.state = "MOVE_TO_BUILD_SITE";
-				self.goalPosition = World.getBuildPosition();
+				self.goalPlatterPosition = World.getBuildPosition();
 			}
 			break;
 		case "MOVE_TO_BUILD_SITE":
-			if (self.platePosition == self.goalPosition) {
+			if (self.platterPosition == self.goalPlatterPosition) {
 				var building = World.initBuilding(self);
 				self.goalObject = building;
 				self.state = "BUILD";
@@ -99,7 +108,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
 		case "BUILD":
 			break;
 		case "MOVE_TO_SLEEP":
-			if (self.platePosition == self.goalPosition) {
+			if (self.platterPosition == self.goalPlatterPosition) {
 				self.goalObject.occupy(self);
 				self.state = "SLEEP";
 			}

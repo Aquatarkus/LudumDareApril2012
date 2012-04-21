@@ -15,7 +15,7 @@
 		- level (increases by upgrade)
 		- energyChargeRate (increases by upgrade)
 		
-		- platePosition
+		- platterPosition
 		- shape
 		- buildStartAtTime
 		- isBuilt
@@ -28,12 +28,12 @@ Turtles.Building = function(box2dObj) {
     Turtles.GameEntity.call(box2dObj);
 
     var self = this;
-	self.platePosition = 0;
+	self.platterPosition = 0;
 	// Build properties
 	self.builder = null;
 	self.buildCompleteOn = 0;
 	self.isBuilt = false;
-	self.level = 1.0;
+	self.level = 0;
 	self.buildTimeElapsed = 0;
 	
 	// Occupency properties
@@ -79,7 +79,9 @@ Turtles.Building.prototype.update = function(timeElapsedInMs) {
 };
 
 Turtles.Building.prototype.levelUp = function() {
-	self.builder.buildComplete(self);
+	if (self.builder) {
+		self.builder.buildComplete(self);
+	}
 	self.isBuilt = true;
 	self.level++;
 	// $HACK - For now, perform simple additive leveling up.  We can customize this later.

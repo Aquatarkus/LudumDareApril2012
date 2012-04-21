@@ -69,10 +69,32 @@ Turtles.World.prototype = {
         return true;
     },
     
-	createObject:function(x, y) {
-		//$TODO
+	createBuilding:function(x, y) {
+		var newBuilding = new Turtles.Building();
+		
+		newBuilding.x = x;
+		newBuilding.y = y;
+		//$TODO Need method to get plate position from xy global coords
+		//newBuilding.platterPosition = PhysicsEngine.GetPlatterPosition(x, y);
+		newBuilding.levelUp();
+		
+		self.buildings.push(newBuilding);
+		
+		return newBuilding;
 	},
 	
+	createPerson: function(x, y) {
+		var newPerson = new Turtles.Person();
+		
+		newPerson.x = x;
+		newPerson.y = y;
+		//$TODO Need method to get plate position from xy global coords
+		//newBuilding.platterPosition = PhysicsEngine.GetPlatterPosition(x, y);
+		
+		self.people.push(newPerson);
+		
+		return newPerson;
+	},
 	
 	// Checks whether the given actor is actually on the terrain, or whether they're
 	// flipping wildly through the air.  
