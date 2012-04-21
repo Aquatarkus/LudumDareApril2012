@@ -49,7 +49,7 @@ Turtles.GameEntity.prototype._createMesh = function() {
     
     switch (this.shape) {
         case "BOX":
-            geometry = new THREE.SphereGeometry(50.0, 20.0, 20.0);
+            geometry = new THREE.SphereGeometry(50.0, 10.0, 10.0);
             break;
         case "CIRCLE":
             geometry = new THREE.CubeGeometry(200, 10, 200);
