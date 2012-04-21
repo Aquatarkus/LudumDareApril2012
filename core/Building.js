@@ -97,7 +97,9 @@ Turtles.Building.prototype.update = function(timeElapsedInMs) {
 
 Turtles.Building.prototype.levelUp = function() {
     // building complete; builder leaves
-    this.builder.buildComplete(self);
+    if (this.builder) {
+        this.builder.buildComplete(self);
+    }
 	this.isBuilt = true;
 	this.level++;
 
