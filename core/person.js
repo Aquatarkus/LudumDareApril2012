@@ -124,4 +124,3 @@ Turtles.Person.prototype.update = function(deltaMs) {
 			break;
 	}
 };
-

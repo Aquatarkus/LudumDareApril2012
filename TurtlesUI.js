@@ -322,18 +322,22 @@ stats.domElement.style.top = '0px';
 TurtlesElement.appendChild( stats.domElement );
 
 // turtle
+/*
 var turtleGeometry = new THREE.SphereGeometry(50.0, 20.0, 20.0);
 var turtleMaterial = new THREE.MeshBasicMaterial({color:0x00ff00});
 var turtleMesh = new THREE.Mesh(turtleGeometry, turtleMaterial);
 turtleMesh.position.set(0,0,0);
 turtlesUI.addClickableObject(turtleMesh);
+*/
 
 // platter
+/*
 var platterGeometry = new THREE.CubeGeometry(200, 10, 200)
 var platterMaterial = new THREE.MeshBasicMaterial({color:0x7f3f1f});
 var platterMesh = new THREE.Mesh(platterGeometry, platterMaterial);
 platterMesh.position.set(0, 50, 0);
 turtlesUI.addClickableObject(platterMesh);
+*/
 
 // light
 var ambientLight = new THREE.AmbientLight(0x7f7f7f);
