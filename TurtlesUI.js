@@ -1,3 +1,4 @@
+
 // TurtlesUI.js
 // LudumDare420
 
@@ -374,3 +375,11 @@ World.init();
 
 
 animate();
+
+
+var building = new Turtles.Building();
+var person = new Turtles.Person();
+building.build(person);
+for (var i = 0; i < 1000; i++) {
+    building.update(1000.0 / 60.0);
+}
