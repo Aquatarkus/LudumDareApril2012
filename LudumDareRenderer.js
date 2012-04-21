@@ -36,23 +36,21 @@ var Log =
     }
 };
 
-var gameIsDirty = true;
-
-// game renderer
-var gameRenderer = new THREE.WebGLRenderer();
-gameRenderer.setSize(window.innerWidth, window.innerHeight);
-gameElement.appendChild(gameRenderer.domElement);
-
+var gameCamera = new THREE.PerspectiveCamera(gameFoV, gameAR, 10, 1000);
 // game camera
 var gameFoV = 70;
 var gameAR = window.innerWidth / window.innerHeight;
-var gameCamera = new THREE.PerspectiveCamera(gameFoV, gameAR, 10, 1000);
 var gameCameraRadius = 200;
 var gameCameraTheta = 0.1;
 var gameCameraPhi = 0.1;
 var gameThetaRotateFactor = 0.01, gamePhiRotateFactor = 0.01;
 var gameCameraThetaRotateFactor = 0.01, gameCameraPhiRotateFactor = 0.01;
 gameCamera.lookAt(new THREE.Vector3(0,0,0));
+
+// game renderer
+var gameRenderer = new THREE.WebGLRenderer();
+gameRenderer.setSize(window.innerWidth, window.innerHeight);
+gameElement.appendChild(gameRenderer.domElement);
 
 // game scene
 var gameScene = new THREE.Scene();
@@ -96,6 +94,42 @@ planeObject.rotation.z = 0;
 gameScene.add( planeObject );
 var gameCameraTarget = planeObject;
 
+var actors;
+var pWorld;
+
+function init(){
+	var gameIsDirty = true;
+	actors = new Array();
+	
+	//Init pWorld
+	var worldAABB = new b2AABB();
+	worldAABB.minVertex.Set(-1000, -1000);
+	worldAABB.maxVertex.Set(1000, 1000);
+	var gravity = new b2Vec2(0, 300);
+	var doSleep = true;
+	pWorld = new b2World(worldAABB, gravity, doSleep);
+	
+	//init ground
+	var groundSd = new b2BoxDef();
+	groundSd.extents.Set(2000, 10);
+	groundSd.restitution = 0.2;
+	var groundBd = new b2BodyDef();
+	groundBd.AddShape(groundSd);
+	groundBd.position.Set(-1000, 500);
+	pWorld.CreateBody(groundBd);
+	
+	//init platter
+	var platterSd = new b2BoxDef();
+	platterSd.extents.Set(1000, 50);
+	platterSd.density = 1.0;
+	var platterBd = new b2BodyDef();
+	platterBd.AddShape(platterSd);
+	platterBd.position.Set(-500, 100);
+	var platterBody = pWorld.CreateBody(platterBd);
+	actors.push(new Actor(platterBody, platterMesh));
+}
+
+
 // Game Camera Controls
 function updateGameCamera()
 {
@@ -125,11 +159,19 @@ function rotateGameCamera(xCoord, yCoord)
     updateGameCamera();
 }
 
-updateGameCamera();
-
 function update()
 {
-    
+	//update physics
+	var stepping = false;
+	pWorld.Step(1.0/60.0, 1);
+	
+	//update graphics
+	var actorLen = actors.length;
+	var i;
+    for (i = 0; i < actorLen; i++){
+		var actor = actors[i];
+		actor.update();
+	}
 }
 
 function animate()
@@ -140,4 +182,6 @@ function animate()
     stats.update();
 };
 
+init();
 animate();
+updateGameCamera();
