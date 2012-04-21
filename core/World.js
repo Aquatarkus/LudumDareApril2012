@@ -23,8 +23,42 @@ Turtles.World = function() {
 	
 	// How long it takes, in ms, for a single unit of energy to be drained from a person.
     self.energyDrainRate : 500;
-
+	
+	self.pWorld = null;
 };
+
+Turtles.World.prototype.init = function(){
+	var gameIsDirty = true;
+	self.actors = new Array();
+	
+	//Init pWorld
+	var worldAABB = new b2AABB();
+	worldAABB.minVertex.Set(-1000, -1000);
+	worldAABB.maxVertex.Set(1000, 1000);
+	var gravity = new b2Vec2(0, 300);
+	var doSleep = true;
+	self.pWorld = new b2World(worldAABB, gravity, doSleep);
+	
+	//init ground
+	var groundSd = new b2BoxDef();
+	groundSd.extents.Set(2000, 10);
+	groundSd.restitution = 0.2;
+	var groundBd = new b2BodyDef();
+	groundBd.AddShape(groundSd);
+	groundBd.position.Set(-1000, 500);
+	self.pWorld.CreateBody(groundBd);
+	
+	//init platter
+	var platterSd = new b2BoxDef();
+	platterSd.extents.Set(1000, 50);
+	platterSd.density = 1.0;
+	var platterBd = new b2BodyDef();
+	platterBd.AddShape(platterSd);
+	platterBd.position.Set(-500, 100);
+	var platterBody = self.pWorld.CreateBody(platterBd);
+	self.actors.push(new Actor(platterBody, platterMesh));
+};
+
 
 Turtles.World.prototype = {
     constructor: Turtles.World,
@@ -123,6 +157,10 @@ Turtles.World.prototype = {
     },
 
     update: function() {
+		//update physics
+		var stepping = false;
+		self.pWorld.Step(1.0/60.0, 1);
+	
         this.platter.update(stepLength);
         
         // people
@@ -146,4 +184,12 @@ Turtles.World.prototype = {
         }
     }
 
+	
+	animate: function() {
+		requestAnimationFrame(animate);
+		turtlesUI.draw();
+		stats.update();
+		update();
+	};
+	
 };

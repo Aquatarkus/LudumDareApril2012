@@ -25,7 +25,7 @@
 
 
 Turtles.Building = function(box2dObj) {
-    Turtles.Actor.call(box2dObj);
+    Turtles.GameEntity.call(box2dObj);
 
     var self = this;
 	self.platePosition = 0;
@@ -47,7 +47,7 @@ Turtles.Building = function(box2dObj) {
 	self.mass = 1.0;
 };
 
-Turtles.Building.prototype = new Turtles.Actor();
+Turtles.Building.prototype = new Turtles.GameEntity();
 
 Turtles.Building.prototype.occupy = function(person) {
 	self.occupiers.push(person);

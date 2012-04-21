@@ -42,7 +42,7 @@ Assumes:
 
 
 var Turtles.Person = function(box2dObj) {
-	Turtles.Actor.call(box2dObj);
+	Turtles.GameEntity.call(box2dObj);
 	var self = this;
 	self.platePosition = platePosition;
 	self.moveSpeed = 5.0;
@@ -53,7 +53,7 @@ var Turtles.Person = function(box2dObj) {
 	self.goalObject = null;
 };
 
-Turtles.Person.prototype = new Turtles.Actor();
+Turtles.Person.prototype = new Turtles.GameEntity();
 
 
 Turtles.Person.prototype.buildComplete = function(building) {
