@@ -36,16 +36,16 @@ Assumes:
 		.platePosition
 		.buildStartAtTime
 		.isBuilt
-		.occupy(Turtles.Position) : Has person occupy building
-		.unoccupy() : Removes occupier
+		.occupy(Turtles.Person) : Has person occupy building
+		.unoccupy(Turtles.Person) : Removes given occupier
 */
 
 
 
-var Turtles.Person = function(platePosition) {
+var Turtles.Person = function(box2dObj) {
+	Turtles.Actor.call(box2dObj);
 	var self = this;
 	self.platePosition = platePosition;
-	self.shape = shape;
 	self.moveSpeed = 5.0;
 	self.maxEnergy = 5.0;
 	self.energy = 5.0;
@@ -54,60 +54,66 @@ var Turtles.Person = function(platePosition) {
 	self.goalObject = null;
 };
 
-Turtles.Person.prototype = {
-	update: function(deltaMs) {
-		// Check for panic/exiting panic.
-		if (Turtles.World.isOnTerrain(self.shape.GetPosition())) {
-			if (self.state == "PANIC") {
+Turtles.Person.prototype = new Turtles.Actor();
+
+
+Turtles.Person.prototype.buildComplete = function(building) {
+	self.state = "IDLE";
+	self.goalObject = null;
+};
+
+Turtles.Person.prototype.update = function(deltaMs) {
+	// Check for panic/exiting panic.
+	if (Turtles.World.isOnTerrain(self)) {
+		if (self.state == "PANIC") {
+			self.state = "IDLE";
+		}
+	} else {
+		self.state = "PANIC";
+	}
+	
+	// Update energy.
+	if (self.state != SLEEP) {
+		self.energy -=  Turtles.World.energyDrainRate * deltaMs;
+	}
+
+	switch(self.state) {
+		case "IDLE":
+			if (self.energy <= 0) {
+				self.state = "MOVE_TO_SLEEP";
+				var building = Turtles.World.getClosestUnoccupiedBuilding(self.platePosition);
+			
+				self.goalPosition = building.platePosition;
+				self.goalObject = building;
+			} else {
+				self.state = "MOVE_TO_BUILD_SITE";
+				self.goalPosition = Turtles.World.getBuildPosition();
+			}
+			break;
+		case "MOVE_TO_BUILD_SITE":
+			if (self.platePosition == self.goalPosition) {
+				var building = Turtles.World.initBuilding(self);
+				self.goalObject = building;
+				self.state = "BUILD";
+			}
+			break;
+		case "BUILD":
+			break;
+		case "MOVE_TO_SLEEP":
+			if (self.platePosition == self.goalPosition) {
+				self.goalObject.occupy(self);
+				self.state = "SLEEP";
+			}
+			break;
+		case "SLEEP":
+			self.energy +=  self.goalObject.energyChargeRate * deltaMs;
+			if (self.energy >= self.maxEnergy) {
+				self.goalObject.unoccupy(this);
 				self.state = "IDLE";
 			}
-		} else {
-			self.state = "PANIC";
-		}
-		
-		// Update energy.
-		if (self.state != SLEEP) {
-			self.energy -=  Turtles.World.energyDrainRate * deltaMs;
-		}
-	
-		switch(self.state) {
-			case "IDLE":
-				if (self.energy <= 0) {
-					self.state = "MOVE_TO_SLEEP";
-					var building = Turtles.World.getClosestUnoccupiedBuilding(self.platePosition);
-				
-					self.goalPosition = building.platePosition;
-					self.goalObject = building;
-				} else {
-					self.state = "MOVE_TO_BUILD_SITE";
-					self.goalPosition = Turtles.World.getBuildPosition();
-				}
-				break;
-			case "MOVE_TO_BUILD_SITE":
-				if (self.platePosition == self.goalPosition) {
-					var building = Turtles.World.initBuilding(self);
-					self.goalObject = building;
-					self.state = "BUILD";
-				}
-				break;
-			case "BUILD":
-				break;
-			case "MOVE_TO_SLEEP":
-				if (self.platePosition == self.goalPosition) {
-					self.goalObject.occupy(self);
-					self.state = "SLEEP";
-				}
-				break;
-			case "SLEEP":
-				self.energy +=  Turtles.World.energyDrainRate * deltaMs;
-				if (self.energy >= self.maxEnergy) {
-					self.goalObject.unoccupy();
-					self.state = "IDLE";
-				}
-				break;
-			case "PANIC":
-				break;
-		}
+			break;
+		case "PANIC":
+			break;
 	}
 };
 
