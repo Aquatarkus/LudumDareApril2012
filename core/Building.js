@@ -5,11 +5,13 @@ Turtles.Building = function(box2dObj) {
     this.people = [];
 
     this.update = function(stepTime) {
+        alert('building upd');
         console.log('updating building');
     };
 };
 
 Turtles.Building.prototype = new Turtles.Actor();
+Turtles.Building.prototype.constructor = Turtles.Building;
 
 Turtles.BuildingStates = {
     Constructing: 'Constructing',

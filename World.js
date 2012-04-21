@@ -8,6 +8,13 @@ Turtles.World.prototype = {
     // for update/render calls
     stepLength: 1000.0 / 60.0,
 
+    energyDrainRate: 0.01,
+
+    isOnTerrain: function(position) {
+        // todo
+        return true;
+    },
+    
     gravity: 0.098,
 
     people: [],
