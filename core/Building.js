@@ -15,7 +15,7 @@
 		- level (increases by upgrade)
 		- energyChargeRate (increases by upgrade)
 		
-		- platePosition
+		- platterPosition
 		- shape
 		- buildStartAtTime
 		- isBuilt
@@ -28,12 +28,11 @@ Turtles.Building = function() {
     Turtles.GameEntity.call(this);
 
     var self = this;
-	self.platePosition = 0;
+	self.platterPosition = 0;
 	// Build properties
 	self.builder = null;
-	self.buildCompleteOn = 0;
 	self.isBuilt = false;
-	self.level = 1.0;
+	self.level = 0;
 	self.buildTimeElapsed = 0;
     
 	// Occupency properties
@@ -45,6 +44,7 @@ Turtles.Building = function() {
 
     // Custom physics properties
     self.densityPerFloor = 1.0;
+    self.lengthPerFloor = 1.0;
 
 	// GameEntity properties
 	self.density = 1.0;
@@ -58,65 +58,67 @@ Turtles.Building = function() {
 };
 
 Turtles.Building.prototype = new Turtles.GameEntity();
+Turtles.Building.prototype.constructor = Turtles.Building;
+
 
 Turtles.Building.prototype.occupy = function(person) {
-    self.occupiers.push(person);
+    this.occupiers.push(person);
 };
 
 Turtles.Building.prototype.hasVacancy = function() {
-    return self.occupiers.length < self.maxOccupancy;
+    return this.occupiers.length < this.maxOccupancy;
 };
 
 Turtles.Building.prototype.unoccupy = function(person) {
-	var index = self.occupiers.indexOf(person);
+	var index = this.occupiers.indexOf(person);
 	if (index > -1) {
-		self.occupiers.splice(index, 1);
+		this.occupiers.splice(index, 1);
 	}
 };
 
 Turtles.Building.prototype.build = function(person) {
-    self.occupiers.add(person);
-    self.builder = person;
-	self.buildTimeElapsed = 0;
-	self.buildCompleteOn = self.level * World.buildTimePerLevel;
-    self.level = 1;
-    self.isBuilt = false;
+    this.occupiers.push(person);
+    this.builder = person;
+	this.buildTimeElapsed = 0;
+    this.level = 1;
+    this.isBuilt = false;
 };
 
 Turtles.Building.prototype.update = function(timeElapsedInMs) {
-	if (!self.isBuilt) {
-		self.buildTimeElapsed += timeElapsedInMs;
+	if (!this.isBuilt) {
+		this.buildTimeElapsed += timeElapsedInMs;
 		
 		// Check if building is complete.
-		if (self.buildTimeElapsed >= self.buildCompleteOn) {
-			self.levelUp();
+		if (this.buildTimeElapsed >= World.buildTimePerLevel) {
+			this.levelUp();
 		}
 	}
 };
 
 Turtles.Building.prototype.levelUp = function() {
     // building complete; builder leaves
-    self.builder.buildComplete(self);
-	self.isBuilt = true;
-	self.level++;
+    this.builder.buildComplete(self);
+	this.isBuilt = true;
+	this.level++;
 
     // after the first level, occupancy grows by two
-    if (self.level == 1) {
-        self.maxOccupancy += 2;
+    if (this.level != 1) {
+        this.maxOccupancy += 2;
     } else {
-        self.maxOccupancy++;
+        this.maxOccupancy++;
     }
 
-	self.energyChargeRate++;
+	this.energyChargeRate++;
 
-    self.density += self.densityPerFloor;
+    this.density += this.densityPerFloor;
+    this.length += this.lengthPerFloor;
 
-	self.builder = null;
+	this.builder = null;
 };
 
 Turtles.Building.prototype.spawnPerson = function() {
-    var person = World.createPerson(self.x, self.y);
+    var person = World.createPerson(this.x, this.y);
     person.state = 'SLEEP';
     person.energy = 0.0;
-    self.occupiers.push(person);
+    this.occupiers.push(person);
 };

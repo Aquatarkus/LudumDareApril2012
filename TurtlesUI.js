@@ -254,7 +254,9 @@ function onMouseUp(event)
     event.preventDefault();
     var eventCoords = getEventCoords(event);
     Log.event('onMouseUp', eventCoords);
-    
+	
+	World.createBuilding(eventCoords[0].x, eventCoords[0].y);
+	    
     var intersections = turtlesUI.castRay(eventCoords[0].x, eventCoords[0].y);
     Log.debug('onMouseUp intersections count', intersections.length);
     
@@ -376,9 +378,17 @@ World.init();
 
 animate();
 
-
 var building = new Turtles.Building();
 var person = new Turtles.Person();
+building.build(person);
+for (var i = 0; i < 1000; i++) {
+    building.update(1000.0 / 60.0);
+}
+
+building.build(person);
+for (var i = 0; i < 1000; i++) {
+    building.update(1000.0 / 60.0);
+}
 building.build(person);
 for (var i = 0; i < 1000; i++) {
     building.update(1000.0 / 60.0);

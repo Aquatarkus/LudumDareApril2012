@@ -3,7 +3,7 @@
 
 Turtles.GameEntity = function() {
     this.isPhysicsSimulated = true,
-	this.mass = 1.0;
+	this.density = 1.0;
 	this.width = 1.0;
 	this.length = 1.0;
 	this.shape = "BOX";
