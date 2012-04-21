@@ -62,7 +62,7 @@ Turtles.Building.prototype.unoccupy = function(person) {
 Turtles.Building.prototype.build = function(person) {
 	self.builder = person;
 	self.buildTimeElapsed = 0;
-	self.buildCompleteOn = self.level * World.buildTimePerLevel;
+	self.buildCompleteOn = self.level * Turtles.World.buildTimePerLevel;
 	self.isBuilt = false;
 };
 

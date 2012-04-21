@@ -26,7 +26,6 @@ STATES:
 Assumes:
 	Turtles.World
 		.energyDrainRate : float
-		.buildRate : float
 		.isOnTerrain(b2Vec2) : RETURN bool
 		.getClosestUnoccupiedBuilding(platePosition) : RETURN Turtles.Building
 		.getBuildPosition() : RETURN platePosition
