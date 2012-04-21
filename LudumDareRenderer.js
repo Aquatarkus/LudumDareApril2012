@@ -66,7 +66,7 @@ LudumDareElement.appendChild( stats.domElement );
 
 // tiny world
 var tinyWorldGeometry = new THREE.SphereGeometry(50.0, 50, 50);
-var tinyWorldMaterial = new THREE.MeshBasicMaterial({color:0xff0000, opacity: 1.0, wireframe:true});
+var tinyWorldMaterial = new THREE.MeshBasicMaterial({color:0x00ff00, opacity: 1.0, wireframe:true});
 var tinyWorldMesh = new THREE.Mesh(tinyWorldGeometry, tinyWorldMaterial);
 tinyWorldMesh.position.set(0,0,0);
 gameScene.add(tinyWorldMesh);
