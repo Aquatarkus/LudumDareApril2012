@@ -1,21 +1,21 @@
 Turtles.World = function() {
-    turtle = new Turtles.Turtle();
-    platter = new Turtles.Platter();
+    this.turtle = new Turtles.Turtle();
+    this.platter = new Turtles.Platter();
 
     this.gravity = 0.098;
 
     // for update/render calls
     stepLength = 1000.0 / 60.0;
 
-    people = [];
+    this.people = [];
 
-    buildings = [];
+    this.buildings = [];
 
     // effects placed by the player
-    effects = [];
+    this.effects = [];
 
     // physics objects (no AI interaction)
-    actors = [];
+    this.actors = [];
 };
 
 Turtles.World.prototype = {
@@ -34,8 +34,7 @@ Turtles.World.prototype = {
     },
 
     update: function() {
-        alert(stepLength);
-        platter.update(stepLength);
+        this.platter.update(stepLength);
         
         // people
         for (var i in this.people) {

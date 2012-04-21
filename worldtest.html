@@ -1,0 +1,24 @@
+<html>
+<head>
+<script src="core/Turtles.js"></script>
+<script src="core/World.js"></script>
+<script src="core/Actor.js"></script>
+<script src="core/Building.js"></script>
+<script src="core/Effect.js"></script>
+<!--<script src="core/Person.js"></script>-->
+<script src="core/Platter.js"></script>
+<script src="core/Turtle.js"></script>
+</head>
+<body>
+</body>
+</html>
+<script>
+var world = new Turtles.World();
+alert(world.gravity);
+
+world.update();
+world.buildings.push(new Turtles.Building());
+world.update();
+world.update();
+
+</script>
