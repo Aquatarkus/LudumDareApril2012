@@ -9,6 +9,7 @@ var feedbackElement = document.getElementById('feedbackElement');
 var Stats = Stats || {};
 var THREE = THREE || {};
 var Turtles = Turtles || {};
+var World = World || {};
 
 var Log = 
 {
@@ -43,7 +44,6 @@ Turtles.UI = function(element, width, height, cameraHeight)
     this.cameraNear = -50;
     this.cameraFar = 50;
     this.cameraFrame = {x:0, y:0, width:1, height:cameraHeight};
-    this.cameraScale = 1;
     
     // ray casting
     this.projector = new THREE.Projector();
@@ -59,7 +59,7 @@ Turtles.UI = function(element, width, height, cameraHeight)
     this.scene.add(this.camera);
     
     // renderer
-    this.renderer = new THREE.CanvasRenderer();
+    this.renderer = new THREE.WebGLRenderer();
     
     this.resize(width, height);
     
@@ -119,8 +119,8 @@ Turtles.UI.prototype =
         // adjust the camera
         var frame = this.cameraFrame;
         var scale = this.cameraScale;
-        var scaledWidthHalf = scale * frame.width;
-        var scaledHeightHalf = scale * frame.height;
+        var scaledWidthHalf = frame.width/2;
+        var scaledHeightHalf = frame.height/2;
         
         var camera = this.camera;
         camera.left   = frame.x - scaledWidthHalf;
@@ -132,6 +132,26 @@ Turtles.UI.prototype =
         
         this.cameraIsDirty = true;
     },
+    getWorldCoords : function(eventCoords)
+    {
+        var worldCoords = [];
+        for (var i = 0; i < eventCoords.length; i++)
+        {
+            var coords = eventCoords[i];
+            xCoord = coords.x;
+            yCoord = coords.y;
+            // percent into the screen
+            var percentWidth = xCoord/this.width-0.5;
+            var percentHeight = 0.5-yCoord/this.height;
+            var cameraFrame = this.cameraFrame;
+            var cameraX = percentWidth  * cameraFrame.width + cameraFrame.x;
+            var cameraY = percentHeight * cameraFrame.height + cameraFrame.y;
+            Log.debug('percentWidth/Height', {width:percentWidth, height:percentHeight});
+            worldCoords.push({x:cameraX, y:cameraY});
+        }
+        Log.debug('getWorldCoords', worldCoords);
+        return worldCoords;
+    },
     draw : function()
     {
         if (this.cameraIsDirty)
@@ -140,10 +160,6 @@ Turtles.UI.prototype =
             this.cameraIsDirty = false;
         }
         this.renderer.render(this.scene, this.camera);
-    },
-    window2cameraCoords : function(xCoord, yCoord)
-    {
-
     },
     castRay : function(xCoord, yCoord)
     {
@@ -169,8 +185,8 @@ Turtles.UI.prototype =
     },
     scaleCamera : function(scaleFactor)
     {
-        this.cameraScale *= scaleFactor;
-        Log.debug('scaleCamera', {cameraScale: this.cameraScale});
+        this.cameraFrame.width *= scaleFactor;
+        this.cameraFrame.height *= scaleFactor;
         this.updateCamera();
     }
 };
@@ -179,6 +195,7 @@ var turtlesUI = new Turtles.UI(gameElement, window.innerWidth, window.innerHeigh
 
 var mouseIsDown = false;
 var touchIsDown = false;
+var mouseDidMove = false;
 var oldEventCoords = [];
 
 // register for window events
@@ -229,6 +246,7 @@ function onMouseDown(event)
     oldEventCoords = getEventCoords(event);
     Log.event('onMouseDown', oldEventCoords);
     mouseIsDown = true;
+    mouseDidMove = false;
 }
 
 function onMouseMove(event)
@@ -245,6 +263,7 @@ function onMouseMove(event)
         turtlesUI.moveCamera(deltaX, deltaY);
         
         oldEventCoords = eventCoords;
+        mouseDidMove = true;
     }
 }
 
@@ -253,12 +272,51 @@ function onMouseUp(event)
     event.preventDefault();
     var eventCoords = getEventCoords(event);
     Log.event('onMouseUp', eventCoords);
-    
-    var intersections = turtlesUI.castRay(eventCoords[0].x, eventCoords[0].y);
-    Log.debug('onMouseUp intersections count', intersections.length);
+    var worldCoords = turtlesUI.getWorldCoords(eventCoords);
+    if (true)
+    {
+        // spawn duder
+        var meteorPosition = worldCoords[0];
+        var meteorVelocity = {x:0, y:0};
+        spawnMeteor(meteorPosition, meteorVelocity);
+    }
+    else
+    {
+        // cast rays for duders
+        // var intersections = turtlesUI.castRay(eventCoords[0].x, eventCoords[0].y);
+        // Log.debug('onMouseUp intersections count', intersections.length);
+    }
     
     mouseIsDown = false;
+    mouseDidMove = false;
     oldEventCoords.length = 0;
+}
+
+// WorldObject
+// shape (box or circle)
+// position
+// length
+// width
+function spawnObject(worldObject)
+{
+
+}   
+
+function spawnMeteor(position, velocity)
+{
+    // spawn meteor
+    var meteorShapeDef = new b2CircleDef();
+    meteorShapeDef.radius = 5;
+    meteorShapeDef.density = 1.0;
+    var meteorBodyDef = new b2BodyDef();
+    meteorBodyDef.AddShape(meteorShapeDef);
+    meteorBodyDef.position.Set(position.x, position.y);
+    var meteorBody = pWorld.CreateBody(meteorBodyDef);
+    var meteorActor = new Actor(meteorBody);
+    actors.push(meteorActor);
+    
+    var meteorMesh = meteorActor.mesh;
+    turtlesUI.addClickableObject(meteorMesh);
 }
 
 function onTouchDown(event)
@@ -318,20 +376,6 @@ stats.domElement.style.position = 'absolute';
 stats.domElement.style.top = '0px';
 TurtlesElement.appendChild( stats.domElement );
 
-// turtle
-var turtleGeometry = new THREE.SphereGeometry(50.0, 20.0, 20.0);
-var turtleMaterial = new THREE.MeshBasicMaterial({color:0x00ff00});
-var turtleMesh = new THREE.Mesh(turtleGeometry, turtleMaterial);
-turtleMesh.position.set(0,0,0);
-turtlesUI.addClickableObject(turtleMesh);
-
-// platter
-var platterGeometry = new THREE.CubeGeometry(200, 10, 200)
-var platterMaterial = new THREE.MeshBasicMaterial({color:0x7f3f1f});
-var platterMesh = new THREE.Mesh(platterGeometry, platterMaterial);
-platterMesh.position.set(0, 50, 0);
-turtlesUI.addClickableObject(platterMesh);
-
 // light
 var ambientLight = new THREE.AmbientLight(0x7f7f7f);
 turtlesUI.addObject(ambientLight);
@@ -340,21 +384,6 @@ turtlesUI.addObject(ambientLight);
 var sunLight = new THREE.PointLight(0xffffff, 1);
 sunLight.position.set(-100, 200, 0);
 turtlesUI.addObject(sunLight);
-
-// plane
-var planeGeometry = new THREE.CubeGeometry( 500, 10, 500 );
-var planeMaterial = new THREE.MeshBasicMaterial({color:0xffffff});
-var planeObject = new THREE.Mesh(planeGeometry, planeMaterial);
-planeObject.position.x = 0;
-planeObject.position.y = 0;
-planeObject.position.z = 0;
-planeObject.scale.x = 1;
-planeObject.scale.y = 1;
-planeObject.scale.z = 1;
-planeObject.rotation.x = 0;
-planeObject.rotation.y = 0;
-planeObject.rotation.z = 0;
-turtlesUI.addObject( planeObject );
 
 var renderer = turtlesUI.renderer;
 var scene = turtlesUI.scene;
@@ -372,29 +401,52 @@ function init(){
 	var worldAABB = new b2AABB();
 	worldAABB.minVertex.Set(-1000, -1000);
 	worldAABB.maxVertex.Set(1000, 1000);
-	var gravity = new b2Vec2(0, 300);
+	var gravity = new b2Vec2(0, -9.81);
 	var doSleep = true;
 	pWorld = new b2World(worldAABB, gravity, doSleep);
 	
 	//init ground
-	var groundSd = new b2BoxDef();
-	groundSd.extents.Set(2000, 10);
-	groundSd.restitution = 0.2;
-	var groundBd = new b2BodyDef();
-	groundBd.AddShape(groundSd);
-	groundBd.position.Set(-1000, 500);
-	pWorld.CreateBody(groundBd);
+	var groundShapeDef = new b2BoxDef();
+	groundShapeDef.extents.Set(200, 10);
+	groundShapeDef.restitution = 1.0;
+	var groundBodyDef = new b2BodyDef();
+	groundBodyDef.AddShape(groundShapeDef);
+	groundBodyDef.position.Set(0, 0);
+	var groundBody = pWorld.CreateBody(groundBodyDef);
+    var groundActor = new Actor(groundBody);
+    actors.push(groundActor);
+    
+    var groundMesh = groundActor.mesh;
+    turtlesUI.addClickableObject(groundMesh);
 	
 	//init platter
 	var platterSd = new b2BoxDef();
-	platterSd.extents.Set(1000, 50);
+	platterSd.extents.Set(100, 10);
 	platterSd.density = 1.0;
 	var platterBd = new b2BodyDef();
 	platterBd.AddShape(platterSd);
-	platterBd.position.Set(-500, 100);
+	platterBd.position.Set(0, 200);
 	var platterBody = pWorld.CreateBody(platterBd);
-	actors.push(new Actor(platterBody, platterMesh));
+    platterActor = new Actor(platterBody);
+	actors.push(platterActor);
+    
+    platterMesh = platterActor.mesh;
+    turtlesUI.addClickableObject(platterMesh);
+    
+    //init turtle
+	var turtleShapeDef = new b2CircleDef();
+	turtleShapeDef.radius = 50;
+	var turtleBodyDef = new b2BodyDef();
+	turtleBodyDef.AddShape(turtleShapeDef);
+	turtleBodyDef.position.Set(0, 100);
+	var turtleBody = pWorld.CreateBody(turtleBodyDef);
+    
+    var turtleActor = new Actor(turtleBody);
+	actors.push(turtleActor);
+    
+    turtlesUI.addClickableObject(turtleActor.mesh);
 }
+
 function update()
 {
 	//update physics
@@ -404,7 +456,8 @@ function update()
 	//update graphics
 	var actorLen = actors.length;
 	var i;
-    for (i = 0; i < actorLen; i++){
+    for (i = 0; i < actorLen; i++)
+    {
 		var actor = actors[i];
 		actor.update();
 	}
@@ -413,9 +466,9 @@ function update()
 function animate()
 {
     requestAnimationFrame(animate);
+    update();
 	turtlesUI.draw();
     stats.update();
-	update();
 };
 
 init();
