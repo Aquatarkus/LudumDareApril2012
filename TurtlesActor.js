@@ -31,7 +31,7 @@ function geometryFromShape(shape)
                 var poly = shape;
                 var extents = poly.m_localOBB.extents;
                 var depth = 20;
-                shapeGeometry = new THREE.CubeGeometry(extents.x, extents.y, depth);
+                shapeGeometry = new THREE.CubeGeometry(2*extents.x, 2*extents.y, depth);
             }
         default:
             {
