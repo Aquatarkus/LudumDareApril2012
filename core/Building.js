@@ -24,8 +24,8 @@
 */
 
 
-Turtles.Building = function(box2dObj) {
-    Turtles.GameEntity.call(box2dObj);
+Turtles.Building = function() {
+    Turtles.GameEntity.call(this);
 
     var self = this;
 	self.platePosition = 0;
@@ -43,8 +43,15 @@ Turtles.Building = function(box2dObj) {
 	// Recharge properties
 	self.energyChargeRate = 1.0;
 	
-	// Physics properties
-	self.mass = 1.0;
+	// GameEntity properties
+	self.density = 1.0;
+    self.width = 1.0;
+    self.length = 1.0;
+    self.shape = 'BOX';
+    self.x = 0.0;
+    self.y = 0.0;
+    self.color = 0x0000ff;
+    self.alpha = 1.0;
 };
 
 Turtles.Building.prototype = new Turtles.GameEntity();
