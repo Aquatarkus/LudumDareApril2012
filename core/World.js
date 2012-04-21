@@ -1,37 +1,33 @@
 Turtles.World = function() {
-    self = this;
-    self.turtle = new Turtles.Turtle();
-    self.platter = new Turtles.Platter();
+    this.turtle = null;
+    this.platter = null;
 
-    self.gravity = 0.098;
+    this.gravity = 0.098;
 
     // for update/render calls
-    self.stepLength = 1000.0 / 60.0;
+    this.stepLength = 1000.0 / 60.0;
 
-    self.people = [];
+    this.people = [];
 
-    self.buildings = [];
+    this.buildings = [];
 
     // effects placed by the player
-    self.effects = [];
-
-    // physics objects (no AI interaction)
-    self.actors = [];
+    this.effects = [];
     
     // How long it takes, in ms, for a building to be built or iterate to the next level.
-    self.buildTimePerLevel =  1000;
+    this.buildTimePerLevel =  1000;
 	
 	// How long it takes, in ms, for a single unit of energy to be drained from a person.
-    self.energyDrainRate = 500;
+    this.energyDrainRate = 500;
 	
-	self.pWorld = null;
+	this.pWorld = null;
 };
 
 
 Turtles.World.prototype = {
 	init: function(){
+		// Initial creation of physics objects for world, ground, and platter
 		var gameIsDirty = true;
-		self.actors = new Array();
 		
 		//Init pWorld
 		var worldAABB = new b2AABB();
@@ -39,7 +35,7 @@ Turtles.World.prototype = {
 		worldAABB.maxVertex.Set(1000, 1000);
 		var gravity = new b2Vec2(0, 300);
 		var doSleep = true;
-		self.pWorld = new b2World(worldAABB, gravity, doSleep);
+		this.pWorld = new b2World(worldAABB, gravity, doSleep);
 		
 		//init ground
 		var groundSd = new b2BoxDef();
@@ -48,18 +44,24 @@ Turtles.World.prototype = {
 		var groundBd = new b2BodyDef();
 		groundBd.AddShape(groundSd);
 		groundBd.position.Set(-1000, 500);
-		self.pWorld.CreateBody(groundBd);
+		this.pWorld.CreateBody(groundBd);
 		
+        // Init turtle
+        this.turtle = new Turtles.Turtle();
+        this.turtle.x = 0;
+        this.turtle.y = 0;
+        this.turtle.init();
+        
+        
 		//init platter
-		var platterSd = new b2BoxDef();
-		platterSd.extents.Set(1000, 50);
-		platterSd.density = 1.0;
-		var platterBd = new b2BodyDef();
-		platterBd.AddShape(platterSd);
-		platterBd.position.Set(-500, 100);
-		var platterBody = self.pWorld.CreateBody(platterBd);
-		self.actors.push(new Actor(platterBody, platterMesh));
+		this.platter = new Turtles.Platter();
+		this.platter.x = -500;
+		this.platter.y = 100;
+        this.platter.init();
+		
+        
 	},
+	
     constructor: Turtles.World,
 
     energyDrainRate: 0.01,
@@ -76,9 +78,10 @@ Turtles.World.prototype = {
 		newBuilding.y = y;
 		//$TODO Need method to get plate position from xy global coords
 		//newBuilding.platterPosition = PhysicsEngine.GetPlatterPosition(x, y);
+        newBuilding.init();
 		newBuilding.levelUp();
 		
-		self.buildings.push(newBuilding);
+		this.buildings.push(newBuilding);
 		
 		return newBuilding;
 	},
@@ -90,8 +93,9 @@ Turtles.World.prototype = {
 		newPerson.y = y;
 		//$TODO Need method to get plate position from xy global coords
 		//newBuilding.platterPosition = PhysicsEngine.GetPlatterPosition(x, y);
-		
-		self.people.push(newPerson);
+		newPerson.init();
+        
+		this.people.push(newPerson);
 		
 		return newPerson;
 	},
@@ -109,8 +113,8 @@ Turtles.World.prototype = {
 		
 		// Iterate through the buildings, looking for the two closest ones... and then compare them
 		// for the true closest.
-		for(var buildingIndex = 0; buildingIndex < self.buildings.length; buildingIndex++) {
-			var building = self.buildings[buildingIndex];
+		for(var buildingIndex = 0; buildingIndex < this.buildings.length; buildingIndex++) {
+			var building = this.buildings[buildingIndex];
 			
 			if (building.occupiers.length >= building.maxOccupancy || !building.isBuilt) {
 				continue;
@@ -158,18 +162,18 @@ Turtles.World.prototype = {
 		
 		var foundPosition = false;
 		
-		for (var sortedBuildingIndex = 0; sortedBuildingIndex < self.buildings.length; sortedBuildingIndex++) {
-			var compareBuilding = self.buildings[sortedBuildingIndex];
+		for (var sortedBuildingIndex = 0; sortedBuildingIndex < this.buildings.length; sortedBuildingIndex++) {
+			var compareBuilding = this.buildings[sortedBuildingIndex];
 			
 			if (compareBuilding.platePosition > building.platePosition) {
-				self.buildings.splice(sortedBuildingIndex, 0, building);
+				this.buildings.splice(sortedBuildingIndex, 0, building);
 				foundPosition = true;
 				break;
 			}
 		}
 		
 		if (!foundPosition) {
-			self.buildings.push(building);
+			this.buildings.push(building);
 		}
 		
 		return building;
@@ -182,28 +186,23 @@ Turtles.World.prototype = {
     update: function() {
 		//update physics
 		var stepping = false;
-		self.pWorld.Step(1.0/60.0, 1);
+		this.pWorld.Step(1.0/60.0, 1);
 	
-        self.platter.update(self.stepLength);
+        this.platter.update(this.stepLength);
         
         // people
-        for (var i = 0; i < self.people.length; i++) {
-            self.people[i].update(self.stepLength);
+        for (var i = 0; i < this.people.length; i++) {
+            this.people[i].update(this.stepLength);
         }
 
         // effects
-        for (var i = 0; i < self.effects.length; i++) {
-            self.effects[i].update(self.stepLength);
-        }
-
-        // actors
-        for (var i = 0; i < self.actors.length; i++) {
-            self.actors[i].update(self.stepLength);
+        for (var i = 0; i < this.effects.length; i++) {
+            this.effects[i].update(this.stepLength);
         }
 
         // buildings
-        for (var i = 0; i < self.buildings.length; i++) {
-            self.buildings[i].update(self.stepLength);
+        for (var i = 0; i < this.buildings.length; i++) {
+            this.buildings[i].update(this.stepLength);
         }
     }
 	
