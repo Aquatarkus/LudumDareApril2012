@@ -41,7 +41,7 @@ Assumes:
 
 
 
-var Turtles.Person = function(box2dObj) {
+Turtles.Person = function(box2dObj) {
 	Turtles.GameEntity.call(box2dObj);
 	var self = this;
 	self.platePosition = platePosition;
@@ -63,7 +63,7 @@ Turtles.Person.prototype.buildComplete = function(building) {
 
 Turtles.Person.prototype.update = function(deltaMs) {
 	// Check for panic/exiting panic.
-	if (Turtles.World.isOnTerrain(self)) {
+	if (World.isOnTerrain(self)) {
 		if (self.state == "PANIC") {
 			self.state = "IDLE";
 		}
@@ -73,25 +73,25 @@ Turtles.Person.prototype.update = function(deltaMs) {
 	
 	// Update energy.
 	if (self.state != SLEEP) {
-		self.energy -=  Turtles.World.energyDrainRate * deltaMs;
+		self.energy -=  World.energyDrainRate * deltaMs;
 	}
 
 	switch(self.state) {
 		case "IDLE":
 			if (self.energy <= 0) {
 				self.state = "MOVE_TO_SLEEP";
-				var building = Turtles.World.getClosestUnoccupiedBuilding(self.platePosition);
+				var building = World.getClosestUnoccupiedBuilding(self.platePosition);
 			
 				self.goalPosition = building.platePosition;
 				self.goalObject = building;
 			} else {
 				self.state = "MOVE_TO_BUILD_SITE";
-				self.goalPosition = Turtles.World.getBuildPosition();
+				self.goalPosition = World.getBuildPosition();
 			}
 			break;
 		case "MOVE_TO_BUILD_SITE":
 			if (self.platePosition == self.goalPosition) {
-				var building = Turtles.World.initBuilding(self);
+				var building = World.initBuilding(self);
 				self.goalObject = building;
 				self.state = "BUILD";
 			}

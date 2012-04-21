@@ -360,5 +360,17 @@ var renderer = turtlesUI.renderer;
 var scene = turtlesUI.scene;
 var camera = turtlesUI.camera;
 
-Turtles.World.init();
-Turtles.World.update();
+var World = new Turtles.World();
+
+
+function animate() {
+	requestAnimationFrame(animate);
+	turtlesUI.draw();
+	stats.update();
+	World.update();
+}
+
+World.init();
+
+
+animate();
