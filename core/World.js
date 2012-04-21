@@ -69,7 +69,9 @@ Turtles.World.prototype = {
         return true;
     },
     
- 
+	createObject:function(x, y) {
+		//$TODO
+	},
 	
 	
 	// Checks whether the given actor is actually on the terrain, or whether they're
