@@ -15,7 +15,97 @@
             overflow: hidden;
         }
     </style>
-	
+</head>
+<body>
+    <div    id="TurtlesElement" 
+            style="position: absolute; top: 0px; width: 100%; height: 100%;
+                   background-color: black; ">
+        <div    id="gameElement"
+                style="position: absolute; width:100%; height:100%;
+                       background-color:#000000; ">
+        </div>
+        <div    id="titleElement"
+                style="position: absolute; top: 10px; width: 100%;
+                       text-align: center; color: white; font-size:xx-large;
+                       pointer-events:none;">
+                Turtles All The Way Down
+        </div>
+        <div    id="subtitleElement"
+                style="position: absolute; top: 45px; width: 100%;
+                text-align: center; color: white; font-size:large;
+                pointer-events:none;">
+                Ludum Dare 4/20
+        </div>
+        <div    id="debugElement"
+                style="position: absolute; bottom: 0px; width: 100%; 
+                       text-align: center; color: white; font-size:small;
+                       pointer-events:none;">
+                Debug
+        </div>
+        <div    id="feedbackElement"
+                style="position: absolute; top: 70px; width: 100%; 
+                       text-align: center; color: white; font-size:large;
+                       pointer-events:none;">
+                Feedback
+        </div>
+        <div
+                id="stateElement"
+                style="position: absolute; top: 70px; left: 0px; width: 200px;
+                       text-align: left; color: white; font-size:small;
+                       pointer-events:none;">
+                State
+        </div>
+        <div    id="menuElement"
+                style="position: absolute; top: 100px; left:0px; width:100px">
+                <form>
+                <input  type="button" 
+                        style="position: absolute; top: 0px; left: 75px;
+                               width: 150px; margin-left: -75px;" 
+                        value="Move Camera"
+                        onclick="onStateMoveCamera()">
+                <input  type="button" 
+                        style="position: absolute; top: 30px; left: 75px;
+                               width: 150px; margin-left: -75px;" 
+                        value="Move Object (broken)"
+                        onclick="onStateMoveObject()">
+                <input  type="button" 
+                        style="position: absolute; top: 60px; left: 75px;
+                               width: 150px; margin-left: -75px;" 
+                        value="Rotate Object (not yet)"
+                        onclick="onStateRotateObject()">
+                <input  type="button" 
+                        style="position: absolute; top: 90px; left: 75px;
+                               width: 150px; margin-left: -75px;" 
+                        value="Scale Object (not yet)"
+                        onclick="onStateScaleObject()">
+                <input  type="button" 
+                        style="position: absolute; top: 120px; left: 75px;
+                               width: 150px; margin-left: -75px;" 
+                        value="Weld Object"
+                        onclick="onStateWeldObject()">
+                <input  type="button" 
+                        style="position: absolute; top: 150px; left: 75px;
+                               width: 150px; margin-left: -75px;" 
+                        value="Unweld Object"
+                        onclick="onStateUnweldObject()">
+                <input  type="button" 
+                        style="position: absolute; top: 180px; left: 75px;
+                               width: 150px; margin-left: -75px;" 
+                        value="Color Object"
+                        onclick="onStateColorObject()">
+                <input  type="button" 
+                        style="position: absolute; top: 210px; left: 75px;
+                               width: 150px; margin-left: -75px;" 
+                        value="Add Box Terrain"
+                        onclick="onStateAddBoxTerrain()">
+                <input  type="button" 
+                        style="position: absolute; top: 240px; left: 75px;
+                               width: 150px; margin-left: -75px;" 
+                        value="Add Circle Terrain"
+                        onclick="onStateAddCircleTerrain()">
+                </form>
+        </div>
+    </div>
 	<!--[if IE]><script type="text/javascript" src="lib/excanvas.js"></script><![endif]-->
     <script src="Box2D/lib/prototype-1.6.0.2.js"></script>
     <script src='Box2D/js/box2d/common/b2Settings.js'></script>
@@ -82,90 +172,18 @@
     <script src='Box2D/js/box2d/dynamics/joints/b2PulleyJointDef.js'></script>
     <script src='Box2D/js/box2d/dynamics/joints/b2RevoluteJoint.js'></script>
     <script src='Box2D/js/box2d/dynamics/joints/b2RevoluteJointDef.js'></script>
-</head>
-<body>
-    <div    id="TurtlesElement" 
-            style="position: absolute; top: 0px; width: 100%; height: 100%;
-                   background-color: black; ">
-        <div    id="gameElement"
-                style="position: absolute; width:100%; height:100%;
-                       background-color:#000000; ">
-        </div>
-        <div    id="titleElement"
-                style="position: absolute; top: 10px; width: 100%;
-                       text-align: center; color: white; font-size:xx-large;
-                       pointer-events:none;">
-                Turtles All The Way Down
-        </div>
-        <div    id="subtitleElement"
-                style="position: absolute; top: 45px; width: 100%;
-                text-align: center; color: white; font-size:large;
-                pointer-events:none;">
-                Ludum Dare 4/20
-        </div>
-        <div    id="debugElement"
-                style="position: absolute; bottom: 0px; width: 100%; 
-                       text-align: center; color: white; font-size:small;
-                       pointer-events:none;">
-                Debug
-        </div>
-        <div    id="feedbackElement"
-                style="position: absolute; top: 70px; width: 100%; 
-                       text-align: center; color: white; font-size:large;
-                       pointer-events:none;">
-                Feedback
-        </div>
-        <div
-                id="stateElement"
-                style="position: absolute; top: 70px; left: 0px; width: 200px;
-                       text-align: left; color: white; font-size:small;
-                       pointer-events:none;">
-                State
-        </div>
-        <div    id="menuElement"
-                style="position: absolute; top: 100px; left:0px; width:100px">
-                <form>
-                <input  type="button" 
-                        style="position: absolute; top: 0px; left: 75px;
-                               width: 150px; margin-left: -75px;" 
-                        value="Move Camera"
-                        onclick="onStateMoveCamera()">
-                <input  type="button" 
-                        style="position: absolute; top: 30px; left: 75px;
-                               width: 150px; margin-left: -75px;" 
-                        value="Move Object"
-                        onclick="onStateMoveObject()">
-                <input  type="button" 
-                        style="position: absolute; top: 60px; left: 75px;
-                               width: 150px; margin-left: -75px;" 
-                        value="Color Object"
-                        onclick="onStateColorObject()">
-                <input  type="button" 
-                        style="position: absolute; top: 90px; left: 75px;
-                               width: 150px; margin-left: -75px;" 
-                        value="Add Box Terrain"
-                        onclick="onStateAddBoxTerrain()">
-                <input  type="button" 
-                        style="position: absolute; top: 120px; left: 75px;
-                               width: 150px; margin-left: -75px;" 
-                        value="Add Circle Terrain"
-                        onclick="onStateAddCircleTerrain()">
-                </form>
-        </div>
-			
-		<script src="threejs/ThreePretty.js"></script>
-		<script src="threejs/RequestAnimationFrame.js"></script>
-		<script src="threejs/Stats.js"></script>
-		<script src="core/Turtles.js"></script>
-		<script src="core/GameEntity.js"></script>
-		<script src="core/Building.js"></script>
-		<script src="core/Effect.js"></script>
-		<script src="core/Person.js"></script>
-		<script src="core/Platter.js"></script>
-		<script src="core/Turtle.js"></script>
-		<script src="core/World.js"></script>
-		<script src="TurtlesUI.js"></script>
-        <script src="TurtlesBuilder.js"></script>
-    </div>
+    <script src="threejs/ThreePretty.js"></script>
+    <script src="threejs/RequestAnimationFrame.js"></script>
+    <script src="threejs/Stats.js"></script>
+    <script src="core/Turtles.js"></script>
+    <script src="core/GameEntity.js"></script>
+    <script src="core/Building.js"></script>
+    <script src="core/Effect.js"></script>
+    <script src="core/Person.js"></script>
+    <script src="core/Platter.js"></script>
+    <script src="core/Turtle.js"></script>
+    <script src="core/World.js"></script>
+    <script src="TurtlesUI.js"></script>
+    <script src="TurtlesBuilder.js"></script>
 </body>
 </html>

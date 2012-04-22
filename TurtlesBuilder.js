@@ -10,10 +10,13 @@ Turtles.BuilderStates =
 {
     MoveCamera : 'State: Move Camera',
     MoveObject : 'State: Move Object',
+    RotateObject : 'State: Rotate Object',
     ColorObject : 'State: Color Object',
+    WeldObject : 'State: Weld Object',
+    UnweldObject : 'State: Unweld Object',
     DeleteObject : 'State: Delete Object',
     AddBoxTerrain : 'State: Add Box Terrain',
-    AddCircleTerrain : 'State: Add Circle Terrain',
+    AddCircleTerrain : 'State: Add Circle Terrain'
 };
 
 Turtles.Builder = function()
@@ -59,6 +62,64 @@ Turtles.Builder.prototype =
                     }
                 }
                 break;
+            case Turtles.BuilderStates.WeldObject:
+                // scan for intersections
+                var intersections = turtlesUI.castRay(worldCoords);
+                for (var i = 0; i < intersections.length; i++)
+                {
+                    var clickedObject = intersections[i].object;
+                    var clickedEntity = clickedObject.gameEntity;
+                    var clickedBody = clickedEntity.physicsBody;
+                    
+                    // remove all joints
+                    World.removeJoints(clickedEntity);
+                    
+                    // add new joints
+                    var contactNode = clickedBody.GetContactList();
+                    while (contactNode)
+                    {
+                        var contact = contactNode.contact;
+                        var contactBody = contact.m_shape1.m_body;
+                        if (contactBody === clickedBody)
+                        {
+                            contactBody = contact.m_shape2.m_body;
+                        }
+                        var contactEntity = contactBody.gameEntity;
+                        if (contactEntity)
+                        {
+                            var clickedAnchor = clickedBody.m_position;
+                            var contactAnchor;
+                            if (contactEntity != World.platter)
+                            {
+                                // anchor to point on platter directly below
+                                contactAnchor = contactBody.m_position;
+                            }
+                            else
+                            {
+                                // center to center achor points
+                                contactAnchor = contactBody.m_position;
+                            }
+                            World.addJoint(clickedEntity, clickedAnchor,
+                                           contactEntity, contactAnchor);
+                        }
+                        contactNode = contactNode.next;
+                    }
+                    
+                }
+                break;
+            case Turtles.BuilderStates.UnweldObject:
+                // scan for intersections
+                var intersections = turtlesUI.castRay(worldCoords);
+                for (var i = 0; i < intersections.length; i++)
+                {
+                    var clickedObject = intersections[i].object;
+                    var clickedEntity = clickedObject.gameEntity;
+                    var clickedBody = clickedEntity.physicsBody;
+                    
+                    // remove all joints
+                    World.removeJoints(clickedEntity);
+                }
+                break;
             case Turtles.BuilderStates.DeleteObject:
                 break;
             case Turtles.BuilderStates.AddBoxTerrain:
@@ -70,7 +131,6 @@ Turtles.Builder.prototype =
                 boxTerrain.x = worldCoords.x;
                 boxTerrain.y = worldCoords.y;
                 boxTerrain.init();
-                boxTerrain.fixWithJoint(platter);
                 World.terrain.push(boxTerrain);
                 break;
             case Turtles.BuilderStates.AddCircleTerrain:
@@ -82,7 +142,6 @@ Turtles.Builder.prototype =
                 circleTerrain.x = worldCoords.x;
                 circleTerrain.y = worldCoords.y;
                 circleTerrain.init();
-                circleTerrain.fixWithJoint(platter);
                 World.terrain.push(circleTerrain);
                 break;
             default:
@@ -151,9 +210,24 @@ function onStateMoveObject()
     turtlesBuilder.setState(Turtles.BuilderStates.MoveObject);
 }
 
+function onStateRotateObject()
+{
+    turtlesBuilder.setState(Turtles.BuilderStates.RotateObject);
+}
+
 function onStateColorObject()
 {
     turtlesBuilder.setState(Turtles.BuilderStates.ColorObject);
+}
+
+function onStateWeldObject()
+{
+    turtlesBuilder.setState(Turtles.BuilderStates.WeldObject);
+}
+
+function onStateUnweldObject()
+{
+    turtlesBuilder.setState(Turtles.BuilderStates.UnweldObject);
 }
 
 function onStateDelete()

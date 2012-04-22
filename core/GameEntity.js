@@ -89,6 +89,7 @@ Turtles.GameEntity = function() {
     this.physicsBody = null;
     this.actor = null;
     this.texture = null;
+    this.joints = [];
 };
 
 Turtles.GameEntity.prototype = {
@@ -143,8 +144,21 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
     this.physicsBodyDef.AddShape(physicsShapeDef);
     this.physicsBodyDef.position.Set(this.x, this.y);
     this.physicsBody = World.pWorld.CreateBody(this.physicsBodyDef);
-    
+    this.physicsBody.gameEntity = this;
     return this.physicsBody;
+};
+
+Turtles.GameEntity.prototype.addJoint = function(joint)
+{
+    // stash it
+    this.joints.push(joint);
+};
+
+Turtles.GameEntity.prototype.removeJoint = function(joint)
+{
+    // burn it
+    var jointIndex = this.joints.indexOf(joint);
+    this.joints.splice(jointIndex, 1);
 };
 
 // blaze-a-blaze
@@ -168,4 +182,4 @@ Turtles.GameEntity.prototype.fixWithJoint = function(entity)
         
         // light it
     }
-}
+};
