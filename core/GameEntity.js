@@ -161,7 +161,7 @@ Turtles.GameEntity.prototype.fixWithJoint = function(entity)
         jointDef.body2 = theirBody;
         jointDef.collideConnected = true; // bump and grind
         jointDef.anchorPoint1 = myBody.m_position;
-        jointDef.anchorPoint1 = theirBody.m_position;
+        jointDef.anchorPoint2 = theirBody.m_position;
         
         // roll it
         World.pWorld.CreateJoint(jointDef);

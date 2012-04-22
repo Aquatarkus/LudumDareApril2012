@@ -10,6 +10,9 @@ Turtles.World = function() {
     this.people = [];
 
     this.buildings = [];
+    
+    // additions to the terrain
+    this.terrain = [];
 
     // effects placed by the player
     this.effects = [];
@@ -49,7 +52,7 @@ Turtles.World.prototype = {
 		this.platter.x = 0;
 		this.platter.y = 100;
         this.platter.init();
-		
+		this.platter.terrain = [];
         
 	},
 	
@@ -183,6 +186,34 @@ Turtles.World.prototype = {
 	
         this.platter.update(this.stepLength);
         this.turtle.update(this.stepLength);
+        /*
+        for (var contact = this.platter.physicsBody.GetContactList(); contact; contact = contact.GetNext())
+        {
+            var platter = this.platter;
+            if (platter.terrain.indexOf(contact) > -1)
+            {
+                platter.terrain.push(contact);
+                var jointDef = new b2DistanceJointDef();
+                jointDef.body1 = platter;
+                jointDef.body2 = contact;
+                jointDef.collideConnected = true; // bump and grind
+                jointDef.anchorPoint1 = platter.m_position;
+                jointDef.anchorPoint2 = contact.m_position;
+                
+                // roll it
+                World.pWorld.CreateJoint(jointDef);
+                
+                // light it
+            }
+        }
+        */
+        // terrain
+        for (var i = 0; i < this.terrain.length; i++)
+        {
+            var terrainPiece = this.terrain[i];
+            terrainPiece.update(this.stepLength);
+            
+        }
         
         // people
         for (var i = 0; i < this.people.length; i++) {

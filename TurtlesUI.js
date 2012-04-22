@@ -233,7 +233,6 @@ function onMouseScroll(event)
     {
         delta = -event.detail/3;
     }
-    Log.event('onMouseScroll', 'delta = '+delta);
     if (delta)
     {
         turtlesUI.scaleCamera(1-delta/100);
