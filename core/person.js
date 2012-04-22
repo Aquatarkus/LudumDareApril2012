@@ -44,19 +44,19 @@ Assumes:
 Turtles.Person = function() {
 	Turtles.GameEntity.call(this);
 	this.isPhysicsSimulated = true,
-	this.density = 1.0;
-	this.width = 0.07;
-	this.height = 0.1;
-	this.shape = "CIRCLE";
-	this.color = 0xffffff;
+	this.density = 0.3;
+	this.width = 4;
+	this.height = 4;
+	this.shape = "BOX";
+	this.color = 0xff3333;
 	this.alpha = 0;
 	
 	this.platterPosition = 0;
 	this.moveSpeed = 5.0;
 	this.maxEnergy = 5.0;
-	this.energy = 5.0;
+	this.energy = 500.0;
 	this.state = "IDLE";
-	this.goalPlatterPosition = 0;
+	this.goalPlatterPosition = null;
 	this.goalObject = null;
 };
 
@@ -69,31 +69,57 @@ Turtles.Person.prototype.buildComplete = function(building) {
 	this.goalObject = null;
 };
 
-Turtles.Person.prototype.update = function(deltaMs) {
-    this.updateActor(deltaMs);
+Turtles.Person.prototype.isOnTerrain = function() {
+    var list = this.physicsBody.GetContactList();
+    
+    while (list) {
+        if (list.other === World.platter.physicsBody) {
+            return true;
+        }
+        
+        list = list.next;
+    }
+    
+    return false;
+};
 
+Turtles.Person.prototype.update = function(deltaMs) {
+    Turtles.GameEntity.prototype.update.call(this, deltaMs);
+    
 	// Check for panic/exiting panic.
-	if (World.isOnTerrain(self)) {
+	if (this.isOnTerrain(self)) {
 		if (this.state == "PANIC") {
 			this.state = "IDLE";
+            this.goalPlatterPosition = null;
 		}
 	} else {
 		this.state = "PANIC";
+        this.goalPlatterPosition = null;
+        console.log("Panic!!!");
 	}
 	
 	// Update energy.
-	if (this.state != SLEEP) {
-		this.energy -=  World.energyDrainRate * deltaMs;
+	if (this.state != "SLEEP") {
+		this.energy -=  (deltaMs / World.energyDrainRate);
 	}
+    
+    if (this.energy <= 0) {
+        console.log("Energy at 0");
+    }
 
 	switch(this.state) {
 		case "IDLE":
 			if (this.energy <= 0) {
 				this.state = "MOVE_TO_SLEEP";
 				var building = World.getClosestUnoccupiedBuilding(this.platterPosition);
-			
-				this.goalPlatterPosition = building.platterPosition;
-				this.goalObject = building;
+                
+                if (building) {
+                    this.goalPlatterPosition = building.platterPosition;
+                    this.goalObject = building;
+                } else {
+                    this.state = "MOVE_TO_BUILD_SITE";
+                    this.goalPlatterPosition = World.getBuildPosition();
+                }
 			} else {
 				this.state = "MOVE_TO_BUILD_SITE";
 				this.goalPlatterPosition = World.getBuildPosition();
@@ -104,6 +130,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
 				var building = World.initBuilding(self);
 				this.goalObject = building;
 				this.state = "BUILD";
+                this.goalPlatterPosition = null;
 			}
 			break;
 		case "BUILD":
@@ -112,6 +139,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
 			if (this.platterPosition == this.goalPlatterPosition) {
 				this.goalObject.occupy(self);
 				this.state = "SLEEP";
+                this.goalPlatterPosition = null;
 			}
 			break;
 		case "SLEEP":
@@ -119,9 +147,19 @@ Turtles.Person.prototype.update = function(deltaMs) {
 			if (this.energy >= this.maxEnergy) {
 				this.goalObject.unoccupy(this);
 				this.state = "IDLE";
+                this.goalPlatterPosition = null;
 			}
 			break;
 		case "PANIC":
 			break;
 	}
+    
+    if ((this.state != "PANIC") && (this.goalPlatterPosition)) {
+        var dirToGoal = this.goalPlatterPosition - this.platterPosition;
+        
+        var vector = new b2Vec2((dirToGoal / dirToGoal) * this.moveSpeed, 0);
+        
+        this.physicsBody.SetLinearVelocity(vector);
+    }
+    
 };

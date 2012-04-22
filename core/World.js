@@ -18,7 +18,7 @@ Turtles.World = function() {
     this.buildTimePerLevel =  1000;
 	
 	// How long it takes, in ms, for a single unit of energy to be drained from a person.
-    this.energyDrainRate = 500;
+    this.energyDrainRate = 500.0;
 	
 	this.pWorld = null;
 };
@@ -50,12 +50,16 @@ Turtles.World.prototype = {
 		this.platter.y = 100;
         this.platter.init();
 		
+        //init seed person
+        var person = new Turtles.Person();
+        person.x = 0;
+        person.y = 150;
+        person.init();
         
+        this.people.push(person);
 	},
 	
     constructor: Turtles.World,
-
-    energyDrainRate: 0.01,
 
     isOnTerrain: function(position) {
         // todo
@@ -69,7 +73,7 @@ Turtles.World.prototype = {
 		
 		newBuilding.x = x;
 		newBuilding.y = y;
-		//$TODO Need method to get plate position from xy global coords
+		//$TODO Need method to get platter position from xy global coords
 		//newBuilding.platterPosition = PhysicsEngine.GetPlatterPosition(x, y);
         newBuilding.init();
 		newBuilding.levelUp();
@@ -84,7 +88,7 @@ Turtles.World.prototype = {
 		
 		newPerson.x = x;
 		newPerson.y = y;
-		//$TODO Need method to get plate position from xy global coords
+		//$TODO Need method to get platter position from xy global coords
 		//newBuilding.platterPosition = PhysicsEngine.GetPlatterPosition(x, y);
 		newPerson.init();
         
@@ -102,7 +106,7 @@ Turtles.World.prototype = {
 	
 	// Forget it, we need speed.  Get a random building.  It's not in order, so this algorithm will essentially be random.
     // it'll be closest if we bother to sort the list after every frame... which I don't know if we want to do.
-	getClosestUnoccupiedBuilding: function(platePosition) {
+	getClosestUnoccupiedBuilding: function(platterPosition) {
         var lastValidBuilding = null;
         
 		// Iterate through the buildings, looking for the two closest ones... and then compare them
@@ -114,14 +118,14 @@ Turtles.World.prototype = {
 				continue;
 			}
 			
-			var position = building.platePosition - platePosition;
+			var position = building.platterPosition - platterPosition;
 			
-			// If the position is > 0, we've passed the actual plate position.  Check this and
+			// If the position is > 0, we've passed the actual platter position.  Check this and
 			// the last building we saw to see which is closer, and use that.
 			if (position > 0) {
 				if (lastValidBuilding) {
-					var lastPosDiff = Math.abs(lastValidBuilding.platePosition - platePosition);
-					var posDiff = Math.abs(building.platePosition - platePosition);
+					var lastPosDiff = Math.abs(lastValidBuilding.platterPosition - platterPosition);
+					var posDiff = Math.abs(building.platterPosition - platterPosition);
 					lastValidBuilding = (lastPosDiff > posDiff) ? building : lastValidBuilding;
 				} else {
 					lastValidBuilding = building;
@@ -151,7 +155,7 @@ Turtles.World.prototype = {
 		//		  Actors need the responsibility.
 		var building = new Turtles.Building();
 		
-		building.platePosition = person.goalPosition;
+		building.platterPosition = person.goalPosition;
 		building.build(person);
         
         this.buildings.push(building);
