@@ -92,6 +92,7 @@ Turtles.GameEntity = function() {
     this.actor = null;
     this.texture = null;
     this.isInSimulation = false;
+    this.destroy = false;
 };
 
 Turtles.GameEntity.prototype = {
@@ -99,9 +100,11 @@ Turtles.GameEntity.prototype = {
 };
 
 Turtles.GameEntity.prototype.init = function() {
-    this._createPhysicsBody();
-    this._createMesh();
-    this.isInSimulation = true;
+    if (!this.isInSimulation) {
+        this._createPhysicsBody();
+        this._createMesh();
+        this.isInSimulation = true;
+    }
 };
 
 Turtles.GameEntity.prototype.addToSimulationAt = function(x, y) {
@@ -111,23 +114,39 @@ Turtles.GameEntity.prototype.addToSimulationAt = function(x, y) {
 };
 
 Turtles.GameEntity.prototype.removeFromSimulation = function() {
-    if (this.physicsBody) {
-        World.pWorld.DestroyBody(this.physicsBody);
+    if (this.isInSimulation) {
+        if (this.physicsBody) {
+            World.pWorld.DestroyBody(this.physicsBody);
+        }
+        if (this.mesh) {
+            turtlesUI.removeObject(this.mesh);
+        }
+        this.isInSimulation = false;
     }
-    if (this.mesh) {
-        turtlesUI.removeObject(this.mesh);
+};
+
+Turtles.GameEntity.prototype.checkForDeath = function() {
+    if (this.y <= World.minWorldY * 0.8) {
+        this.destroy = true;
     }
-    this.isInSimulation = false;
+    
+    return this.destroy;
 };
 
 Turtles.GameEntity.prototype.update = function(timeElapsed) {
-    var pos = this.physicsBody.m_position;
-    this.mesh.position.x = pos.x;
-    this.mesh.position.y = pos.y;
-    this.x = this.mesh.position.x;
-    this.y = this.mesh.position.y;
+    if (this.checkForDeath()) {
+        return;
+    }
     
-    this.mesh.rotation.z = this.physicsBody.m_rotation;
+    if (this.isInSimulation) {
+        var pos = this.physicsBody.m_position;
+        this.mesh.position.x = pos.x;
+        this.mesh.position.y = pos.y;
+        this.x = this.mesh.position.x;
+        this.y = this.mesh.position.y;
+        
+        this.mesh.rotation.z = this.physicsBody.m_rotation;
+    }
 };
 
 Turtles.GameEntity.prototype._createMesh = function(){

@@ -31,6 +31,10 @@ Turtles.World = function() {
     this.maxBuildings = 50;
 	
 	this.pWorld = null;
+    this.minWorldX = -1000;
+    this.minWorldY = -1000;
+    this.maxWorldX = 1000;
+    this.maxWorldY = 1000;
 };
 
 
@@ -41,8 +45,8 @@ Turtles.World.prototype = {
 		
 		//Init pWorld
 		var worldAABB = new b2AABB();
-		worldAABB.minVertex.Set(-1000, -1000);
-		worldAABB.maxVertex.Set(1000, 1000);
+		worldAABB.minVertex.Set(this.minWorldX, this.minWorldY);
+		worldAABB.maxVertex.Set(this.maxWorldX, this.maxWorldY);
 		var gravity = new b2Vec2(0, -300);
 		var doSleep = true;
 		this.pWorld = new b2World(worldAABB, gravity, doSleep);
@@ -273,6 +277,7 @@ Turtles.World.prototype = {
 	
         this.platter.update(this.stepLength);
         this.turtle.update(this.stepLength);
+        
         /*
         for (var contact = this.platter.physicsBody.GetContactList(); contact; contact = contact.GetNext())
         {
@@ -320,6 +325,29 @@ Turtles.World.prototype = {
         if (this.spawner) {
             this.spawner.update(this.stepLength);
         }
+        
+        for (var i = this.terrain.length; i >= 0; i--) {
+            if (this.destroy) {
+                this.terrain
+            }
+        }
+        
+        this.destroyCrap(this.terrain);
+        this.destroyCrap(this.people);
+        this.destroyCrap(this.effects);
+        this.destroyCrap(this.buildings);
+        
+    },
+    
+    destroyCrap: function(array) {
+        for (var i = array.length - 1; i >= 0; i--) {
+            if (array[i].destroy) {
+                array[i].removeFromSimulation();
+                array.splice(i, 1);
+            }
+        }
     }
 	
 };
+
+

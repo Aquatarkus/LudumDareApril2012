@@ -62,9 +62,12 @@ Turtles.Person = function() {
     this.lastMoveDirection = 0;
 };
 
+
 Turtles.Person.prototype = new Turtles.GameEntity();
 
 Turtles.Person.prototype.constructor = Turtles.Person;
+
+Turtles.Meteor.prototype.texture = THREE.ImageUtils.loadTexture('textures/Meteor1.png');
 
 Turtles.Person.prototype.buildComplete = function(building) {
     this.addToSimulationAt(building.x, building.y);
@@ -121,6 +124,10 @@ Turtles.Person.prototype.checkForSleepState = function() {
 };
 
 Turtles.Person.prototype.update = function(deltaMs) {
+    if (this.checkForDeath()) {
+        return;
+    }
+    
     if (this.isInSimulation) {
         Turtles.GameEntity.prototype.update.call(this, deltaMs);
 
@@ -140,7 +147,6 @@ Turtles.Person.prototype.update = function(deltaMs) {
     }
     
     
-	
 	// Update energy.
 	if (this.state != "SLEEP") {
 		this.energy -=  (deltaMs / World.energyDrainRate);

@@ -97,6 +97,10 @@ Turtles.Building.prototype.build = function(person) {
 };
 
 Turtles.Building.prototype.update = function(timeElapsedInMs) {
+    if (this.checkForDeath()) {
+        return;
+    }
+    
     Turtles.GameEntity.prototype.update.call(this, timeElapsedInMs);
 	if (!this.isBuilt) {
 		this.buildTimeElapsed += timeElapsedInMs;
