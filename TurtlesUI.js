@@ -164,7 +164,9 @@ Turtles.UI.prototype =
     },
     castRay : function(coords)
     {
-        var ray = this.projector.pickingRay(new THREE.Vector2(coords.x/this.width, coords.y/this.height), this.camera);
+        var ray = this.ray;
+        ray.origin.set(coords.x, coords.y, 100);
+        ray.direction.set(0, 0, -1);
         var intersections = ray.intersectObjects(this.clickableObjects);
         Log.debug('castRay counts', {clickable:this.clickableObjects.length, intersects: intersections.length});
         Log.debug('castRay ray', ray);
