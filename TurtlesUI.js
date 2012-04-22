@@ -275,7 +275,6 @@ function onMouseUp(event)
     var intersections = turtlesUI.castRay(worldCoords[0]);
     if (intersections[0])
     {
-        intersections[0].object.material.color.setHex(Math.random()*0xffffff);
         // intersections[0].object.gameEntity.fixWithJoint(World.platter);
     }
     

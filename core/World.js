@@ -48,18 +48,19 @@ Turtles.World.prototype = {
 		//init platter
 		this.platter = new Turtles.Platter();
 		this.platter.x = 0;
-		this.platter.y = this.turtle.width/2;
+		this.platter.y = this.turtle.height;
         this.platter.init();
 		
         //init fulcrum
 		var fulcrumShapeDef = new b2BoxDef();
         fulcrumShapeDef.extents.Set(1, 1);
         fulcrumShapeDef.density = 0;
-		fulcrumShapeDef.collisionCategoryBits = 0x0004;
-		fulcrumShapeDef.collisionMaskBits = 0x0002;
+		//fulcrumShapeDef.collisionCategoryBits = 0x0004;
+		//fulcrumShapeDef.collisionMaskBits = 0x0002;
+		fulcrumShapeDef.groupIndex = -2;
 		var fulcrumBodyDef = new b2BodyDef();
 		fulcrumBodyDef.AddShape(fulcrumShapeDef);
-		fulcrumBodyDef.position.Set(0, this.turtle.width/4);
+		fulcrumBodyDef.position.Set(0, this.turtle.height/4);
 		var fulcrumBody = this.pWorld.CreateBody(fulcrumBodyDef);
 		
 		//join platter to fulcrum.

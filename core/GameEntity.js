@@ -83,6 +83,8 @@ Turtles.GameEntity = function() {
 	this.x = 0.0;
 	this.y = 0.0;
 	this.color = 0xffffff;
+	this.categoryBits = 0x0001;
+	this.maskBits = 0x0001;
 	this.alpha = 0;
     this.mesh = null;
     this.physicsBodyDef = null;
@@ -139,8 +141,8 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
             alert("Unknown entity type '" + this.shape + "'.");
             break;
     }
-	physicsShapeDef.categoryBits = this.collisionCategoryBits || 0x0001;
-	physicsShapeDef.maskBits = this.collisionMaskBits || 0xFFFF;
+	physicsShapeDef.categoryBits = this.categoryBits;
+	physicsShapeDef.maskBits = this.maskBits;
     this.physicsBodyDef = new b2BodyDef();
     this.physicsBodyDef.AddShape(physicsShapeDef);
     this.physicsBodyDef.position.Set(this.x, this.y);
