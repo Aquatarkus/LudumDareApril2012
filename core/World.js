@@ -88,6 +88,37 @@ Turtles.World.prototype = {
         return true;
     },
     
+    getPlatterPosition: function(x, y) {
+        /*
+        var geometry = new THREE.Geometry();
+        geometry.vertices.push(new THREE.Vertex(World.platter.mesh.position));
+        geometry.vertices.push(new THREE.Vertex(World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(100, 0, 0))));
+        var material = new THREE.MeshBasicMaterial({color: 0xff33ff, wireframe:true });
+        var debugline = new THREE.Line(geometry, material);
+        turtlesUI.addObject(debugline);
+        */
+        //World.platter.mesh.position
+        var vectorAligned = World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(1, 0, 0));
+        var vectorComp = new THREE.Vector3();
+        vectorComp.sub(vectorAligned, World.platter.mesh.position);
+        var vectorPosition = new THREE.Vector3(x, y, 0);
+        
+        // Get x position along plane of the platter.
+        var result = vectorComp.dot(vectorPosition);
+        
+        // Convert to a 0-1 range, with 0 = -width and 1 = width.
+        return result / World.platter.width;
+        
+    },
+    
+    getCoordinatesFromPlatterPosition: function(platterPosition) {
+        var realRelativePosition = platterPosition * World.platter.width;
+        
+        var worldVector = World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(realRelativePosition, 0, 0));
+        
+        return worldVector;
+    },
+    
 	createBuilding:function(coords) {
         var x = coords.x;
         var y = coords.y;
@@ -96,7 +127,7 @@ Turtles.World.prototype = {
 		newBuilding.x = x;
 		newBuilding.y = y;
 		//$TODO Need method to get platter position from xy global coords
-		//newBuilding.platterPosition = PhysicsEngine.GetPlatterPosition(x, y);
+		newBuilding.platterPosition = World.getPlatterPosition(x, y);
         newBuilding.init();
 		newBuilding.levelUp();
 		
@@ -111,7 +142,7 @@ Turtles.World.prototype = {
 		newPerson.x = x;
 		newPerson.y = y;
 		//$TODO Need method to get platter position from xy global coords
-		//newBuilding.platterPosition = PhysicsEngine.GetPlatterPosition(x, y);
+		newPerson.platterPosition = World.getPlatterPosition(x, y);
 		newPerson.init();
         
 		this.people.push(newPerson);
@@ -177,7 +208,11 @@ Turtles.World.prototype = {
 		//		  Actors need the responsibility.
 		var building = new Turtles.Building();
 		
-		building.platterPosition = person.goalPosition;
+		building.platterPosition = person.goalPlatterPosition;
+        var platterVector = World.getCoordinatesFromPlatterPosition(building.platterPosition);
+        building.x = platterVector.x;
+        building.y = platterVector.y;
+        building.init();
 		building.build(person);
         
         this.buildings.push(building);
@@ -212,6 +247,7 @@ Turtles.World.prototype = {
         for (var i = 0; i < this.buildings.length; i++) {
             this.buildings[i].update(this.stepLength);
         }
+        
     }
 	
 };

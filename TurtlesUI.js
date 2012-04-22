@@ -277,6 +277,8 @@ function onMouseUp(event)
     var worldCoords = turtlesUI.getWorldCoords(eventCoords);
 	World.createBuilding(worldCoords[0]);
     
+    World.getPlatterPosition(worldCoords[0].x, worldCoords[0].y);
+    
     mouseIsDown = false;
     mouseDidMove = false;
     oldEventCoords.length = 0;
