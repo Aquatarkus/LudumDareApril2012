@@ -143,6 +143,7 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
             alert("Unknown entity type '" + this.shape + "'.");
             break;
     }
+    //physicsShapeDef.friction = 99;
 	physicsShapeDef.categoryBits = this.categoryBits;
 	physicsShapeDef.maskBits = this.maskBits;
     this.physicsBodyDef = new b2BodyDef();
