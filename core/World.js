@@ -19,7 +19,7 @@ Turtles.World = function() {
     this.buildTimePerLevel =  1000;
 	
 	// How long it takes, in ms, for a single unit of energy to be drained from a person.
-    this.energyDrainRate = 500;
+    this.energyDrainRate = 500.0;
 	
 	this.pWorld = null;
 };
@@ -51,6 +51,14 @@ Turtles.World.prototype = {
 		this.platter.y = this.turtle.height;
         this.platter.init();
 		
+        //init seed person
+        var person = new Turtles.Person();
+        person.x = 0;
+        person.y = 150;
+        person.init();
+        
+        this.people.push(person);
+        
         //init fulcrum
 		var fulcrumShapeDef = new b2BoxDef();
         fulcrumShapeDef.extents.Set(1, 1);
@@ -76,11 +84,40 @@ Turtles.World.prototype = {
 	
     constructor: Turtles.World,
 
-    energyDrainRate: 0.01,
-
     isOnTerrain: function(position) {
         // todo
         return true;
+    },
+    
+    getPlatterPosition: function(x, y) {
+        /*
+        var geometry = new THREE.Geometry();
+        geometry.vertices.push(new THREE.Vertex(World.platter.mesh.position));
+        geometry.vertices.push(new THREE.Vertex(World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(100, 0, 0))));
+        var material = new THREE.MeshBasicMaterial({color: 0xff33ff, wireframe:true });
+        var debugline = new THREE.Line(geometry, material);
+        turtlesUI.addObject(debugline);
+        */
+        //World.platter.mesh.position
+        var vectorAligned = World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(1, 0, 0));
+        var vectorComp = new THREE.Vector3();
+        vectorComp.sub(vectorAligned, World.platter.mesh.position);
+        var vectorPosition = new THREE.Vector3(x, y, 0);
+        
+        // Get x position along plane of the platter.
+        var result = vectorComp.dot(vectorPosition);
+        
+        // Convert to a 0-1 range, with 0 = -width and 1 = width.
+        return result / World.platter.width;
+        
+    },
+    
+    getCoordinatesFromPlatterPosition: function(platterPosition) {
+        var realRelativePosition = platterPosition * World.platter.width;
+        
+        var worldVector = World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(realRelativePosition, 0, 0));
+        
+        return worldVector;
     },
     
 	createBuilding:function(coords) {
@@ -90,8 +127,8 @@ Turtles.World.prototype = {
 		
 		newBuilding.x = x;
 		newBuilding.y = y;
-		//$TODO Need method to get plate position from xy global coords
-		//newBuilding.platterPosition = PhysicsEngine.GetPlatterPosition(x, y);
+		//$TODO Need method to get platter position from xy global coords
+		newBuilding.platterPosition = World.getPlatterPosition(x, y);
         newBuilding.init();
 		newBuilding.levelUp();
 		
@@ -105,8 +142,8 @@ Turtles.World.prototype = {
 		
 		newPerson.x = x;
 		newPerson.y = y;
-		//$TODO Need method to get plate position from xy global coords
-		//newBuilding.platterPosition = PhysicsEngine.GetPlatterPosition(x, y);
+		//$TODO Need method to get platter position from xy global coords
+		newPerson.platterPosition = World.getPlatterPosition(x, y);
 		newPerson.init();
         
 		this.people.push(newPerson);
@@ -123,7 +160,7 @@ Turtles.World.prototype = {
 	
 	// Forget it, we need speed.  Get a random building.  It's not in order, so this algorithm will essentially be random.
     // it'll be closest if we bother to sort the list after every frame... which I don't know if we want to do.
-	getClosestUnoccupiedBuilding: function(platePosition) {
+	getClosestUnoccupiedBuilding: function(platterPosition) {
         var lastValidBuilding = null;
         
 		// Iterate through the buildings, looking for the two closest ones... and then compare them
@@ -135,14 +172,14 @@ Turtles.World.prototype = {
 				continue;
 			}
 			
-			var position = building.platePosition - platePosition;
+			var position = building.platterPosition - platterPosition;
 			
-			// If the position is > 0, we've passed the actual plate position.  Check this and
+			// If the position is > 0, we've passed the actual platter position.  Check this and
 			// the last building we saw to see which is closer, and use that.
 			if (position > 0) {
 				if (lastValidBuilding) {
-					var lastPosDiff = Math.abs(lastValidBuilding.platePosition - platePosition);
-					var posDiff = Math.abs(building.platePosition - platePosition);
+					var lastPosDiff = Math.abs(lastValidBuilding.platterPosition - platterPosition);
+					var posDiff = Math.abs(building.platterPosition - platterPosition);
 					lastValidBuilding = (lastPosDiff > posDiff) ? building : lastValidBuilding;
 				} else {
 					lastValidBuilding = building;
@@ -172,7 +209,11 @@ Turtles.World.prototype = {
 		//		  Actors need the responsibility.
 		var building = new Turtles.Building();
 		
-		building.platePosition = person.goalPosition;
+		building.platterPosition = person.goalPlatterPosition;
+        var platterVector = World.getCoordinatesFromPlatterPosition(building.platterPosition);
+        building.x = platterVector.x;
+        building.y = platterVector.y;
+        building.init();
 		building.build(person);
         
         this.buildings.push(building);
@@ -207,6 +248,7 @@ Turtles.World.prototype = {
         for (var i = 0; i < this.buildings.length; i++) {
             this.buildings[i].update(this.stepLength);
         }
+        
     }
 	
 };

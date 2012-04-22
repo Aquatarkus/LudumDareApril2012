@@ -106,6 +106,8 @@ Turtles.GameEntity.prototype.update = function(timeElapsed) {
     var pos = this.physicsBody.m_position;
     this.mesh.position.x = pos.x;
     this.mesh.position.y = pos.y;
+    this.x = this.mesh.position.x;
+    this.y = this.mesh.position.y;
     
     this.mesh.rotation.z = this.physicsBody.m_rotation;
 };

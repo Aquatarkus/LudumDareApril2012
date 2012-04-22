@@ -278,6 +278,8 @@ function onMouseUp(event)
         // intersections[0].object.gameEntity.fixWithJoint(World.platter);
     }
     
+    World.getPlatterPosition(worldCoords[0].x, worldCoords[0].y);
+    
     mouseIsDown = false;
     mouseDidMove = false;
     oldEventCoords.length = 0;
