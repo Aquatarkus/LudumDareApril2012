@@ -27,8 +27,7 @@
 Turtles.Building = function() {
     Turtles.GameEntity.call(this);
 
-    var self = this;
-	self.platterPosition = 0;
+    self.platterPosition = 0;
 	// Build properties
 	self.builder = null;
 	self.isBuilt = false;
