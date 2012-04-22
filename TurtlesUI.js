@@ -10,6 +10,7 @@ var feedbackElement = document.getElementById('feedbackElement');
 var Stats = Stats || {};
 var THREE = THREE || {};
 var Turtles = Turtles || {};
+var World = World || {};
 
 var Log = 
 {
@@ -41,10 +42,9 @@ var Log =
 Turtles.UI = function(element, width, height, cameraHeight)
 {
     // camera bounds
-    this.cameraNear = -50;
-    this.cameraFar = 50;
+    this.cameraNear = -100;
+    this.cameraFar = 100;
     this.cameraFrame = {x:0, y:0, width:1, height:cameraHeight};
-    this.cameraScale = 1;
     
     // ray casting
     this.projector = new THREE.Projector();
@@ -56,13 +56,16 @@ Turtles.UI = function(element, width, height, cameraHeight)
     this.scene = new THREE.Scene();
     
     // camera
-    this.camera = new THREE.OrthographicCamera(-1,1,-1,1,-50,50);
+    this.camera = new THREE.OrthographicCamera(-1,1,-1,1,this.cameraNear,this.cameraFar);
     this.scene.add(this.camera);
     
     // renderer
-    this.renderer = new THREE.CanvasRenderer();
+    this.renderer = new THREE.WebGLRenderer();
     
     this.resize(width, height);
+    
+    this.onClick = function(worldCoords){};
+    this.onMove = function(worldCoords, oldWorldCoords){};
     
     // DOM
     element.appendChild(this.renderer.domElement);
@@ -93,6 +96,18 @@ Turtles.UI.prototype =
         this.clickableObjects.push(clickableObject);
         this.addObject(clickableObject);
     },
+    removeObject: function(object)
+    {
+        var index = this.clickableObjects.indexOf(object);
+        if (index > -1) {
+            this.clickableObjects.splice(index, 1);
+        }
+        index = this.objects.indexOf(object);
+        if (index > -1) {
+            this.objects.splice(index, 1);
+        }
+        this.scene.remove(object);
+    },
     show : function()
     {
         this.renderer.domElement.style.display = 'block';
@@ -120,8 +135,8 @@ Turtles.UI.prototype =
         // adjust the camera
         var frame = this.cameraFrame;
         var scale = this.cameraScale;
-        var scaledWidthHalf = scale * frame.width;
-        var scaledHeightHalf = scale * frame.height;
+        var scaledWidthHalf = frame.width/2;
+        var scaledHeightHalf = frame.height/2;
         
         var camera = this.camera;
         camera.left   = frame.x - scaledWidthHalf;
@@ -133,6 +148,24 @@ Turtles.UI.prototype =
         
         this.cameraIsDirty = true;
     },
+    getWorldCoords : function(eventCoords)
+    {
+        var worldCoords = [];
+        for (var i = 0; i < eventCoords.length; i++)
+        {
+            var coords = eventCoords[i];
+            xCoord = coords.x;
+            yCoord = coords.y;
+            // percent into the screen
+            var percentWidth = xCoord/this.width-0.5;
+            var percentHeight = 0.5-yCoord/this.height;
+            var cameraFrame = this.cameraFrame;
+            var cameraX = percentWidth  * cameraFrame.width + cameraFrame.x;
+            var cameraY = percentHeight * cameraFrame.height + cameraFrame.y;
+            worldCoords.push({x:cameraX, y:cameraY});
+        }
+        return worldCoords;
+    },
     draw : function()
     {
         if (this.cameraIsDirty)
@@ -142,37 +175,31 @@ Turtles.UI.prototype =
         }
         this.renderer.render(this.scene, this.camera);
     },
-    window2cameraCoords : function(xCoord, yCoord)
-    {
-
-    },
-    castRay : function(xCoord, yCoord)
+    castRay : function(coords)
     {
         var ray = this.ray;
-        var percentWidth = xCoord/this.width-0.5;
-        var percentHeight = 0.5-yCoord/this.height;
-        var cameraX = percentWidth * this.cameraFrame.width/this.cameraScale + this.cameraFrame.x;
-        var cameraY = percentHeight * this.cameraFrame.height/this.cameraScale + this.cameraFrame.y;
-        Log.debug('castRay percents', {x:percentWidth, y:percentHeight});
-        Log.debug('castRay cameraX, cameraY', {x:cameraX, y:cameraY});
-        // this.projector.unprojectVector(ray.origin.set(cameraX, cameraY, this.cameraNear), this.camera);
-        // this.projector.unprojectVector(ray.direction.set(0, 0, -1), this.camera);
-        ray.origin.set(cameraX, cameraY, this.cameraNear);
+        ray.origin.set(coords.x, coords.y, 100);
         ray.direction.set(0, 0, -1);
         var intersections = ray.intersectObjects(this.clickableObjects);
+        Log.debug('castRay counts', {clickable:this.clickableObjects.length, intersects: intersections.length});
+        Log.debug('castRay ray', ray);
         return intersections;
     },
-    moveCamera : function(deltaX, deltaY)
+    moveCamera : function(coords)
     {
-        this.cameraFrame.x -= deltaX;
-        this.cameraFrame.y += deltaY;
+        this.cameraFrame.x -= coords.x;
+        this.cameraFrame.y -= coords.y;
         this.updateCamera();
     },
     scaleCamera : function(scaleFactor)
     {
-        this.cameraScale *= scaleFactor;
-        Log.debug('scaleCamera', {cameraScale: this.cameraScale});
+        this.cameraFrame.width *= scaleFactor;
+        this.cameraFrame.height *= scaleFactor;
         this.updateCamera();
+    },
+    registerOnClickWorld : function(onClick)
+    {
+        this.onClick = onClick;
     }
 };
 
@@ -180,6 +207,7 @@ var turtlesUI = new Turtles.UI(gameElement, window.innerWidth, window.innerHeigh
 
 var mouseIsDown = false;
 var touchIsDown = false;
+var mouseDidMove = false;
 var oldEventCoords = [];
 
 // register for window events
@@ -217,7 +245,6 @@ function onMouseScroll(event)
     {
         delta = -event.detail/3;
     }
-    Log.event('onMouseScroll', 'delta = '+delta);
     if (delta)
     {
         turtlesUI.scaleCamera(1-delta/100);
@@ -230,6 +257,7 @@ function onMouseDown(event)
     oldEventCoords = getEventCoords(event);
     Log.event('onMouseDown', oldEventCoords);
     mouseIsDown = true;
+    mouseDidMove = false;
 }
 
 function onMouseMove(event)
@@ -240,12 +268,21 @@ function onMouseMove(event)
         var eventCoords = getEventCoords(event);
         // Log.event('onMouseMove', eventCoords);
         
-        var deltaX = eventCoords[0].x - oldEventCoords[0].x;
-        var deltaY = eventCoords[0].y - oldEventCoords[0].y;
+        var oldWorldCoords = turtlesUI.getWorldCoords(oldEventCoords);
+        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
         
-        turtlesUI.moveCamera(deltaX, deltaY);
+        /*
+        var deltaWorldCoords = {};
+        deltaWorldCoords.x = worldCoords[0].x - oldWorldCoords[0].x;
+        deltaWorldCoords.y = worldCoords[0].y - oldWorldCoords[0].y;
+        
+        turtlesUI.moveCamera(deltaWorldCoords);
+        */
+        
+        turtlesUI.onMove(worldCoords[0], oldWorldCoords[0]);
         
         oldEventCoords = eventCoords;
+        mouseDidMove = true;
     }
 }
 
@@ -254,13 +291,25 @@ function onMouseUp(event)
     event.preventDefault();
     var eventCoords = getEventCoords(event);
     Log.event('onMouseUp', eventCoords);
-	
-	World.createBuilding(eventCoords[0].x, eventCoords[0].y);
-	    
-    var intersections = turtlesUI.castRay(eventCoords[0].x, eventCoords[0].y);
-    Log.debug('onMouseUp intersections count', intersections.length);
-    
+
+    if (World.spawner) {
+        World.spawner.spawn();
+    } else {
+        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
+        World.setSpawner(new Turtles.MeteorSpawner(worldCoords[0]));
+    }
+//    if (World.selectedEffect && !World.pendingEffect) {
+//        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
+//        World.createEffect(worldCoords[0]);
+//    } else {
+//        var pendingEffect = World.pendingEffect;
+//        if (pendingEffect) {
+//            pendingEffect.execute();
+//        }
+//    }
+
     mouseIsDown = false;
+    mouseDidMove = false;
     oldEventCoords.length = 0;
 }
 
@@ -321,24 +370,6 @@ stats.domElement.style.position = 'absolute';
 stats.domElement.style.top = '0px';
 TurtlesElement.appendChild( stats.domElement );
 
-// turtle
-/*
-var turtleGeometry = new THREE.SphereGeometry(50.0, 20.0, 20.0);
-var turtleMaterial = new THREE.MeshBasicMaterial({color:0x00ff00});
-var turtleMesh = new THREE.Mesh(turtleGeometry, turtleMaterial);
-turtleMesh.position.set(0,0,0);
-turtlesUI.addClickableObject(turtleMesh);
-*/
-
-// platter
-/*
-var platterGeometry = new THREE.CubeGeometry(200, 10, 200)
-var platterMaterial = new THREE.MeshBasicMaterial({color:0x7f3f1f});
-var platterMesh = new THREE.Mesh(platterGeometry, platterMaterial);
-platterMesh.position.set(0, 50, 0);
-turtlesUI.addClickableObject(platterMesh);
-*/
-
 // light
 var ambientLight = new THREE.AmbientLight(0x7f7f7f);
 turtlesUI.addObject(ambientLight);
@@ -348,52 +379,18 @@ var sunLight = new THREE.PointLight(0xffffff, 1);
 sunLight.position.set(-100, 200, 0);
 turtlesUI.addObject(sunLight);
 
-// plane
-var planeGeometry = new THREE.CubeGeometry( 500, 10, 500 );
-var planeMaterial = new THREE.MeshBasicMaterial({color:0xffffff});
-var planeObject = new THREE.Mesh(planeGeometry, planeMaterial);
-planeObject.position.x = 0;
-planeObject.position.y = 0;
-planeObject.position.z = 0;
-planeObject.scale.x = 1;
-planeObject.scale.y = 1;
-planeObject.scale.z = 1;
-planeObject.rotation.x = 0;
-planeObject.rotation.y = 0;
-planeObject.rotation.z = 0;
-turtlesUI.addObject( planeObject );
-
 var renderer = turtlesUI.renderer;
 var scene = turtlesUI.scene;
 var camera = turtlesUI.camera;
 
 var World = new Turtles.World();
-
+World.init();
 
 function animate() {
 	requestAnimationFrame(animate);
-	turtlesUI.draw();
+    World.update();
+    turtlesUI.draw();
 	stats.update();
-	World.update();
 }
-
-World.init();
-
 
 animate();
-
-var building = new Turtles.Building();
-var person = new Turtles.Person();
-building.build(person);
-for (var i = 0; i < 1000; i++) {
-    building.update(1000.0 / 60.0);
-}
-
-building.build(person);
-for (var i = 0; i < 1000; i++) {
-    building.update(1000.0 / 60.0);
-}
-building.build(person);
-for (var i = 0; i < 1000; i++) {
-    building.update(1000.0 / 60.0);
-}
