@@ -11,6 +11,9 @@ Turtles.World = function() {
     this.people = [];
 
     this.buildings = [];
+    
+    // additions to the terrain
+    this.terrain = [];
 
     // effects placed by the player
     this.effects = [];
@@ -19,12 +22,19 @@ Turtles.World = function() {
     this.pendingEffect = null;
     
     // How long it takes, in ms, for a building to be built or iterate to the next level.
-    this.buildTimePerLevel = 1000;
+    this.buildTimePerLevel = 1500;
 	
 	// How long it takes, in ms, for a single unit of energy to be drained from a person.
     this.energyDrainRate = 500.0;
+    
+    this.maxPeople = 20;
+    this.maxBuildings = 50;
 	
 	this.pWorld = null;
+    this.minWorldX = -1000;
+    this.minWorldY = -1000;
+    this.maxWorldX = 1000;
+    this.maxWorldY = 1000;
 };
 
 
@@ -35,8 +45,8 @@ Turtles.World.prototype = {
 		
 		//Init pWorld
 		var worldAABB = new b2AABB();
-		worldAABB.minVertex.Set(-1000, -1000);
-		worldAABB.maxVertex.Set(1000, 1000);
+		worldAABB.minVertex.Set(this.minWorldX, this.minWorldY);
+		worldAABB.maxVertex.Set(this.maxWorldX, this.maxWorldY);
 		var gravity = new b2Vec2(0, -300);
 		var doSleep = true;
 		this.pWorld = new b2World(worldAABB, gravity, doSleep);
@@ -53,6 +63,7 @@ Turtles.World.prototype = {
 		this.platter.x = 0;
 		this.platter.y = this.turtle.height;
         this.platter.init();
+		this.platter.terrain = [];
 		
         setTimeout(function() {
             //init seed person
@@ -116,10 +127,13 @@ Turtles.World.prototype = {
         
     },
     
-    getCoordinatesFromPlatterPosition: function(platterPosition) {
+    getCoordinatesFromPlatterPosition: function(platterPosition, heightAbovePlatter) {
+        if (!heightAbovePlatter) {
+            heightAbovePlatter = 0;
+        }
         var realRelativePosition = (platterPosition * (World.platter.width * 2)) - World.platter.width;
         
-        var worldVector = World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(realRelativePosition, 0, 0));
+        var worldVector = World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(realRelativePosition, heightAbovePlatter, 0));
         
         return worldVector;
     },
@@ -131,7 +145,6 @@ Turtles.World.prototype = {
 		
 		newBuilding.x = x;
 		newBuilding.y = y;
-		//$TODO Need method to get platter position from xy global coords
 		newBuilding.platterPosition = World.getPlatterPosition(x, y);
         newBuilding.init();
 		newBuilding.levelUp();
@@ -142,16 +155,20 @@ Turtles.World.prototype = {
 	},
 	
 	createPerson: function(x, y) {
+        // Don't make any more people if we've hit our limit.
+        if (this.people.length >= this.maxPeople) {
+            return null;
+        }
+        
 		var newPerson = new Turtles.Person();
 		
 		newPerson.x = x;
 		newPerson.y = y;
-		//$TODO Need method to get platter position from xy global coords
 		newPerson.platterPosition = World.getPlatterPosition(x, y);
 		newPerson.init();
         
 		this.people.push(newPerson);
-		
+
 		return newPerson;
 	},
 
@@ -225,7 +242,7 @@ Turtles.World.prototype = {
 	},
     
     initOnPlatter: function(newPlatterObject) {
-        var platterVector = World.getCoordinatesFromPlatterPosition(newPlatterObject.platterPosition);
+        var platterVector = World.getCoordinatesFromPlatterPosition(newPlatterObject.platterPosition, World.platter.height);
         newPlatterObject.x = platterVector.x + newPlatterObject.width;
         newPlatterObject.y = platterVector.y + newPlatterObject.height;
         newPlatterObject.init();
@@ -261,6 +278,35 @@ Turtles.World.prototype = {
         this.platter.update(this.stepLength);
         this.turtle.update(this.stepLength);
         
+        /*
+        for (var contact = this.platter.physicsBody.GetContactList(); contact; contact = contact.GetNext())
+        {
+            var platter = this.platter;
+            if (platter.terrain.indexOf(contact) > -1)
+            {
+                platter.terrain.push(contact);
+                var jointDef = new b2DistanceJointDef();
+                jointDef.body1 = platter;
+                jointDef.body2 = contact;
+                jointDef.collideConnected = true; // bump and grind
+                jointDef.anchorPoint1 = platter.m_position;
+                jointDef.anchorPoint2 = contact.m_position;
+                
+                // roll it
+                World.pWorld.CreateJoint(jointDef);
+                
+                // light it
+            }
+        }
+        */
+        // terrain
+        for (var i = 0; i < this.terrain.length; i++)
+        {
+            var terrainPiece = this.terrain[i];
+            terrainPiece.update(this.stepLength);
+            
+        }
+        
         // people
         for (var i = 0; i < this.people.length; i++) {
             this.people[i].update(this.stepLength);
@@ -279,6 +325,29 @@ Turtles.World.prototype = {
         if (this.spawner) {
             this.spawner.update(this.stepLength);
         }
+        
+        for (var i = this.terrain.length; i >= 0; i--) {
+            if (this.destroy) {
+                this.terrain
+            }
+        }
+        
+        this.destroyCrap(this.terrain);
+        this.destroyCrap(this.people);
+        this.destroyCrap(this.effects);
+        this.destroyCrap(this.buildings);
+        
+    },
+    
+    destroyCrap: function(array) {
+        for (var i = array.length - 1; i >= 0; i--) {
+            if (array[i].destroy) {
+                array[i].removeFromSimulation();
+                array.splice(i, 1);
+            }
+        }
     }
 	
 };
+
+
