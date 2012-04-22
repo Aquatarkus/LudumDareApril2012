@@ -25,6 +25,7 @@
 
 Turtles.BuildingTexture = THREE.ImageUtils.loadTexture('textures/Building3.png');
 
+
 Turtles.Building = function() {
     Turtles.GameEntity.call(this);
 
@@ -62,6 +63,12 @@ Turtles.Building = function() {
 Turtles.Building.prototype = new Turtles.GameEntity();
 Turtles.Building.prototype.constructor = Turtles.Building;
 
+
+Turtles.Building.prototype.init = function() {
+    Turtles.GameEntity.prototype.init.call(this);
+    
+    this.physicsBody.m_friction = 99;
+};
 
 Turtles.Building.prototype.occupy = function(person) {
     this.occupiers.push(person);

@@ -20,3 +20,6 @@ Turtles.Meteor = function() {
 
     self.mouseWasUp = false;
 };
+
+Turtles.Meteor.prototype = new Turtles.Effect();
+Turtles.Meteor.prototype.constructor = Turtles.Meteor;

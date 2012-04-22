@@ -47,7 +47,11 @@ Turtles.meshFromBody = function(body, hexColor, texture)
     var mesh = null;
     if (texture)
     {
-        var textureMaterial = new THREE.MeshBasicMaterial({map: texture});
+        var textureMaterial = new THREE.MeshBasicMaterial(
+        {
+            map: texture,
+            transparent: true
+        });
         var otherSideMaterials = new THREE.MeshBasicMaterial({color: 0xF20A4C});
         var materials = [
 		otherSideMaterials,
@@ -79,6 +83,8 @@ Turtles.GameEntity = function() {
 	this.x = 0.0;
 	this.y = 0.0;
 	this.color = 0xffffff;
+	this.categoryBits = 0x0001;
+	this.maskBits = 0x0001;
 	this.alpha = 0;
     this.mesh = null;
     this.physicsBodyDef = null;
@@ -96,6 +102,15 @@ Turtles.GameEntity.prototype.init = function() {
     this._createMesh();
 };
 
+Turtles.GameEntity.prototype.removeFromSimulation = function() {
+    if (this.physicsBody) {
+        World.pWorld.DestroyBody(this.physicsBody);
+    }
+    if (this.mesh) {
+        turtlesUI.removeObject(this.mesh);
+    }
+};
+
 Turtles.GameEntity.prototype.update = function(timeElapsed) {
     var pos = this.physicsBody.m_position;
     this.mesh.position.x = pos.x;
@@ -109,7 +124,11 @@ Turtles.GameEntity.prototype.update = function(timeElapsed) {
 Turtles.GameEntity.prototype._createMesh = function(){
     
     this.mesh = Turtles.meshFromBody(this.physicsBody, this.color, this.texture);
-    
+    if(this.rotation)
+    {
+        this.mesh.rotation = this.rotation;
+    }
+    this.mesh.gameEntity = this;
     turtlesUI.addClickableObject(this.mesh);
     
     return this.mesh;
@@ -133,8 +152,9 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
             alert("Unknown entity type '" + this.shape + "'.");
             break;
     }
-	physicsShapeDef.categoryBits = this.collisionCategoryBits || 0x0001;
-	physicsShapeDef.maskBits = this.collisionMaskBits || 0xFFFF;
+    //physicsShapeDef.friction = 99;
+	physicsShapeDef.categoryBits = this.categoryBits;
+	physicsShapeDef.maskBits = this.maskBits;
     this.physicsBodyDef = new b2BodyDef();
     this.physicsBodyDef.AddShape(physicsShapeDef);
     this.physicsBodyDef.position.Set(this.x, this.y);
@@ -142,3 +162,26 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
     
     return this.physicsBody;
 };
+
+// blaze-a-blaze
+Turtles.GameEntity.prototype.fixWithJoint = function(entity)
+{
+    if (this != entity)
+    {
+        // get down
+        var myBody = this.physicsBody;
+        var theirBody = entity.physicsBody;
+        
+        var jointDef = new b2DistanceJointDef();
+        jointDef.body1 = myBody;
+        jointDef.body2 = theirBody;
+        jointDef.collideConnected = true; // bump and grind
+        jointDef.anchorPoint1 = myBody.m_position;
+        jointDef.anchorPoint1 = theirBody.m_position;
+        
+        // roll it
+        World.pWorld.CreateJoint(jointDef);
+        
+        // light it
+    }
+}

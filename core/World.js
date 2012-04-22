@@ -51,26 +51,27 @@ Turtles.World.prototype = {
 		//init platter
 		this.platter = new Turtles.Platter();
 		this.platter.x = 0;
-		this.platter.y = this.turtle.width/2;
+		this.platter.y = this.turtle.height;
         this.platter.init();
 		
-        //init seed person
-        var person = new Turtles.Person();
-        person.x = 0;
-        person.y = 150;
-        person.init();
-        
-        this.people.push(person);
+        setTimeout(function() {
+            //init seed person
+            var person = new Turtles.Person();
+            person.platterPosition = 0.5;
+            World.initOnPlatter(person);
+            World.people.push(person);
+        }, 1000);
         
         //init fulcrum
 		var fulcrumShapeDef = new b2BoxDef();
         fulcrumShapeDef.extents.Set(1, 1);
         fulcrumShapeDef.density = 0;
-		fulcrumShapeDef.collisionCategoryBits = 0x0004;
-		fulcrumShapeDef.collisionMaskBits = 0x0002;
+		//fulcrumShapeDef.collisionCategoryBits = 0x0004;
+		//fulcrumShapeDef.collisionMaskBits = 0x0002;
+		fulcrumShapeDef.groupIndex = -2;
 		var fulcrumBodyDef = new b2BodyDef();
 		fulcrumBodyDef.AddShape(fulcrumShapeDef);
-		fulcrumBodyDef.position.Set(0, this.turtle.width/4);
+		fulcrumBodyDef.position.Set(0, this.turtle.height/4);
 		var fulcrumBody = this.pWorld.CreateBody(fulcrumBodyDef);
 		
 		//join platter to fulcrum.
@@ -110,12 +111,13 @@ Turtles.World.prototype = {
         var result = vectorComp.dot(vectorPosition);
         
         // Convert to a 0-1 range, with 0 = -width and 1 = width.
-        return result / World.platter.width;
+        
+        return (result + World.platter.width) / (World.platter.width * 2);
         
     },
     
     getCoordinatesFromPlatterPosition: function(platterPosition) {
-        var realRelativePosition = platterPosition * World.platter.width;
+        var realRelativePosition = (platterPosition * (World.platter.width * 2)) - World.platter.width;
         
         var worldVector = World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(realRelativePosition, 0, 0));
         
@@ -221,6 +223,14 @@ Turtles.World.prototype = {
 	getBuildPosition : function() {
 		return Math.random();
 	},
+    
+    initOnPlatter: function(newPlatterObject) {
+        var platterVector = World.getCoordinatesFromPlatterPosition(newPlatterObject.platterPosition);
+        newPlatterObject.x = platterVector.x + newPlatterObject.width;
+        newPlatterObject.y = platterVector.y + newPlatterObject.height;
+        newPlatterObject.init();
+        newPlatterObject.mesh.rotation.z = newPlatterObject.physicsBody.m_rotation = World.platter.physicsBody.m_rotation;
+    },
 
 	// Instantiate a building and assign the builder.
 	initBuilding: function(person) {
@@ -230,10 +240,7 @@ Turtles.World.prototype = {
 		var building = new Turtles.Building();
 		
 		building.platterPosition = person.goalPlatterPosition;
-        var platterVector = World.getCoordinatesFromPlatterPosition(building.platterPosition);
-        building.x = platterVector.x;
-        building.y = platterVector.y;
-        building.init();
+        World.initOnPlatter(building);
 		building.build(person);
         
         this.buildings.push(building);

@@ -44,17 +44,17 @@ Assumes:
 Turtles.Person = function() {
 	Turtles.GameEntity.call(this);
 	this.isPhysicsSimulated = true,
-	this.density = 0.3;
-	this.width = 4;
-	this.height = 4;
+	this.density = 1;
+	this.width = 1;
+	this.height = 1;
 	this.shape = "BOX";
 	this.color = 0xff3333;
 	this.alpha = 0;
 	
 	this.platterPosition = 0;
-	this.moveSpeed = 50.0;
+	this.moveSpeed = 25.0;
 	this.maxEnergy = 5.0;
-	this.energy = 500.0;
+	this.energy = 50.0;
 	this.state = "IDLE";
 	this.goalPlatterPosition = null;
 	this.goalObject = null;
@@ -68,6 +68,9 @@ Turtles.Person.prototype.constructor = Turtles.Person;
 Turtles.Person.prototype.buildComplete = function(building) {
 	this.state = "IDLE";
 	this.goalObject = null;
+    this.x = building.x;
+    this.y = building.y;
+    this.init();
 };
 
 Turtles.Person.prototype.isOnTerrain = function() {
@@ -141,6 +144,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
 				var building = World.initBuilding(this);
 				this.goalObject = building;
 				this.state = "BUILD";
+                this.removeFromSimulation();
                 this.goalPlatterPosition = null;
                 this.lastMoveDirection = 0;
 			}
@@ -151,6 +155,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
 			if ((this.platterPosition == this.goalPlatterPosition) || (this.lastMoveDirection != direction && this.lastMoveDirection != 0)) {
 				this.goalObject.occupy(this);
 				this.state = "SLEEP";
+                this.removeFromSimulation();
                 this.goalPlatterPosition = null;
                 this.lastMoveDirection = 0;
 			}
