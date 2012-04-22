@@ -258,10 +258,12 @@ function onMouseMove(event)
         var eventCoords = getEventCoords(event);
         // Log.event('onMouseMove', eventCoords);
         
-        var deltaX = eventCoords[0].x - oldEventCoords[0].x;
-        var deltaY = eventCoords[0].y - oldEventCoords[0].y;
+        var oldWorldCoords = turtlesUI.getWorldCoords(oldEventCoords);
+        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
+        var deltaX = worldCoords[0].x - oldWorldCoords[0].x;
+        var deltaY = worldCoords[0].y - oldWorldCoords[0].y;
         
-        turtlesUI.moveCamera(deltaX, deltaY);
+        turtlesUI.moveCamera(deltaX, -deltaY);
         
         oldEventCoords = eventCoords;
         mouseDidMove = true;

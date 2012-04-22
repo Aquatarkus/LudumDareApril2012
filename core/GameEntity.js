@@ -47,7 +47,11 @@ Turtles.meshFromBody = function(body, hexColor, texture)
     var mesh = null;
     if (texture)
     {
-        var textureMaterial = new THREE.MeshBasicMaterial({map: texture});
+        var textureMaterial = new THREE.MeshBasicMaterial(
+        {
+            map: texture,
+            transparent: true
+        });
         var otherSideMaterials = new THREE.MeshBasicMaterial({color: 0xF20A4C});
         var materials = [
 		otherSideMaterials,
