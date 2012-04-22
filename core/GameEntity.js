@@ -133,6 +133,9 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
     }
 	physicsShapeDef.categoryBits = this.categoryBits;
 	physicsShapeDef.maskBits = this.maskBits;
+	if (this.friction) {
+		physicsShapeDef.friction = this.friction;
+	}
     this.physicsBodyDef = new b2BodyDef();
     this.physicsBodyDef.AddShape(physicsShapeDef);
     this.physicsBodyDef.position.Set(this.x, this.y);

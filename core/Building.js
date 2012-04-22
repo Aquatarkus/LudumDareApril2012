@@ -34,6 +34,7 @@ Turtles.Building = function() {
 	this.isBuilt = false;
 	this.level = 0;
 	this.buildTimeElapsed = 0;
+	this.friction = .5;
     
 	// Occupency properties
 	this.occupiers = [];

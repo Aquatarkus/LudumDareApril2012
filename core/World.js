@@ -44,34 +44,12 @@ Turtles.World.prototype = {
         this.turtle.y = 0;
         this.turtle.init();
         
-        
 		//init platter
 		this.platter = new Turtles.Platter();
 		this.platter.x = 0;
 		this.platter.y = this.turtle.height;
         this.platter.init();
-		
-        //init fulcrum
-		var fulcrumShapeDef = new b2BoxDef();
-        fulcrumShapeDef.extents.Set(1, 1);
-        fulcrumShapeDef.density = 0;
-		//fulcrumShapeDef.collisionCategoryBits = 0x0004;
-		//fulcrumShapeDef.collisionMaskBits = 0x0002;
-		fulcrumShapeDef.groupIndex = -2;
-		var fulcrumBodyDef = new b2BodyDef();
-		fulcrumBodyDef.AddShape(fulcrumShapeDef);
-		fulcrumBodyDef.position.Set(0, this.turtle.height/4);
-		var fulcrumBody = this.pWorld.CreateBody(fulcrumBodyDef);
-		
-		//join platter to fulcrum.
-		var fulcrumJointDef = new b2RevoluteJointDef();
-		fulcrumJointDef.body1 = this.platter.physicsBody;
-		fulcrumJointDef.body2 = fulcrumBody;
-		fulcrumJointDef.anchorPoint.Set(fulcrumBody.m_position.x, fulcrumBody.m_position.y);
-		fulcrumJointDef.lowerAngle = -Math.PI / 6;
-		fulcrumJointDef.upperAngle = Math.PI / 6;
-		fulcrumJointDef.enableLimit = true;
-		this.pWorld.CreateJoint(fulcrumJointDef);
+		this.platter.initFulcrumJoint();
 	},
 	
     constructor: Turtles.World,
