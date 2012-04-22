@@ -1,6 +1,7 @@
 Turtles.World = function() {
     this.turtle = null;
     this.platter = null;
+	this.fulcrumJoint = null;
 
     this.gravity = 0.098;
 
@@ -16,12 +17,18 @@ Turtles.World = function() {
 
     // effects placed by the player
     this.effects = [];
+    this.selectedEffect = Turtles.Meteor;
+    // for multi-step effects (e.g. meteors; placed on screen, then a second click deploys)
+    this.pendingEffect = null;
     
     // How long it takes, in ms, for a building to be built or iterate to the next level.
-    this.buildTimePerLevel =  1000;
+    this.buildTimePerLevel = 1500;
 	
 	// How long it takes, in ms, for a single unit of energy to be drained from a person.
-    this.energyDrainRate = 500;
+    this.energyDrainRate = 500.0;
+    
+    this.maxPeople = 20;
+    this.maxBuildings = 50;
 	
 	this.pWorld = null;
 };
@@ -50,19 +57,81 @@ Turtles.World.prototype = {
 		//init platter
 		this.platter = new Turtles.Platter();
 		this.platter.x = 0;
-		this.platter.y = 100;
+		this.platter.y = this.turtle.height;
         this.platter.init();
 		this.platter.terrain = [];
+		
+        setTimeout(function() {
+            //init seed person
+            var person = new Turtles.Person();
+            person.platterPosition = 0.5;
+            World.initOnPlatter(person);
+            World.people.push(person);
+        }, 1000);
         
+        //init fulcrum
+		var fulcrumShapeDef = new b2BoxDef();
+        fulcrumShapeDef.extents.Set(1, 1);
+        fulcrumShapeDef.density = 0;
+		//fulcrumShapeDef.collisionCategoryBits = 0x0004;
+		//fulcrumShapeDef.collisionMaskBits = 0x0002;
+		fulcrumShapeDef.groupIndex = -2;
+		var fulcrumBodyDef = new b2BodyDef();
+		fulcrumBodyDef.AddShape(fulcrumShapeDef);
+		fulcrumBodyDef.position.Set(0, this.turtle.height/4);
+		var fulcrumBody = this.pWorld.CreateBody(fulcrumBodyDef);
+		
+		//join platter to fulcrum.
+		var fulcrumJointDef = new b2RevoluteJointDef();
+		fulcrumJointDef.body1 = this.platter.physicsBody;
+		fulcrumJointDef.body2 = fulcrumBody;
+		fulcrumJointDef.anchorPoint.Set(fulcrumBody.m_position.x, fulcrumBody.m_position.y);
+		fulcrumJointDef.lowerAngle = -Math.PI / 6;
+		fulcrumJointDef.upperAngle = Math.PI / 6;
+		fulcrumJointDef.enableLimit = true;
+		this.pWorld.CreateJoint(fulcrumJointDef);
 	},
 	
     constructor: Turtles.World,
 
-    energyDrainRate: 0.01,
-
     isOnTerrain: function(position) {
         // todo
         return true;
+    },
+    
+    getPlatterPosition: function(x, y) {
+        /*
+        var geometry = new THREE.Geometry();
+        geometry.vertices.push(new THREE.Vertex(World.platter.mesh.position));
+        geometry.vertices.push(new THREE.Vertex(World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(100, 0, 0))));
+        var material = new THREE.MeshBasicMaterial({color: 0xff33ff, wireframe:true });
+        var debugline = new THREE.Line(geometry, material);
+        turtlesUI.addObject(debugline);
+        */
+        //World.platter.mesh.position
+        var vectorAligned = World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(1, 0, 0));
+        var vectorComp = new THREE.Vector3();
+        vectorComp.sub(vectorAligned, World.platter.mesh.position);
+        var vectorPosition = new THREE.Vector3(x, y, 0);
+        
+        // Get x position along plane of the platter.
+        var result = vectorComp.dot(vectorPosition);
+        
+        // Convert to a 0-1 range, with 0 = -width and 1 = width.
+        
+        return (result + World.platter.width) / (World.platter.width * 2);
+        
+    },
+    
+    getCoordinatesFromPlatterPosition: function(platterPosition, heightAbovePlatter) {
+        if (!heightAbovePlatter) {
+            heightAbovePlatter = 0;
+        }
+        var realRelativePosition = (platterPosition * (World.platter.width * 2)) - World.platter.width;
+        
+        var worldVector = World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(realRelativePosition, heightAbovePlatter, 0));
+        
+        return worldVector;
     },
     
 	createBuilding:function(coords) {
@@ -72,8 +141,7 @@ Turtles.World.prototype = {
 		
 		newBuilding.x = x;
 		newBuilding.y = y;
-		//$TODO Need method to get plate position from xy global coords
-		//newBuilding.platterPosition = PhysicsEngine.GetPlatterPosition(x, y);
+		newBuilding.platterPosition = World.getPlatterPosition(x, y);
         newBuilding.init();
 		newBuilding.levelUp();
 		
@@ -83,19 +151,41 @@ Turtles.World.prototype = {
 	},
 	
 	createPerson: function(x, y) {
+        // Don't make any more people if we've hit our limit.
+        if (this.people.length >= this.maxPeople) {
+            return null;
+        }
+        
 		var newPerson = new Turtles.Person();
 		
 		newPerson.x = x;
 		newPerson.y = y;
-		//$TODO Need method to get plate position from xy global coords
-		//newBuilding.platterPosition = PhysicsEngine.GetPlatterPosition(x, y);
+		newPerson.platterPosition = World.getPlatterPosition(x, y);
 		newPerson.init();
         
 		this.people.push(newPerson);
-		
+
 		return newPerson;
 	},
-	
+
+    createEffect: function(coords) {
+        var newEffect = new this.selectedEffect();
+
+        newEffect.x = coords.x;
+        newEffect.y = coords.y;
+        newEffect.init();
+
+        newEffect.physicsBody.SetLinearVelocity(new b2Vec2(0, -300));
+
+        this.effects.push(newEffect);
+
+        return newEffect;
+    },
+
+    setSpawner: function(spawner) {
+        this.spawner = spawner;
+    },
+
 	// Checks whether the given actor is actually on the terrain, or whether they're
 	// flipping wildly through the air.  
 	// $TODO - Do this once we have physics a bit more fleshed out.
@@ -103,10 +193,11 @@ Turtles.World.prototype = {
 		return true;
 	},
 	
-	// Get the closest building that does not yet have full occupancy, if one can be found.
-	getClosestUnoccupiedBuilding: function(platePosition) {
-		var lastValidBuilding = null;
-		
+	// Forget it, we need speed.  Get a random building.  It's not in order, so this algorithm will essentially be random.
+    // it'll be closest if we bother to sort the list after every frame... which I don't know if we want to do.
+	getClosestUnoccupiedBuilding: function(platterPosition) {
+        var lastValidBuilding = null;
+        
 		// Iterate through the buildings, looking for the two closest ones... and then compare them
 		// for the true closest.
 		for(var buildingIndex = 0; buildingIndex < this.buildings.length; buildingIndex++) {
@@ -116,14 +207,14 @@ Turtles.World.prototype = {
 				continue;
 			}
 			
-			var position = building.platePosition - platePosition;
+			var position = building.platterPosition - platterPosition;
 			
-			// If the position is > 0, we've passed the actual plate position.  Check this and
+			// If the position is > 0, we've passed the actual platter position.  Check this and
 			// the last building we saw to see which is closer, and use that.
 			if (position > 0) {
 				if (lastValidBuilding) {
-					var lastPosDiff = Math.abs(lastValidBuilding.platePosition - platePosition);
-					var posDiff = Math.abs(building.platePosition - platePosition);
+					var lastPosDiff = Math.abs(lastValidBuilding.platterPosition - platterPosition);
+					var posDiff = Math.abs(building.platterPosition - platterPosition);
 					lastValidBuilding = (lastPosDiff > posDiff) ? building : lastValidBuilding;
 				} else {
 					lastValidBuilding = building;
@@ -145,6 +236,14 @@ Turtles.World.prototype = {
 	getBuildPosition : function() {
 		return Math.random();
 	},
+    
+    initOnPlatter: function(newPlatterObject) {
+        var platterVector = World.getCoordinatesFromPlatterPosition(newPlatterObject.platterPosition, World.platter.height);
+        newPlatterObject.x = platterVector.x + newPlatterObject.width;
+        newPlatterObject.y = platterVector.y + newPlatterObject.height;
+        newPlatterObject.init();
+        newPlatterObject.mesh.rotation.z = newPlatterObject.physicsBody.m_rotation = World.platter.physicsBody.m_rotation;
+    },
 
 	// Instantiate a building and assign the builder.
 	initBuilding: function(person) {
@@ -153,28 +252,16 @@ Turtles.World.prototype = {
 		//		  Actors need the responsibility.
 		var building = new Turtles.Building();
 		
-		building.platePosition = person.goalPosition;
+		building.platterPosition = person.goalPlatterPosition;
+        World.initOnPlatter(building);
 		building.build(person);
-		
-		var foundPosition = false;
-		
-		for (var sortedBuildingIndex = 0; sortedBuildingIndex < this.buildings.length; sortedBuildingIndex++) {
-			var compareBuilding = this.buildings[sortedBuildingIndex];
-			
-			if (compareBuilding.platePosition > building.platePosition) {
-				this.buildings.splice(sortedBuildingIndex, 0, building);
-				foundPosition = true;
-				break;
-			}
-		}
-		
-		if (!foundPosition) {
-			this.buildings.push(building);
-		}
+        
+        this.buildings.push(building);
 		
 		return building;
 	},
-
+    
+    
     checkWinState: function() {
         return false;
     },
@@ -228,6 +315,10 @@ Turtles.World.prototype = {
         // buildings
         for (var i = 0; i < this.buildings.length; i++) {
             this.buildings[i].update(this.stepLength);
+        }
+        
+        if (this.spawner) {
+            this.spawner.update(this.stepLength);
         }
     }
 	

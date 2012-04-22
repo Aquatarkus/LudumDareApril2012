@@ -96,6 +96,18 @@ Turtles.UI.prototype =
         this.clickableObjects.push(clickableObject);
         this.addObject(clickableObject);
     },
+    removeObject: function(object)
+    {
+        var index = this.clickableObjects.indexOf(object);
+        if (index > -1) {
+            this.clickableObjects.splice(index, 1);
+        }
+        index = this.objects.indexOf(object);
+        if (index > -1) {
+            this.objects.splice(index, 1);
+        }
+        this.scene.remove(object);
+    },
     show : function()
     {
         this.renderer.domElement.style.display = 'block';
@@ -279,14 +291,23 @@ function onMouseUp(event)
     event.preventDefault();
     var eventCoords = getEventCoords(event);
     Log.event('onMouseUp', eventCoords);
-    
-    var worldCoords = turtlesUI.getWorldCoords(eventCoords);
-    
-    if(!mouseDidMove)
-    {
-        turtlesUI.onClick(worldCoords[0]);
+
+    if (World.spawner) {
+        World.spawner.spawn();
+    } else {
+        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
+        World.setSpawner(new Turtles.MeteorSpawner(worldCoords[0]));
     }
-    
+//    if (World.selectedEffect && !World.pendingEffect) {
+//        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
+//        World.createEffect(worldCoords[0]);
+//    } else {
+//        var pendingEffect = World.pendingEffect;
+//        if (pendingEffect) {
+//            pendingEffect.execute();
+//        }
+//    }
+
     mouseIsDown = false;
     mouseDidMove = false;
     oldEventCoords.length = 0;
