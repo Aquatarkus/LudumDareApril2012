@@ -111,7 +111,10 @@ Turtles.GameEntity.prototype.update = function(timeElapsed) {
 Turtles.GameEntity.prototype._createMesh = function(){
     
     this.mesh = Turtles.meshFromBody(this.physicsBody, this.color, this.texture);
-    
+    if(this.rotation)
+    {
+        this.mesh.rotation = this.rotation;
+    }
     turtlesUI.addClickableObject(this.mesh);
     
     return this.mesh;

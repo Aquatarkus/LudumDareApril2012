@@ -56,7 +56,7 @@ Turtles.UI = function(element, width, height, cameraHeight)
     this.scene = new THREE.Scene();
     
     // camera
-    this.camera = new THREE.OrthographicCamera(-1,1,-1,1,-50,50);
+    this.camera = new THREE.OrthographicCamera(-1,1,-1,1,-100,100);
     this.scene.add(this.camera);
     
     // renderer
