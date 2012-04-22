@@ -273,16 +273,22 @@ function onMouseUp(event)
     event.preventDefault();
     var eventCoords = getEventCoords(event);
     Log.event('onMouseUp', eventCoords);
-    
-    if (World.selectedEffect && !World.pendingEffect) {
-        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
-        World.createEffect(worldCoords[0]);
+
+    if (World.spawner) {
+        World.spawner.spawn();
     } else {
-        var pendingEffect = World.pendingEffect;
-        if (pendingEffect) {
-            pendingEffect.execute();
-        }
+        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
+        World.setSpawner(new Turtles.MeteorSpawner(worldCoords[0]));
     }
+//    if (World.selectedEffect && !World.pendingEffect) {
+//        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
+//        World.createEffect(worldCoords[0]);
+//    } else {
+//        var pendingEffect = World.pendingEffect;
+//        if (pendingEffect) {
+//            pendingEffect.execute();
+//        }
+//    }
 
     mouseIsDown = false;
     mouseDidMove = false;
