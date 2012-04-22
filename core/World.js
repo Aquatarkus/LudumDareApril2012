@@ -33,18 +33,9 @@ Turtles.World.prototype = {
 		var worldAABB = new b2AABB();
 		worldAABB.minVertex.Set(-1000, -1000);
 		worldAABB.maxVertex.Set(1000, 1000);
-		var gravity = new b2Vec2(0, 300);
+		var gravity = new b2Vec2(0, -300);
 		var doSleep = true;
 		this.pWorld = new b2World(worldAABB, gravity, doSleep);
-		
-		//init ground
-		var groundSd = new b2BoxDef();
-		groundSd.extents.Set(2000, 10);
-		groundSd.restitution = 0.2;
-		var groundBd = new b2BodyDef();
-		groundBd.AddShape(groundSd);
-		groundBd.position.Set(-1000, 500);
-		this.pWorld.CreateBody(groundBd);
 		
         // Init turtle
         this.turtle = new Turtles.Turtle();
@@ -55,7 +46,7 @@ Turtles.World.prototype = {
         
 		//init platter
 		this.platter = new Turtles.Platter();
-		this.platter.x = -500;
+		this.platter.x = 0;
 		this.platter.y = 100;
         this.platter.init();
 		
@@ -71,7 +62,9 @@ Turtles.World.prototype = {
         return true;
     },
     
-	createBuilding:function(x, y) {
+	createBuilding:function(coords) {
+        var x = coords.x;
+        var y = coords.y;
 		var newBuilding = new Turtles.Building();
 		
 		newBuilding.x = x;
@@ -107,10 +100,11 @@ Turtles.World.prototype = {
 		return true;
 	},
 	
-	// Get the closest building that does not yet have full occupancy, if one can be found.
+	// Forget it, we need speed.  Get a random building.  It's not in order, so this algorithm will essentially be random.
+    // it'll be closest if we bother to sort the list after every frame... which I don't know if we want to do.
 	getClosestUnoccupiedBuilding: function(platePosition) {
-		var lastValidBuilding = null;
-		
+        var lastValidBuilding = null;
+        
 		// Iterate through the buildings, looking for the two closest ones... and then compare them
 		// for the true closest.
 		for(var buildingIndex = 0; buildingIndex < this.buildings.length; buildingIndex++) {
@@ -159,26 +153,13 @@ Turtles.World.prototype = {
 		
 		building.platePosition = person.goalPosition;
 		building.build(person);
-		
-		var foundPosition = false;
-		
-		for (var sortedBuildingIndex = 0; sortedBuildingIndex < this.buildings.length; sortedBuildingIndex++) {
-			var compareBuilding = this.buildings[sortedBuildingIndex];
-			
-			if (compareBuilding.platePosition > building.platePosition) {
-				this.buildings.splice(sortedBuildingIndex, 0, building);
-				foundPosition = true;
-				break;
-			}
-		}
-		
-		if (!foundPosition) {
-			this.buildings.push(building);
-		}
+        
+        this.buildings.push(building);
 		
 		return building;
 	},
-
+    
+    
     checkWinState: function() {
         return false;
     },
@@ -189,6 +170,7 @@ Turtles.World.prototype = {
 		this.pWorld.Step(1.0/60.0, 1);
 	
         this.platter.update(this.stepLength);
+        this.turtle.update(this.stepLength);
         
         // people
         for (var i = 0; i < this.people.length; i++) {
