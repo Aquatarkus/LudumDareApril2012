@@ -58,6 +58,26 @@ Turtles.UI = function(element, width, height, cameraHeight)
     this.camera = new THREE.OrthographicCamera(-1,1,-1,1,this.cameraNear,this.cameraFar);
     this.scene.add(this.camera);
     
+    // starfield
+    var starCount = 1000;
+    var starGeometry = new THREE.Geometry();
+    var starMaterial = new THREE.ParticleBasicMaterial(
+    {
+        color: 0xffffff
+    });
+    for (var i = 0; i < starCount; i++)
+    {
+        var starX = Math.random()*1000-500;
+        var starY = Math.random()*1000-500;
+        var starZ = -40;
+        var star = new THREE.Vertex(new THREE.Vector3(starX, starY, starZ));
+        starGeometry.vertices.push(star);
+    }
+    
+    var starSystem = new THREE.ParticleSystem(starGeometry, starMaterial);
+    // starSystem.sortParticles = true;
+    this.addObject(starSystem);
+    
     // renderer
     this.renderer = new THREE.WebGLRenderer();
     
@@ -364,7 +384,8 @@ var camera = turtlesUI.camera;
 var World = new Turtles.World();
 World.init();
 
-function animate() {
+function animate()
+{
 	requestAnimationFrame(animate);
     World.update();
     turtlesUI.draw();

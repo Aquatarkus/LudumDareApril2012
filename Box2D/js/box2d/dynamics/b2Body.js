@@ -181,8 +181,10 @@ b2Body.prototype =
 	},
 
 	// Is this body sleeping (not simulating).
-	IsSleeping: function(){
-		return (this.m_flags & b2Body.e_sleepFlag) == b2Body.e_sleepFlag;
+	IsSleeping: function()
+    {
+        var isSleeping = (this.m_flags & b2Body.e_sleepFlag) == b2Body.e_sleepFlag;
+		return isSleeping;
 	},
 
 	// You can disable sleeping on this particular body.
@@ -205,16 +207,47 @@ b2Body.prototype =
 		this.m_sleepTime = 0.0;
 	},
     
-    // Sleep the body
+    
+    // ###double051 Sleep the body
 	Sleep: function(){
 		this.m_flags |= b2Body.e_sleepFlag;
 		this.m_sleepTime = 0.0;
 	},
     
+    // ###double051
     ToggleSleep: function()
     {
         this.m_flags ^= b2Body.e_sleepFleep;
         this.m_sleepTime = 0.0;
+    },
+    
+    // ###double051
+    ToggleMass: function()
+    {
+        var mass = this.m_mass;
+        
+        this.m_mass = this.m_oldMass;
+        this.m_oldMass = mass;
+        
+		if (this.m_mass > 0.0)
+		{
+			this.m_center.Multiply( 1.0 / this.m_mass );
+			this.m_position.Add( b2Math.b2MulMV(this.m_R, this.m_center) );
+		}
+		else
+		{
+            
+			this.m_flags |= b2Body.e_staticFlag;
+		}
+        
+        if (this.m_mass > 0.0)
+		{
+			this.m_invMass = 1.0 / this.m_mass;
+		}
+		else
+		{
+			this.m_invMass = 0.0;
+		}
     },
 
 	// Get the list of all shapes attached to this body.
@@ -270,6 +303,9 @@ b2Body.prototype =
 		this.m_torque = 0.0;
 
 		this.m_mass = 0.0;
+        
+        // ###double051 adding old mass property for toggling
+        this.m_oldMass = 0.0;
 
 		var massDatas = new Array(b2Settings.b2_maxShapesPerBody);
 		for (i = 0; i < b2Settings.b2_maxShapesPerBody; i++){

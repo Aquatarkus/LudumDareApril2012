@@ -17,7 +17,8 @@ Turtles.BuilderStates =
     DeleteObject : 'State: Delete Object',
     AddBoxTerrain : 'State: Add Box Terrain',
     AddCircleTerrain : 'State: Add Circle Terrain',
-    ToggleObjectPhysics : 'State: Toggle Object Physics'
+    ToggleObjectPhysics : 'State: Toggle Object Physics',
+    ToggleObjectMass : 'State: Toggle Object Mass'
 };
 
 Turtles.Builder = function()
@@ -61,6 +62,14 @@ Turtles.Builder.prototype =
                     {
                         material.color.setHex(this.getRandomColor());
                     }
+                }
+                break;
+            case Turtles.BuilderStates.DeleteObject:
+                var intersections = turtlesUI.castRay(worldCoords);
+                for (var i = 0; i < intersections.length; i++)
+                {
+                    var gameEntity = intersections[i].object.gameEntity;
+                    // World.DeleteEntity();
                 }
                 break;
             case Turtles.BuilderStates.WeldObject:
@@ -154,6 +163,15 @@ Turtles.Builder.prototype =
                     physicsBody.ToggleSleep();
                 }
                 break;
+            case Turtles.BuilderStates.ToggleObjectMass:
+                var intersections = turtlesUI.castRay(worldCoords);
+                for (var i = 0; i < intersections.length; i++)
+                {
+                    var gameEntity = intersections[i].object.gameEntity;
+                    var physicsBody = gameEntity.physicsBody;
+                    physicsBody.ToggleMass();
+                }
+                break;
             default:
                 break;
         }
@@ -242,7 +260,7 @@ function onStateUnweldObject()
     turtlesBuilder.setState(Turtles.BuilderStates.UnweldObject);
 }
 
-function onStateDelete()
+function onStateDeleteObject()
 {
     turtlesBuilder.setState(Turtles.BuilderStates.DeleteObject);
 }
@@ -260,4 +278,9 @@ function onStateAddCircleTerrain()
 function onStateToggleObjectPhysics()
 {
     turtlesBuilder.setState(Turtles.BuilderStates.ToggleObjectPhysics);
+}
+
+function onStateToggleObjectMass()
+{
+    turtlesBuilder.setState(Turtles.BuilderStates.ToggleObjectMass);
 }
