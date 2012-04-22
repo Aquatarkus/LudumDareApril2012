@@ -269,17 +269,17 @@ function onMouseUp(event)
     event.preventDefault();
     var eventCoords = getEventCoords(event);
     Log.event('onMouseUp', eventCoords);
-    
-    var worldCoords = turtlesUI.getWorldCoords(eventCoords);
-	World.createBuilding(worldCoords[0]);
-    var intersections = turtlesUI.castRay(worldCoords[0]);
-    if (intersections[0])
-    {
-        // intersections[0].object.gameEntity.fixWithJoint(World.platter);
+        
+    if (World.selectedEffect && !World.pendingEffect) {
+        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
+        World.createEffect(worldCoords[0]);
+    } else {
+        var pendingEffect = World.pendingEffect;
+        if (pendingEffect) {
+            pendingEffect.execute();
+        }
     }
-    
-    World.getPlatterPosition(worldCoords[0].x, worldCoords[0].y);
-    
+
     mouseIsDown = false;
     mouseDidMove = false;
     oldEventCoords.length = 0;

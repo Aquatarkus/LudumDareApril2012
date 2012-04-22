@@ -14,9 +14,12 @@ Turtles.World = function() {
 
     // effects placed by the player
     this.effects = [];
+    this.selectedEffect = Turtles.Meteor;
+    // for multi-step effects (e.g. meteors; placed on screen, then a second click deploys)
+    this.pendingEffect = null;
     
     // How long it takes, in ms, for a building to be built or iterate to the next level.
-    this.buildTimePerLevel =  1000;
+    this.buildTimePerLevel = 1000;
 	
 	// How long it takes, in ms, for a single unit of energy to be drained from a person.
     this.energyDrainRate = 500.0;
@@ -151,7 +154,21 @@ Turtles.World.prototype = {
 		
 		return newPerson;
 	},
-	
+
+    createEffect: function(coords) {
+        var newEffect = new this.selectedEffect();
+
+        newEffect.x = coords.x;
+        newEffect.y = coords.y;
+        newEffect.init();
+
+        newEffect.physicsBody.SetLinearVelocity(new b2Vec2(0, -300));
+
+        this.effects.push(newEffect);
+
+        return newEffect;
+    },
+
 	// Checks whether the given actor is actually on the terrain, or whether they're
 	// flipping wildly through the air.  
 	// $TODO - Do this once we have physics a bit more fleshed out.
