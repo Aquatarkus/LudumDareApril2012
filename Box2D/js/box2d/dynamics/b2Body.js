@@ -204,6 +204,18 @@ b2Body.prototype =
 		this.m_flags &= ~b2Body.e_sleepFlag;
 		this.m_sleepTime = 0.0;
 	},
+    
+    // Sleep the body
+	Sleep: function(){
+		this.m_flags |= b2Body.e_sleepFlag;
+		this.m_sleepTime = 0.0;
+	},
+    
+    ToggleSleep: function()
+    {
+        this.m_flags ^= b2Body.e_sleepFleep;
+        this.m_sleepTime = 0.0;
+    },
 
 	// Get the list of all shapes attached to this body.
 	GetShapeList: function(){

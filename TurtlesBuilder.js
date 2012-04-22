@@ -16,7 +16,8 @@ Turtles.BuilderStates =
     UnweldObject : 'State: Unweld Object',
     DeleteObject : 'State: Delete Object',
     AddBoxTerrain : 'State: Add Box Terrain',
-    AddCircleTerrain : 'State: Add Circle Terrain'
+    AddCircleTerrain : 'State: Add Circle Terrain',
+    ToggleObjectPhysics : 'State: Toggle Object Physics'
 };
 
 Turtles.Builder = function()
@@ -144,6 +145,15 @@ Turtles.Builder.prototype =
                 circleTerrain.init();
                 World.terrain.push(circleTerrain);
                 break;
+            case Turtles.BuilderStates.ToggleObjectPhysics:
+                var intersections = turtlesUI.castRay(worldCoords);
+                for (var i = 0; i < intersections.length; i++)
+                {
+                    var gameEntity = intersections[i].object.gameEntity;
+                    var physicsBody = gameEntity.physicsBody;
+                    physicsBody.ToggleSleep();
+                }
+                break;
             default:
                 break;
         }
@@ -164,8 +174,12 @@ Turtles.Builder.prototype =
                 for (var i = 0; i < intersections.length; i++)
                 {
                     var gameEntity = intersections[i].object.gameEntity;
-                    gameEntity.physicsBody.m_position.x += deltaWorldCoords.x;
-                    gameEntity.physicsBody.m_position.y += deltaWorldCoords.y;
+                    var physicsBody = gameEntity.physicsBody;
+                    var oldPosition = physicsBody.m_position;
+                    var movePosition = {x:physicsBody.m_position.x + deltaWorldCoords.x,
+                                        y:physicsBody.m_position.y + deltaWorldCoords.y};
+                    var moveAngle = 0;
+                    physicsBody.SetCenterPosition(movePosition, moveAngle);
                 }
                 break;
             case Turtles.BuilderStates.ColorObject:
@@ -185,8 +199,6 @@ Turtles.Builder.prototype =
 };
 
 var turtlesBuilder = new Turtles.Builder();
-// World.platter.density = 0;
-// World.platter._createPhysicsBody();
 
 Turtles.onBuilderClick = function(worldCoords)
 {
@@ -243,4 +255,9 @@ function onStateAddBoxTerrain()
 function onStateAddCircleTerrain()
 {
     turtlesBuilder.setState(Turtles.BuilderStates.AddCircleTerrain);
+}
+
+function onStateToggleObjectPhysics()
+{
+    turtlesBuilder.setState(Turtles.BuilderStates.ToggleObjectPhysics);
 }
