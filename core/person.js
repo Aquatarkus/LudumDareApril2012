@@ -68,6 +68,9 @@ Turtles.Person.prototype.constructor = Turtles.Person;
 Turtles.Person.prototype.buildComplete = function(building) {
 	this.state = "IDLE";
 	this.goalObject = null;
+    this.x = building.x;
+    this.y = building.y;
+    this.init();
 };
 
 Turtles.Person.prototype.isOnTerrain = function() {
@@ -141,6 +144,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
 				var building = World.initBuilding(this);
 				this.goalObject = building;
 				this.state = "BUILD";
+                this.removeFromSimulation();
                 this.goalPlatterPosition = null;
                 this.lastMoveDirection = 0;
 			}
@@ -151,6 +155,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
 			if ((this.platterPosition == this.goalPlatterPosition) || (this.lastMoveDirection != direction && this.lastMoveDirection != 0)) {
 				this.goalObject.occupy(this);
 				this.state = "SLEEP";
+                this.removeFromSimulation();
                 this.goalPlatterPosition = null;
                 this.lastMoveDirection = 0;
 			}

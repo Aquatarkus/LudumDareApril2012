@@ -93,6 +93,18 @@ Turtles.UI.prototype =
         this.clickableObjects.push(clickableObject);
         this.addObject(clickableObject);
     },
+    removeObject: function(object)
+    {
+        var index = this.clickableObjects.indexOf(object);
+        if (index > -1) {
+            this.clickableObjects.splice(index, 1);
+        }
+        index = this.objects.indexOf(object);
+        if (index > -1) {
+            this.objects.splice(index, 1);
+        }
+        this.scene.remove(object);
+    },
     show : function()
     {
         this.renderer.domElement.style.display = 'block';

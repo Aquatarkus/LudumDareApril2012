@@ -102,6 +102,15 @@ Turtles.GameEntity.prototype.init = function() {
     this._createMesh();
 };
 
+Turtles.GameEntity.prototype.removeFromSimulation = function() {
+    if (this.physicsBody) {
+        World.pWorld.DestroyBody(this.physicsBody);
+    }
+    if (this.mesh) {
+        turtlesUI.removeObject(this.mesh);
+    }
+};
+
 Turtles.GameEntity.prototype.update = function(timeElapsed) {
     var pos = this.physicsBody.m_position;
     this.mesh.position.x = pos.x;
