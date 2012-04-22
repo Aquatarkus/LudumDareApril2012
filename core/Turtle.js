@@ -3,7 +3,7 @@ Turtles.GameEntity.call(this);
 	this.isPhysicsSimulated = true;
 	this.density = 0;
 	this.width = 50.0;
-	this.length = 20.0;
+	this.height = 20.0;
 	this.shape = "CIRCLE";
 	this.color = 0x00ff00;
 	this.alpha = 0;

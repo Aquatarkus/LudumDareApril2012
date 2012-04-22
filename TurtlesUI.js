@@ -392,6 +392,7 @@ function animate() {
 
 animate();
 
+/*
 function addTexturedCube()
 {
 	//Add a cube body.
@@ -424,3 +425,4 @@ function addTexturedCube()
 }
 
 addTexturedCube();
+*/

@@ -3,6 +3,7 @@
 Turtles.geometryFromShape = function(shape)
 {
     var shapeGeometry = null;
+    var depth = 20;
     switch (shape.m_type)
     {
         case b2Shape.e_circleShape:
@@ -19,7 +20,6 @@ Turtles.geometryFromShape = function(shape)
             {
                 var box = shape;
                 var extents = box.extents;
-                var depth = 20;
                 shapeGeometry = new THREE.CubeGeometry(extents.x, extents.y, depth);
             }
             break;
@@ -27,7 +27,6 @@ Turtles.geometryFromShape = function(shape)
             {
                 var poly = shape;
                 var extents = poly.m_localOBB.extents;
-                var depth = 20;
                 shapeGeometry = new THREE.CubeGeometry(2*extents.x, 2*extents.y, depth);
             }
             break;
@@ -36,17 +35,38 @@ Turtles.geometryFromShape = function(shape)
                 Log.debug('invalid shape type', shape.m_type);
             }
 	}
-    
     return shapeGeometry;
 }
 
 //An actor binds a body to a mesh, and handles updating the mesh with the position of the shape.
-Turtles.meshFromBody = function(body, hexColor)
+Turtles.meshFromBody = function(body, hexColor, texture)
 {
     var shape = body.GetShapeList();
-    var meshGeometry = Turtles.geometryFromShape(shape);
-    var meshMaterial = new THREE.MeshBasicMaterial({color:hexColor, wireframe:true});
-    var mesh = new THREE.Mesh(meshGeometry, meshMaterial);
+    var meshGeometry = null;
+    var meshMaterial = null;
+    var mesh = null;
+    if (texture)
+    {
+        var textureMaterial = new THREE.MeshBasicMaterial({map: texture});
+        var otherSideMaterials = new THREE.MeshBasicMaterial({color: 0xF20A4C});
+        var materials = [
+		otherSideMaterials,
+		otherSideMaterials,
+		otherSideMaterials,
+		otherSideMaterials,
+		textureMaterial, //Positive Z face materialis in position 4.
+		otherSideMaterials];
+        
+        var extents = shape.m_localOBB.extents;
+        meshGeometry = new THREE.CubeGeometry(2*extents.x, 2*extents.y, 20, 1, 1, 1, materials);
+        meshMaterial = new THREE.MeshFaceMaterial();
+    }
+    else
+    {
+        meshGeometry = Turtles.geometryFromShape(shape);
+        meshMaterial = new THREE.MeshBasicMaterial({color:hexColor, wireframe:true});
+    }
+    mesh = new THREE.Mesh(meshGeometry, meshMaterial);
     return mesh;
 }
 
@@ -64,6 +84,7 @@ Turtles.GameEntity = function() {
     this.physicsBodyDef = null;
     this.physicsBody = null;
     this.actor = null;
+    this.texture = null;
 };
 
 Turtles.GameEntity.prototype = {
@@ -85,7 +106,7 @@ Turtles.GameEntity.prototype.update = function(timeElapsed) {
 
 Turtles.GameEntity.prototype._createMesh = function(){
     
-    this.mesh = Turtles.meshFromBody(this.physicsBody, this.color);
+    this.mesh = Turtles.meshFromBody(this.physicsBody, this.color, this.texture);
     
     turtlesUI.addClickableObject(this.mesh);
     
