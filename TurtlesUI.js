@@ -274,11 +274,14 @@ function onMouseUp(event)
     var eventCoords = getEventCoords(event);
     Log.event('onMouseUp', eventCoords);
     
-    var worldCoords = turtlesUI.getWorldCoords(eventCoords);
-	World.createBuilding(worldCoords[0]);
-    
-    if (World.selectedEffect && World.selectedEffect.prototype.cooldownTimer <= 0.0) {
+    if (World.selectedEffect && !World.pendingEffect) {
+        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
         World.createEffect(worldCoords[0]);
+    } else {
+        var pendingEffect = World.pendingEffect;
+        if (pendingEffect) {
+            pendingEffect.execute();
+        }
     }
 
     mouseIsDown = false;

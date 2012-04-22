@@ -12,14 +12,14 @@ Turtles.Effect = function() {
     self.shape = 'BOX';
     self.color = 0x0000ff;
     self.alpha = 1.0;
+
 };
 
 Turtles.Effect.prototype = new Turtles.GameEntity();
 Turtles.Effect.prototype.constructor = Turtles.Effect;
 Turtles.Effect.prototype.update = function(stepTime) {
     Turtles.GameEntity.prototype.update.call(this, stepTime);
+};
 
-    if (typeof(this).prototype.cooldownTimer) {
-        typeof(this).prototype.cooldownTimer += stepTime;
-    }
+Turtles.Effect.prototype.execute = function(stepTime) {
 };

@@ -14,6 +14,8 @@ Turtles.World = function() {
     // effects placed by the player
     this.effects = [];
     this.selectedEffect = Turtles.Meteor;
+    // for multi-step effects (e.g. meteors; placed on screen, then a second click deploys)
+    this.pendingEffect = null;
     
     // How long it takes, in ms, for a building to be built or iterate to the next level.
     this.buildTimePerLevel = 1000;
