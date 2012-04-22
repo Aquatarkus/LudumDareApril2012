@@ -178,6 +178,10 @@ Turtles.World.prototype = {
         return newEffect;
     },
 
+    setSpawner: function(spawner) {
+        this.spawner = spawner;
+    },
+
 	// Checks whether the given actor is actually on the terrain, or whether they're
 	// flipping wildly through the air.  
 	// $TODO - Do this once we have physics a bit more fleshed out.
@@ -281,6 +285,9 @@ Turtles.World.prototype = {
             this.buildings[i].update(this.stepLength);
         }
         
+        if (this.spawner) {
+            this.spawner.update(this.stepLength);
+        }
     }
 	
 };
