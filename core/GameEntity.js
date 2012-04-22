@@ -3,7 +3,6 @@
 Turtles.geometryFromShape = function(shape)
 {
     var shapeGeometry = null;
-    var depth = 20;
     switch (shape.m_type)
     {
         case b2Shape.e_circleShape:
@@ -16,18 +15,18 @@ Turtles.geometryFromShape = function(shape)
                 shapeGeometry = new THREE.SphereGeometry(r, segments, segments);
             }
             break;
-        case b2Shape.e_boxShape:
-            {
-                var box = shape;
-                var extents = box.extents;
-                shapeGeometry = new THREE.CubeGeometry(extents.x, extents.y, depth);
-            }
-            break;
         case b2Shape.e_polyShape:
             {
                 var poly = shape;
                 var extents = poly.m_localOBB.extents;
-                shapeGeometry = new THREE.CubeGeometry(2*extents.x, 2*extents.y, depth);
+                shapeGeometry = new THREE.PlaneGeometry(2*extents.x, 2*extents.y);
+				
+				//The geometry of a plane needs to be corrected due to a hard-coding of
+				//the normal vector in THREE.PlaneGeometry.  We must rotate every vertice 
+				//by 90-degrees on the X-axis so the plane is normal to +Z.
+				var planeRotationMatrix = new THREE.Matrix4();
+				planeRotationMatrix.makeRotationX(Math.PI / 2);
+				shapeGeometry.applyMatrix(planeRotationMatrix);
             }
             break;
         default:
@@ -45,30 +44,19 @@ Turtles.meshFromBody = function(body, hexColor, texture)
     var meshGeometry = null;
     var meshMaterial = null;
     var mesh = null;
+	
+	meshGeometry = Turtles.geometryFromShape(shape);
     if (texture)
     {
-        var textureMaterial = new THREE.MeshBasicMaterial(
+        meshMaterial = new THREE.MeshBasicMaterial(
         {
             map: texture,
             transparent: true
         });
-        var otherSideMaterials = new THREE.MeshBasicMaterial({color: 0xF20A4C});
-        var materials = [
-		otherSideMaterials,
-		otherSideMaterials,
-		otherSideMaterials,
-		otherSideMaterials,
-		textureMaterial, //Positive Z face materialis in position 4.
-		otherSideMaterials];
-        
-        var extents = shape.m_localOBB.extents;
-        meshGeometry = new THREE.CubeGeometry(2*extents.x, 2*extents.y, 20, 1, 1, 1, materials);
-        meshMaterial = new THREE.MeshFaceMaterial();
     }
     else
-    {
-        meshGeometry = Turtles.geometryFromShape(shape);
-        meshMaterial = new THREE.MeshBasicMaterial({color:hexColor, wireframe:true});
+    {		
+        meshMaterial = new THREE.MeshBasicMaterial({color:hexColor});
     }
     mesh = new THREE.Mesh(meshGeometry, meshMaterial);
     return mesh;
@@ -82,6 +70,7 @@ Turtles.GameEntity = function() {
 	this.shape = "BOX";
 	this.x = 0.0;
 	this.y = 0.0;
+	this.z = 0;
 	this.color = 0xffffff;
 	this.categoryBits = 0x0001;
 	this.maskBits = 0x0001;
@@ -113,7 +102,8 @@ Turtles.GameEntity.prototype.update = function(timeElapsed) {
 Turtles.GameEntity.prototype._createMesh = function(){
     
     this.mesh = Turtles.meshFromBody(this.physicsBody, this.color, this.texture);
-    if(this.rotation)
+    this.mesh.position.z = this.z;
+	if(this.rotation)
     {
         this.mesh.rotation = this.rotation;
     }

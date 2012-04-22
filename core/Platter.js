@@ -9,6 +9,7 @@ Turtles.Platter = function() {
 	this.alpha = 1;
 	this.x = 0;
 	this.y = 100;
+	this.z = 1;
     this.mesh = null;
 };
 
