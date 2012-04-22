@@ -100,6 +100,8 @@ Turtles.GameEntity.prototype.update = function(timeElapsed) {
     var pos = this.physicsBody.m_position;
     this.mesh.position.x = pos.x;
     this.mesh.position.y = pos.y;
+    this.x = this.mesh.position.x;
+    this.y = this.mesh.position.y;
     
     this.mesh.rotation.z = this.physicsBody.m_rotation;
 };
@@ -131,6 +133,8 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
             alert("Unknown entity type '" + this.shape + "'.");
             break;
     }
+	physicsShapeDef.categoryBits = this.collisionCategoryBits || 0x0001;
+	physicsShapeDef.maskBits = this.collisionMaskBits || 0xFFFF;
     this.physicsBodyDef = new b2BodyDef();
     this.physicsBodyDef.AddShape(physicsShapeDef);
     this.physicsBodyDef.position.Set(this.x, this.y);
