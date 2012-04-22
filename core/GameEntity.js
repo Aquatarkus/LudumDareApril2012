@@ -146,3 +146,26 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
     
     return this.physicsBody;
 };
+
+// blaze-a-blaze
+Turtles.GameEntity.prototype.fixWithJoint = function(entity)
+{
+    if (this != entity)
+    {
+        // get down
+        var myBody = this.physicsBody;
+        var theirBody = entity.physicsBody;
+        
+        var jointDef = new b2DistanceJointDef();
+        jointDef.body1 = myBody;
+        jointDef.body2 = theirBody;
+        jointDef.collideConnected = true; // bump and grind
+        jointDef.anchorPoint1 = myBody.m_position;
+        jointDef.anchorPoint1 = theirBody.m_position;
+        
+        // roll it
+        World.pWorld.CreateJoint(jointDef);
+        
+        // light it
+    }
+}

@@ -270,38 +270,16 @@ function onMouseUp(event)
     
     var worldCoords = turtlesUI.getWorldCoords(eventCoords);
 	World.createBuilding(worldCoords[0]);
-    turtlesUI.castRay(worldCoords[0]);
+    var intersections = turtlesUI.castRay(worldCoords[0]);
+    if (intersections[0])
+    {
+        intersections[0].object.material.color.setHex(Math.random()*0xffffff);
+        // intersections[0].object.gameEntity.fixWithJoint(World.platter);
+    }
     
     mouseIsDown = false;
     mouseDidMove = false;
     oldEventCoords.length = 0;
-}
-
-// WorldObject
-// shape (box or circle)
-// position
-// length
-// width
-function spawnObject(worldObject)
-{
-
-}   
-
-function spawnMeteor(position, velocity)
-{
-    // spawn meteor
-    var meteorShapeDef = new b2CircleDef();
-    meteorShapeDef.radius = 5;
-    meteorShapeDef.density = 1.0;
-    var meteorBodyDef = new b2BodyDef();
-    meteorBodyDef.AddShape(meteorShapeDef);
-    meteorBodyDef.position.Set(position.x, position.y);
-    var meteorBody = pWorld.CreateBody(meteorBodyDef);
-    var meteorActor = new Actor(meteorBody);
-    actors.push(meteorActor);
-    
-    var meteorMesh = meteorActor.mesh;
-    turtlesUI.addClickableObject(meteorMesh);
 }
 
 function onTouchDown(event)
@@ -376,7 +354,6 @@ var camera = turtlesUI.camera;
 
 var World = new Turtles.World();
 World.init();
-
 
 function animate() {
 	requestAnimationFrame(animate);
