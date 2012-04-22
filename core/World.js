@@ -19,10 +19,13 @@ Turtles.World = function() {
     this.pendingEffect = null;
     
     // How long it takes, in ms, for a building to be built or iterate to the next level.
-    this.buildTimePerLevel = 1000;
+    this.buildTimePerLevel = 1500;
 	
 	// How long it takes, in ms, for a single unit of energy to be drained from a person.
     this.energyDrainRate = 500.0;
+    
+    this.maxPeople = 20;
+    this.maxBuildings = 50;
 	
 	this.pWorld = null;
 };
@@ -116,10 +119,13 @@ Turtles.World.prototype = {
         
     },
     
-    getCoordinatesFromPlatterPosition: function(platterPosition) {
+    getCoordinatesFromPlatterPosition: function(platterPosition, heightAbovePlatter) {
+        if (!heightAbovePlatter) {
+            heightAbovePlatter = 0;
+        }
         var realRelativePosition = (platterPosition * (World.platter.width * 2)) - World.platter.width;
         
-        var worldVector = World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(realRelativePosition, 0, 0));
+        var worldVector = World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(realRelativePosition, heightAbovePlatter, 0));
         
         return worldVector;
     },
@@ -131,7 +137,6 @@ Turtles.World.prototype = {
 		
 		newBuilding.x = x;
 		newBuilding.y = y;
-		//$TODO Need method to get platter position from xy global coords
 		newBuilding.platterPosition = World.getPlatterPosition(x, y);
         newBuilding.init();
 		newBuilding.levelUp();
@@ -142,16 +147,20 @@ Turtles.World.prototype = {
 	},
 	
 	createPerson: function(x, y) {
+        // Don't make any more people if we've hit our limit.
+        if (this.people.length >= this.maxPeople) {
+            return null;
+        }
+        
 		var newPerson = new Turtles.Person();
 		
 		newPerson.x = x;
 		newPerson.y = y;
-		//$TODO Need method to get platter position from xy global coords
 		newPerson.platterPosition = World.getPlatterPosition(x, y);
 		newPerson.init();
         
 		this.people.push(newPerson);
-		
+
 		return newPerson;
 	},
 
@@ -221,7 +230,7 @@ Turtles.World.prototype = {
 	},
     
     initOnPlatter: function(newPlatterObject) {
-        var platterVector = World.getCoordinatesFromPlatterPosition(newPlatterObject.platterPosition);
+        var platterVector = World.getCoordinatesFromPlatterPosition(newPlatterObject.platterPosition, World.platter.height);
         newPlatterObject.x = platterVector.x + newPlatterObject.width;
         newPlatterObject.y = platterVector.y + newPlatterObject.height;
         newPlatterObject.init();

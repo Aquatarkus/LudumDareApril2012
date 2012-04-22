@@ -35,6 +35,8 @@ Turtles.Building = function() {
 	this.isBuilt = false;
 	this.level = 0;
 	this.buildTimeElapsed = 0;
+    this.categoryBits = 0x0008;
+	this.maskBits = 0xfffd;
     
 	// Occupency properties
 	this.occupiers = [];
@@ -83,6 +85,7 @@ Turtles.Building.prototype.unoccupy = function(person) {
 	if (index > -1) {
 		this.occupiers.splice(index, 1);
 	}
+    person.addToSimulationAt(this.x, this.y);
 };
 
 Turtles.Building.prototype.build = function(person) {
@@ -110,6 +113,14 @@ Turtles.Building.prototype.levelUp = function() {
     if (this.builder) {
         this.builder.buildComplete(this);
     }
+    
+    // Make a new person for the successful building/upgrade effort.
+    var newPerson = World.createPerson(this.x, this.y);
+    
+    if (newPerson) {
+        this.onSpawnOccupant(newPerson);
+    }
+    
 	this.isBuilt = true;
 	this.level++;
 
@@ -128,9 +139,10 @@ Turtles.Building.prototype.levelUp = function() {
 	this.builder = null;
 };
 
-Turtles.Building.prototype.spawnPerson = function() {
-    var person = World.createPerson(this.x, this.y);
+Turtles.Building.prototype.onSpawnOccupant = function(person) {
     person.state = 'SLEEP';
     person.energy = 0.0;
+    person.removeFromSimulation();
+    person.goalObject = this;
     this.occupiers.push(person);
 };
