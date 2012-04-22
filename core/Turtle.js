@@ -7,6 +7,8 @@ Turtles.GameEntity.call(this);
 	this.shape = "CIRCLE";
 	this.color = 0x00ff00;
 	this.alpha = 0;
+	this.collisionCategoryBits = 0x0004;
+	this.collisionMaskBits = 0x0000;
     this.x = 0;
     this.y = 0;
 };
