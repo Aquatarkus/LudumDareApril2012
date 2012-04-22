@@ -25,6 +25,7 @@
 
 Turtles.BuildingTexture = THREE.ImageUtils.loadTexture('textures/Building3.png');
 
+
 Turtles.Building = function() {
     Turtles.GameEntity.call(this);
 
@@ -35,6 +36,8 @@ Turtles.Building = function() {
 	this.level = 0;
 	this.buildTimeElapsed = 0;
 	this.friction = .5;
+    this.categoryBits = 0x0008;
+	this.maskBits = 0xfffd;
     
 	// Occupency properties
 	this.occupiers = [];
@@ -64,6 +67,12 @@ Turtles.Building.prototype = new Turtles.GameEntity();
 Turtles.Building.prototype.constructor = Turtles.Building;
 
 
+Turtles.Building.prototype.init = function() {
+    Turtles.GameEntity.prototype.init.call(this);
+    
+    this.physicsBody.m_friction = 99;
+};
+
 Turtles.Building.prototype.occupy = function(person) {
     this.occupiers.push(person);
 };
@@ -77,6 +86,7 @@ Turtles.Building.prototype.unoccupy = function(person) {
 	if (index > -1) {
 		this.occupiers.splice(index, 1);
 	}
+    person.addToSimulationAt(this.x, this.y);
 };
 
 Turtles.Building.prototype.build = function(person) {
@@ -88,6 +98,10 @@ Turtles.Building.prototype.build = function(person) {
 };
 
 Turtles.Building.prototype.update = function(timeElapsedInMs) {
+    if (this.checkForDeath()) {
+        return;
+    }
+    
     Turtles.GameEntity.prototype.update.call(this, timeElapsedInMs);
 	if (!this.isBuilt) {
 		this.buildTimeElapsed += timeElapsedInMs;
@@ -104,6 +118,14 @@ Turtles.Building.prototype.levelUp = function() {
     if (this.builder) {
         this.builder.buildComplete(this);
     }
+    
+    // Make a new person for the successful building/upgrade effort.
+    var newPerson = World.createPerson(this.x, this.y);
+    
+    if (newPerson) {
+        this.onSpawnOccupant(newPerson);
+    }
+    
 	this.isBuilt = true;
 	this.level++;
 
@@ -122,9 +144,10 @@ Turtles.Building.prototype.levelUp = function() {
 	this.builder = null;
 };
 
-Turtles.Building.prototype.spawnPerson = function() {
-    var person = World.createPerson(this.x, this.y);
+Turtles.Building.prototype.onSpawnOccupant = function(person) {
     person.state = 'SLEEP';
     person.energy = 0.0;
+    person.removeFromSimulation();
+    person.goalObject = this;
     this.occupiers.push(person);
 };

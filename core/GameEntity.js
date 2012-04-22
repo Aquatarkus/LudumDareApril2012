@@ -72,14 +72,16 @@ Turtles.GameEntity = function() {
 	this.y = 0.0;
 	this.z = 0;
 	this.color = 0xffffff;
-	this.categoryBits = 0x0001;
-	this.maskBits = 0x0001;
+	this.categoryBits = 0xffff;
+	this.maskBits = 0xffff;
 	this.alpha = 0;
     this.mesh = null;
     this.physicsBodyDef = null;
     this.physicsBody = null;
     this.actor = null;
     this.texture = null;
+    this.isInSimulation = false;
+    this.destroy = false;
 };
 
 Turtles.GameEntity.prototype = {
@@ -87,16 +89,56 @@ Turtles.GameEntity.prototype = {
 };
 
 Turtles.GameEntity.prototype.init = function() {
-    this._createPhysicsBody();
-    this._createMesh();
+    if (!this.isInSimulation) {
+        this._createPhysicsBody();
+        this._createMesh();
+        this.isInSimulation = true;
+    }
+};
+
+Turtles.GameEntity.prototype.addToSimulationAt = function(x, y) {
+    this.x = x;
+    this.y = y;
+    this.init();
+};
+
+Turtles.GameEntity.prototype.removeFromSimulation = function() {
+    if (this.isInSimulation) {
+        if (this.physicsBody) {
+            World.pWorld.DestroyBody(this.physicsBody);
+        }
+        if (this.mesh) {
+            turtlesUI.removeObject(this.mesh);
+        }
+        this.isInSimulation = false;
+    }
+};
+
+Turtles.GameEntity.prototype.checkForDeath = function() {
+    if (this.y <= World.minWorldY * 0.8) {
+        this.destroy = true;
+    }
+    
+    return this.destroy;
 };
 
 Turtles.GameEntity.prototype.update = function(timeElapsed) {
     var pos = this.physicsBody.m_position;
     this.mesh.position.x = pos.x;
     this.mesh.position.y = pos.y;
+    if (this.checkForDeath()) {
+        return;
+    }
     
-    this.mesh.rotation.z = this.physicsBody.m_rotation;
+    if (this.isInSimulation) {
+        var pos = this.physicsBody.m_position;
+        this.mesh.position.x = pos.x;
+        this.mesh.position.y = pos.y;
+        this.x = this.mesh.position.x;
+        this.y = this.mesh.position.y;
+        
+        this.mesh.rotation.z = this.physicsBody.m_rotation;
+    }
 };
 
 Turtles.GameEntity.prototype._createMesh = function(){
@@ -131,6 +173,7 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
             alert("Unknown entity type '" + this.shape + "'.");
             break;
     }
+    //physicsShapeDef.friction = 99;
 	physicsShapeDef.categoryBits = this.categoryBits;
 	physicsShapeDef.maskBits = this.maskBits;
 	if (this.friction) {
@@ -158,7 +201,7 @@ Turtles.GameEntity.prototype.fixWithJoint = function(entity)
         jointDef.body2 = theirBody;
         jointDef.collideConnected = true; // bump and grind
         jointDef.anchorPoint1 = myBody.m_position;
-        jointDef.anchorPoint1 = theirBody.m_position;
+        jointDef.anchorPoint2 = theirBody.m_position;
         
         // roll it
         World.pWorld.CreateJoint(jointDef);

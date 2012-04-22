@@ -64,6 +64,9 @@ Turtles.UI = function(element, width, height, cameraHeight)
     
     this.resize(width, height);
     
+    this.onClick = function(worldCoords){};
+    this.onMove = function(worldCoords, oldWorldCoords){};
+    
     // DOM
     element.appendChild(this.renderer.domElement);
     var canvas = this.renderer.domElement;
@@ -92,6 +95,18 @@ Turtles.UI.prototype =
     {
         this.clickableObjects.push(clickableObject);
         this.addObject(clickableObject);
+    },
+    removeObject: function(object)
+    {
+        var index = this.clickableObjects.indexOf(object);
+        if (index > -1) {
+            this.clickableObjects.splice(index, 1);
+        }
+        index = this.objects.indexOf(object);
+        if (index > -1) {
+            this.objects.splice(index, 1);
+        }
+        this.scene.remove(object);
     },
     show : function()
     {
@@ -147,10 +162,8 @@ Turtles.UI.prototype =
             var cameraFrame = this.cameraFrame;
             var cameraX = percentWidth  * cameraFrame.width + cameraFrame.x;
             var cameraY = percentHeight * cameraFrame.height + cameraFrame.y;
-            Log.debug('percentWidth/Height', {width:percentWidth, height:percentHeight});
             worldCoords.push({x:cameraX, y:cameraY});
         }
-        Log.debug('getWorldCoords', worldCoords);
         return worldCoords;
     },
     draw : function()
@@ -172,10 +185,10 @@ Turtles.UI.prototype =
         Log.debug('castRay ray', ray);
         return intersections;
     },
-    moveCamera : function(deltaX, deltaY)
+    moveCamera : function(coords)
     {
-        this.cameraFrame.x -= deltaX;
-        this.cameraFrame.y += deltaY;
+        this.cameraFrame.x -= coords.x;
+        this.cameraFrame.y -= coords.y;
         this.updateCamera();
     },
     scaleCamera : function(scaleFactor)
@@ -183,6 +196,10 @@ Turtles.UI.prototype =
         this.cameraFrame.width *= scaleFactor;
         this.cameraFrame.height *= scaleFactor;
         this.updateCamera();
+    },
+    registerOnClickWorld : function(onClick)
+    {
+        this.onClick = onClick;
     }
 };
 
@@ -228,7 +245,6 @@ function onMouseScroll(event)
     {
         delta = -event.detail/3;
     }
-    Log.event('onMouseScroll', 'delta = '+delta);
     if (delta)
     {
         turtlesUI.scaleCamera(1-delta/100);
@@ -254,10 +270,16 @@ function onMouseMove(event)
         
         var oldWorldCoords = turtlesUI.getWorldCoords(oldEventCoords);
         var worldCoords = turtlesUI.getWorldCoords(eventCoords);
-        var deltaX = worldCoords[0].x - oldWorldCoords[0].x;
-        var deltaY = worldCoords[0].y - oldWorldCoords[0].y;
         
-        turtlesUI.moveCamera(deltaX, -deltaY);
+        /*
+        var deltaWorldCoords = {};
+        deltaWorldCoords.x = worldCoords[0].x - oldWorldCoords[0].x;
+        deltaWorldCoords.y = worldCoords[0].y - oldWorldCoords[0].y;
+        
+        turtlesUI.moveCamera(deltaWorldCoords);
+        */
+        
+        turtlesUI.onMove(worldCoords[0], oldWorldCoords[0]);
         
         oldEventCoords = eventCoords;
         mouseDidMove = true;
@@ -269,15 +291,23 @@ function onMouseUp(event)
     event.preventDefault();
     var eventCoords = getEventCoords(event);
     Log.event('onMouseUp', eventCoords);
-    
-    var worldCoords = turtlesUI.getWorldCoords(eventCoords);
-	World.createBuilding(worldCoords[0]);
-    var intersections = turtlesUI.castRay(worldCoords[0]);
-    if (intersections[0])
-    {
-        // intersections[0].object.gameEntity.fixWithJoint(World.platter);
+
+    if (World.spawner) {
+        World.spawner.spawn();
+    } else {
+        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
+        World.setSpawner(new Turtles.MeteorSpawner(worldCoords[0]));
     }
-    
+//    if (World.selectedEffect && !World.pendingEffect) {
+//        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
+//        World.createEffect(worldCoords[0]);
+//    } else {
+//        var pendingEffect = World.pendingEffect;
+//        if (pendingEffect) {
+//            pendingEffect.execute();
+//        }
+//    }
+
     mouseIsDown = false;
     mouseDidMove = false;
     oldEventCoords.length = 0;
