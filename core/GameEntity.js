@@ -91,6 +91,12 @@ Turtles.GameEntity = function() {
     this.physicsBody = null;
     this.actor = null;
     this.texture = null;
+    this.animFrameCount = 1;
+    this.animFrameLength = 0;
+    this.currentFrameTime = 0;
+    this.currentFrameIndex = 0;
+    // calculated in init
+    this.animFrameWidth = null;
 };
 
 Turtles.GameEntity.prototype = {
@@ -100,6 +106,18 @@ Turtles.GameEntity.prototype = {
 Turtles.GameEntity.prototype.init = function() {
     this._createPhysicsBody();
     this._createMesh();
+
+    // for uv anims
+    if (this.animFrameCount > 1) {
+        this.animFrameWidth = 1.0 / this.animFrameCount;
+
+        // hack: force first update to fire
+        this.currentFrameIndex = this.animFrameCount - 1;
+        this.currentFrameTime = this.animFrameLength;
+    }
+
+    this.mesh.dynamic = true;
+    this.mesh.geometry.dynamic = true;
 };
 
 Turtles.GameEntity.prototype.removeFromSimulation = function() {
@@ -119,6 +137,31 @@ Turtles.GameEntity.prototype.update = function(timeElapsed) {
     this.y = this.mesh.position.y;
     
     this.mesh.rotation.z = this.physicsBody.m_rotation;
+
+    // sprite animation
+    if (this.texture && this.animFrameCount > 1) {
+        this.currentFrameTime += timeElapsed;
+
+        // advance frame
+        if (this.currentFrameTime >= this.animFrameLength) {
+            if (this.animFrameLength > 0) {
+                this.currentFrameTime = this.currentFrameTime % this.animFrameLength;
+            }
+            this.currentFrameIndex = (this.currentFrameIndex + 1) % this.animFrameCount;
+
+            for (var i = 0; i < this.mesh.geometry.faceVertexUvs[0].length; i++) {
+                this.mesh.geometry.faceVertexUvs[0][i][0].u = this.animFrameWidth * this.currentFrameIndex;
+                this.mesh.geometry.faceVertexUvs[0][i][0].v = 0;
+                this.mesh.geometry.faceVertexUvs[0][i][1].u = this.animFrameWidth * this.currentFrameIndex;
+                this.mesh.geometry.faceVertexUvs[0][i][1].v = 1;
+                this.mesh.geometry.faceVertexUvs[0][i][2].u = this.animFrameWidth * (this.currentFrameIndex + 1);
+                this.mesh.geometry.faceVertexUvs[0][i][2].v = 1;
+                this.mesh.geometry.faceVertexUvs[0][i][3].u = this.animFrameWidth * (this.currentFrameIndex + 1);
+                this.mesh.geometry.faceVertexUvs[0][i][3].v = 0;
+            }
+            this.mesh.geometry.__dirtyUvs = true;
+        }
+    }
 };
 
 Turtles.GameEntity.prototype._createMesh = function(){
