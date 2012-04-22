@@ -48,7 +48,7 @@ Turtles.Building = function() {
     this.lengthPerFloor = 1.0;
 
 	// GameEntity properties
-	this.density = 1.0;
+	this.density = 0.2;
     this.width = 3.0;
     this.height = 3.0;
     this.shape = 'BOX';

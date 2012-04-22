@@ -29,20 +29,24 @@ Turtles.Platter.prototype.initFulcrumJoint = function (){
 		var fulcrumShapeDef = new b2BoxDef();
         fulcrumShapeDef.extents.Set(1, 1);
         fulcrumShapeDef.density = 0;
-		fulcrumShapeDef.groupIndex = -2;
+		fulcrumShapeDef.categoryBits = 0x0002;
+		fulcrumShapeDef.maskBits = 0x0002;
 		var fulcrumBodyDef = new b2BodyDef();
 		fulcrumBodyDef.AddShape(fulcrumShapeDef);
-		fulcrumBodyDef.position.Set(0, turtle.height/4);
+		fulcrumBodyDef.position.Set(0, this.physicsBody.m_position.y);
+		//fulcrumBodyDef.position.Set(0, turtle.height/4);
 		var fulcrumBody = pWorld.CreateBody(fulcrumBodyDef);
 		
 		//join platter to fulcrum.
 		var fulcrumJointDef = new b2RevoluteJointDef();
-		fulcrumJointDef.body1 = this.physicsBody;
-		fulcrumJointDef.body2 = fulcrumBody;
+		fulcrumJointDef.body2 = this.physicsBody;
+		fulcrumJointDef.body1 = fulcrumBody;
 		fulcrumJointDef.anchorPoint.Set(fulcrumBody.m_position.x, fulcrumBody.m_position.y);
 		fulcrumJointDef.lowerAngle = -Math.PI / 6;
 		fulcrumJointDef.upperAngle = Math.PI / 6;
 		fulcrumJointDef.enableLimit = true;
+		fulcrumJointDef.enableMotor = true;
+		fulcrumJointDef.motorTorque = 10000000; //max motor torque.
 		this.fulcrumJoint = pWorld.CreateJoint(fulcrumJointDef);
 		return this.fulcrumJoint;
 }
@@ -54,9 +58,11 @@ Turtles.Platter.prototype.update = function(stepMs){
 	//super call
 	Turtles.GameEntity.prototype.update.call(this, stepMs);
 	
-	if (this.physicsBody)
+	//super touchy!  Will need constant tuning.
+	if (this.fulcrumJoint)
 	{
-		var pBody = this.physicsBody
-		
+		var jointSpeed = this.fulcrumJoint.GetJointSpeed(1.0/60.0);
+		var jointAngle = this.fulcrumJoint.GetJointAngle(1.0/60.0);
+		this.fulcrumJoint.SetMotorSpeed(-500 * jointAngle);
 	}
 }
