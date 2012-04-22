@@ -277,6 +277,10 @@ function onMouseUp(event)
     var worldCoords = turtlesUI.getWorldCoords(eventCoords);
 	World.createBuilding(worldCoords[0]);
     
+    if (World.selectedEffect && World.selectedEffect.prototype.cooldownTimer <= 0.0) {
+        World.createEffect(worldCoords[0]);
+    }
+
     mouseIsDown = false;
     mouseDidMove = false;
     oldEventCoords.length = 0;
