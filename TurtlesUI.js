@@ -42,8 +42,8 @@ var Log =
 Turtles.UI = function(element, width, height, cameraHeight)
 {
     // camera bounds
-    this.cameraNear = -50;
-    this.cameraFar = 50;
+    this.cameraNear = -100;
+    this.cameraFar = 100;
     this.cameraFrame = {x:0, y:0, width:1, height:cameraHeight};
     
     // ray casting
@@ -56,7 +56,7 @@ Turtles.UI = function(element, width, height, cameraHeight)
     this.scene = new THREE.Scene();
     
     // camera
-    this.camera = new THREE.OrthographicCamera(-1,1,-1,1,-50,50);
+    this.camera = new THREE.OrthographicCamera(-1,1,-1,1,this.cameraNear,this.cameraFar);
     this.scene.add(this.camera);
     
     // renderer
@@ -162,20 +162,14 @@ Turtles.UI.prototype =
         }
         this.renderer.render(this.scene, this.camera);
     },
-    castRay : function(xCoord, yCoord)
+    castRay : function(coords)
     {
         var ray = this.ray;
-        var percentWidth = xCoord/this.width-0.5;
-        var percentHeight = 0.5-yCoord/this.height;
-        var cameraX = percentWidth * this.cameraFrame.width/this.cameraScale + this.cameraFrame.x;
-        var cameraY = percentHeight * this.cameraFrame.height/this.cameraScale + this.cameraFrame.y;
-        Log.debug('castRay percents', {x:percentWidth, y:percentHeight});
-        Log.debug('castRay cameraX, cameraY', {x:cameraX, y:cameraY});
-        // this.projector.unprojectVector(ray.origin.set(cameraX, cameraY, this.cameraNear), this.camera);
-        // this.projector.unprojectVector(ray.direction.set(0, 0, -1), this.camera);
-        ray.origin.set(cameraX, cameraY, this.cameraNear);
+        ray.origin.set(coords.x, coords.y, 100);
         ray.direction.set(0, 0, -1);
         var intersections = ray.intersectObjects(this.clickableObjects);
+        Log.debug('castRay counts', {clickable:this.clickableObjects.length, intersects: intersections.length});
+        Log.debug('castRay ray', ray);
         return intersections;
     },
     moveCamera : function(deltaX, deltaY)
@@ -258,10 +252,12 @@ function onMouseMove(event)
         var eventCoords = getEventCoords(event);
         // Log.event('onMouseMove', eventCoords);
         
-        var deltaX = eventCoords[0].x - oldEventCoords[0].x;
-        var deltaY = eventCoords[0].y - oldEventCoords[0].y;
+        var oldWorldCoords = turtlesUI.getWorldCoords(oldEventCoords);
+        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
+        var deltaX = worldCoords[0].x - oldWorldCoords[0].x;
+        var deltaY = worldCoords[0].y - oldWorldCoords[0].y;
         
-        turtlesUI.moveCamera(deltaX, deltaY);
+        turtlesUI.moveCamera(deltaX, -deltaY);
         
         oldEventCoords = eventCoords;
         mouseDidMove = true;
@@ -276,37 +272,16 @@ function onMouseUp(event)
     
     var worldCoords = turtlesUI.getWorldCoords(eventCoords);
 	World.createBuilding(worldCoords[0]);
+    var intersections = turtlesUI.castRay(worldCoords[0]);
+    if (intersections[0])
+    {
+        intersections[0].object.material.color.setHex(Math.random()*0xffffff);
+        // intersections[0].object.gameEntity.fixWithJoint(World.platter);
+    }
     
     mouseIsDown = false;
     mouseDidMove = false;
     oldEventCoords.length = 0;
-}
-
-// WorldObject
-// shape (box or circle)
-// position
-// length
-// width
-function spawnObject(worldObject)
-{
-
-}   
-
-function spawnMeteor(position, velocity)
-{
-    // spawn meteor
-    var meteorShapeDef = new b2CircleDef();
-    meteorShapeDef.radius = 5;
-    meteorShapeDef.density = 1.0;
-    var meteorBodyDef = new b2BodyDef();
-    meteorBodyDef.AddShape(meteorShapeDef);
-    meteorBodyDef.position.Set(position.x, position.y);
-    var meteorBody = pWorld.CreateBody(meteorBodyDef);
-    var meteorActor = new Actor(meteorBody);
-    actors.push(meteorActor);
-    
-    var meteorMesh = meteorActor.mesh;
-    turtlesUI.addClickableObject(meteorMesh);
 }
 
 function onTouchDown(event)
@@ -382,7 +357,6 @@ var camera = turtlesUI.camera;
 var World = new Turtles.World();
 World.init();
 
-
 function animate() {
 	requestAnimationFrame(animate);
     World.update();
@@ -391,38 +365,3 @@ function animate() {
 }
 
 animate();
-
-/*
-function addTexturedCube()
-{
-	//Add a cube body.
-	var cubeWidth = 16;
-	var cubeSd = new b2BoxDef();
-	cubeSd.extents.Set(cubeWidth, cubeWidth);
-	cubeSd.density = 4.0;
-	var cubeBd = new b2BodyDef();
-	cubeBd.AddShape(cubeSd);
-	cubeBd.position.Set(-100, 300);
-	var cubeBody = pWorld.CreateBody(cubeBd);
-    cubeActor = new Actor(cubeBody);
-	
-	//We have to create a mesh from scratch beacuse of how the CubeGeometry object works.
-    var buildingTexture = THREE.ImageUtils.loadTexture('./textures/building0.png');
-	var buildingMaterial = new THREE.MeshBasicMaterial({map: buildingTexture});
-	var otherSideMaterials = new THREE.MeshBasicMaterial({color: 0xF20A4C});
-	var materials = [
-		otherSideMaterials,
-		otherSideMaterials,
-		otherSideMaterials,
-		otherSideMaterials,
-		buildingMaterial, //Positive Z face materialis in position 4.
-		otherSideMaterials];
-	var cubeMesh = new THREE.Mesh(new THREE.CubeGeometry(cubeWidth, cubeWidth, 10, 1, 1, 1, materials), new THREE.MeshFaceMaterial());
-	cubeActor.mesh = cubeMesh
-	turtlesUI.addClickableObject(cubeMesh);
-	
-	actors.push(cubeActor);
-}
-
-addTexturedCube();
-*/

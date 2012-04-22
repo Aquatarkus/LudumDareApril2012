@@ -47,7 +47,11 @@ Turtles.meshFromBody = function(body, hexColor, texture)
     var mesh = null;
     if (texture)
     {
-        var textureMaterial = new THREE.MeshBasicMaterial({map: texture});
+        var textureMaterial = new THREE.MeshBasicMaterial(
+        {
+            map: texture,
+            transparent: true
+        });
         var otherSideMaterials = new THREE.MeshBasicMaterial({color: 0xF20A4C});
         var materials = [
 		otherSideMaterials,
@@ -107,7 +111,11 @@ Turtles.GameEntity.prototype.update = function(timeElapsed) {
 Turtles.GameEntity.prototype._createMesh = function(){
     
     this.mesh = Turtles.meshFromBody(this.physicsBody, this.color, this.texture);
-    
+    if(this.rotation)
+    {
+        this.mesh.rotation = this.rotation;
+    }
+    this.mesh.gameEntity = this;
     turtlesUI.addClickableObject(this.mesh);
     
     return this.mesh;
@@ -140,3 +148,26 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
     
     return this.physicsBody;
 };
+
+// blaze-a-blaze
+Turtles.GameEntity.prototype.fixWithJoint = function(entity)
+{
+    if (this != entity)
+    {
+        // get down
+        var myBody = this.physicsBody;
+        var theirBody = entity.physicsBody;
+        
+        var jointDef = new b2DistanceJointDef();
+        jointDef.body1 = myBody;
+        jointDef.body2 = theirBody;
+        jointDef.collideConnected = true; // bump and grind
+        jointDef.anchorPoint1 = myBody.m_position;
+        jointDef.anchorPoint1 = theirBody.m_position;
+        
+        // roll it
+        World.pWorld.CreateJoint(jointDef);
+        
+        // light it
+    }
+}

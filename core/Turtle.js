@@ -4,6 +4,7 @@ Turtles.GameEntity.call(this);
 	this.density = 0;
 	this.width = 100.0;
 	this.height = 20.0;
+    this.rotation = new THREE.Vector3(0, 0.3, 0);
 	this.shape = "CIRCLE";
 	this.color = 0x00ff00;
 	this.alpha = 0;
