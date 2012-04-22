@@ -45,8 +45,8 @@ Turtles.Person = function() {
 	Turtles.GameEntity.call(this);
 	this.isPhysicsSimulated = true,
 	this.density = 1;
-	this.width = 1;
-	this.height = 1;
+	this.width = 10;
+	this.height = 10;
 	this.shape = "BOX";
 	this.color = 0xff3333;
 	this.alpha = 0;
@@ -60,14 +60,16 @@ Turtles.Person = function() {
 	this.goalPlatterPosition = null;
 	this.goalObject = null;
     this.lastMoveDirection = 0;
+
+    this.texture = Turtles.Person.prototype.personTexture;
+    this.animFrameCount = 8;
+    this.animFrameLength = 100;
 };
 
 
 Turtles.Person.prototype = new Turtles.GameEntity();
 
 Turtles.Person.prototype.constructor = Turtles.Person;
-
-Turtles.Meteor.prototype.texture = THREE.ImageUtils.loadTexture('textures/Meteor1.png');
 
 Turtles.Person.prototype.buildComplete = function(building) {
     this.addToSimulationAt(building.x, building.y);
@@ -81,6 +83,8 @@ Turtles.Person.prototype.addToSimulationAt = function(x, y) {
     this.init();
     this.goalPlatterPosition = null;
     this.lastMoveDirection = 0;
+    // todo: ask alex (updates stop processing on new people)
+    //World.people.push(this);
 };
 
 Turtles.Person.prototype.removeFromSimulation = function() {
@@ -124,6 +128,8 @@ Turtles.Person.prototype.checkForSleepState = function() {
 };
 
 Turtles.Person.prototype.update = function(deltaMs) {
+    Turtles.GameEntity.prototype.update.call(this, deltaMs);
+    
     if (this.checkForDeath()) {
         return;
     }
@@ -232,3 +238,4 @@ Turtles.Person.prototype.update = function(deltaMs) {
 };
 
 
+Turtles.Person.prototype.personTexture = THREE.ImageUtils.loadTexture('textures/PersonStrip.png');

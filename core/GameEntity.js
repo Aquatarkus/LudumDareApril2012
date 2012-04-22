@@ -36,7 +36,7 @@ Turtles.geometryFromShape = function(shape)
             }
 	}
     return shapeGeometry;
-}
+};
 
 //An actor binds a body to a mesh, and handles updating the mesh with the position of the shape.
 Turtles.meshFromBody = function(body, hexColor, texture)
@@ -72,7 +72,7 @@ Turtles.meshFromBody = function(body, hexColor, texture)
     }
     mesh = new THREE.Mesh(meshGeometry, meshMaterial);
     return mesh;
-}
+};
 
 Turtles.GameEntity = function() {
     this.isPhysicsSimulated = true,
@@ -103,31 +103,26 @@ Turtles.GameEntity = function() {
     this.destroy = false;
 };
 
-Turtles.GameEntity.prototype = {
-    textureUri: ''
-};
-
 Turtles.GameEntity.prototype.init = function() {
-    this._createPhysicsBody();
-    this._createMesh();
-
-    // for uv anims
-    if (this.animFrameCount > 1) {
-        this.animFrameWidth = 1.0 / this.animFrameCount;
-
-        // hack: force first update to fire
-        this.currentFrameIndex = this.animFrameCount - 1;
-        this.currentFrameTime = this.animFrameLength;
-
-        this.mesh.dynamic = true;
-        this.mesh.geometry.dynamic = true;
-    }
+//    this._createPhysicsBody();
+//    this._createMesh();
 
     if (!this.isInSimulation) {
         this._createPhysicsBody();
         this._createMesh();
         this.isInSimulation = true;
     }
+
+    // for uv anims
+    if (this.animFrameCount > 1) {
+        console.log('initting for animation');
+        this.animFrameWidth = 1.0 / this.animFrameCount;
+
+        // hack: force first update to fire
+        this.currentFrameIndex = this.animFrameCount - 1;
+        this.currentFrameTime = this.animFrameLength;
+    }
+
 };
 
 Turtles.GameEntity.prototype.addToSimulationAt = function(x, y) {
@@ -174,6 +169,7 @@ Turtles.GameEntity.prototype.update = function(timeElapsed) {
             }
             this.currentFrameIndex = (this.currentFrameIndex + 1) % this.animFrameCount;
 
+            this.mesh.geometry.dynamic = true;
             for (var i = 0; i < this.mesh.geometry.faceVertexUvs[0].length; i++) {
                 this.mesh.geometry.faceVertexUvs[0][i][0].u = this.animFrameWidth * this.currentFrameIndex;
                 this.mesh.geometry.faceVertexUvs[0][i][0].v = 0;
@@ -186,6 +182,7 @@ Turtles.GameEntity.prototype.update = function(timeElapsed) {
             }
             this.mesh.geometry.__dirtyUvs = true;
         }
+    }
     if (this.isInSimulation) {
         var pos = this.physicsBody.m_position;
         this.mesh.position.x = pos.x;
@@ -260,4 +257,4 @@ Turtles.GameEntity.prototype.fixWithJoint = function(entity)
         
         // light it
     }
-}
+};
