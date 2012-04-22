@@ -42,11 +42,11 @@ Assumes:
 
 
 Turtles.Person = function() {
-	
-	this.isPhysicsSimulated = false,
+	Turtles.GameEntity.call(this);
+	this.isPhysicsSimulated = true,
 	this.density = 1.0;
 	this.width = 0.07;
-	this.length = 0.1;
+	this.height = 0.1;
 	this.shape = "CIRCLE";
 	this.color = 0xffffff;
 	this.alpha = 0;

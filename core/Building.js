@@ -23,6 +23,7 @@
 
 */
 
+Turtles.BuildingTexture = THREE.ImageUtils.loadTexture('textures/Building3.png');
 
 Turtles.Building = function() {
     Turtles.GameEntity.call(this);
@@ -47,13 +48,15 @@ Turtles.Building = function() {
 
 	// GameEntity properties
 	self.density = 1.0;
-    self.width = 1.0;
-    self.length = 1.0;
+    self.width = 3.0;
+    self.height = 3.0;
     self.shape = 'BOX';
     self.x = 0.0;
     self.y = 0.0;
     self.color = 0x0000ff;
     self.alpha = 1.0;
+    
+    self.texture = Turtles.BuildingTexture;
 };
 
 Turtles.Building.prototype = new Turtles.GameEntity();
@@ -84,6 +87,7 @@ Turtles.Building.prototype.build = function(person) {
 };
 
 Turtles.Building.prototype.update = function(timeElapsedInMs) {
+    Turtles.GameEntity.prototype.update.call(this, timeElapsedInMs);
 	if (!this.isBuilt) {
 		this.buildTimeElapsed += timeElapsedInMs;
 		
