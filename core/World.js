@@ -314,7 +314,6 @@ Turtles.World.prototype = {
         this.destroyCrap(this.people);
         this.destroyCrap(this.effects);
         this.destroyCrap(this.buildings);
-        
     },
     
     destroyCrap: function(array) {

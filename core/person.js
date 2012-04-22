@@ -106,7 +106,7 @@ Turtles.Person.prototype.isOnTerrain = function() {
 
 Turtles.Person.prototype.checkForSleepState = function() {
     var result = false;
-    
+   
     if (this.energy <= 0) {
         var building = World.getClosestUnoccupiedBuilding(this.platterPosition);
         
@@ -126,7 +126,6 @@ Turtles.Person.prototype.update = function(deltaMs) {
     if (this.checkForDeath()) {
         return;
     }
-    
     if (this.isInSimulation) {
         Turtles.GameEntity.prototype.update.call(this, deltaMs);
 
@@ -144,12 +143,10 @@ Turtles.Person.prototype.update = function(deltaMs) {
             this.goalPlatterPosition = null;
         }
     }
-    
 	// Update energy.
 	if (this.state != "SLEEP") {
 		this.energy -=  World.energyDrainRate * deltaMs;
 	}
-
     var direction = 0;
     
     switch(this.state) {
