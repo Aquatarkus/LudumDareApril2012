@@ -64,6 +64,9 @@ Turtles.UI = function(element, width, height, cameraHeight)
     
     this.resize(width, height);
     
+    this.onClick = function(worldCoords){};
+    this.onMove = function(worldCoords, oldWorldCoords){};
+    
     // DOM
     element.appendChild(this.renderer.domElement);
     var canvas = this.renderer.domElement;
@@ -147,10 +150,8 @@ Turtles.UI.prototype =
             var cameraFrame = this.cameraFrame;
             var cameraX = percentWidth  * cameraFrame.width + cameraFrame.x;
             var cameraY = percentHeight * cameraFrame.height + cameraFrame.y;
-            Log.debug('percentWidth/Height', {width:percentWidth, height:percentHeight});
             worldCoords.push({x:cameraX, y:cameraY});
         }
-        Log.debug('getWorldCoords', worldCoords);
         return worldCoords;
     },
     draw : function()
@@ -172,10 +173,10 @@ Turtles.UI.prototype =
         Log.debug('castRay ray', ray);
         return intersections;
     },
-    moveCamera : function(deltaX, deltaY)
+    moveCamera : function(coords)
     {
-        this.cameraFrame.x -= deltaX;
-        this.cameraFrame.y += deltaY;
+        this.cameraFrame.x -= coords.x;
+        this.cameraFrame.y -= coords.y;
         this.updateCamera();
     },
     scaleCamera : function(scaleFactor)
@@ -183,6 +184,10 @@ Turtles.UI.prototype =
         this.cameraFrame.width *= scaleFactor;
         this.cameraFrame.height *= scaleFactor;
         this.updateCamera();
+    },
+    registerOnClickWorld : function(onClick)
+    {
+        this.onClick = onClick;
     }
 };
 
@@ -254,10 +259,16 @@ function onMouseMove(event)
         
         var oldWorldCoords = turtlesUI.getWorldCoords(oldEventCoords);
         var worldCoords = turtlesUI.getWorldCoords(eventCoords);
-        var deltaX = worldCoords[0].x - oldWorldCoords[0].x;
-        var deltaY = worldCoords[0].y - oldWorldCoords[0].y;
         
-        turtlesUI.moveCamera(deltaX, -deltaY);
+        /*
+        var deltaWorldCoords = {};
+        deltaWorldCoords.x = worldCoords[0].x - oldWorldCoords[0].x;
+        deltaWorldCoords.y = worldCoords[0].y - oldWorldCoords[0].y;
+        
+        turtlesUI.moveCamera(deltaWorldCoords);
+        */
+        
+        turtlesUI.onMove(worldCoords[0], oldWorldCoords[0]);
         
         oldEventCoords = eventCoords;
         mouseDidMove = true;
@@ -271,12 +282,10 @@ function onMouseUp(event)
     Log.event('onMouseUp', eventCoords);
     
     var worldCoords = turtlesUI.getWorldCoords(eventCoords);
-	World.createBuilding(worldCoords[0]);
-    var intersections = turtlesUI.castRay(worldCoords[0]);
-    if (intersections[0])
+    
+    if(!mouseDidMove)
     {
-        intersections[0].object.material.color.setHex(Math.random()*0xffffff);
-        // intersections[0].object.gameEntity.fixWithJoint(World.platter);
+        turtlesUI.onClick(worldCoords[0]);
     }
     
     mouseIsDown = false;
