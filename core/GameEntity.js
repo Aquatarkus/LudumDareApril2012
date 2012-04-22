@@ -115,6 +115,7 @@ Turtles.GameEntity.prototype._createMesh = function(){
     {
         this.mesh.rotation = this.rotation;
     }
+    this.mesh.gameEntity = this;
     turtlesUI.addClickableObject(this.mesh);
     
     return this.mesh;

@@ -42,8 +42,8 @@ var Log =
 Turtles.UI = function(element, width, height, cameraHeight)
 {
     // camera bounds
-    this.cameraNear = -50;
-    this.cameraFar = 50;
+    this.cameraNear = -100;
+    this.cameraFar = 100;
     this.cameraFrame = {x:0, y:0, width:1, height:cameraHeight};
     
     // ray casting
@@ -56,7 +56,7 @@ Turtles.UI = function(element, width, height, cameraHeight)
     this.scene = new THREE.Scene();
     
     // camera
-    this.camera = new THREE.OrthographicCamera(-1,1,-1,1,-100,100);
+    this.camera = new THREE.OrthographicCamera(-1,1,-1,1,this.cameraNear,this.cameraFar);
     this.scene.add(this.camera);
     
     // renderer
@@ -162,20 +162,12 @@ Turtles.UI.prototype =
         }
         this.renderer.render(this.scene, this.camera);
     },
-    castRay : function(xCoord, yCoord)
+    castRay : function(coords)
     {
-        var ray = this.ray;
-        var percentWidth = xCoord/this.width-0.5;
-        var percentHeight = 0.5-yCoord/this.height;
-        var cameraX = percentWidth * this.cameraFrame.width/this.cameraScale + this.cameraFrame.x;
-        var cameraY = percentHeight * this.cameraFrame.height/this.cameraScale + this.cameraFrame.y;
-        Log.debug('castRay percents', {x:percentWidth, y:percentHeight});
-        Log.debug('castRay cameraX, cameraY', {x:cameraX, y:cameraY});
-        // this.projector.unprojectVector(ray.origin.set(cameraX, cameraY, this.cameraNear), this.camera);
-        // this.projector.unprojectVector(ray.direction.set(0, 0, -1), this.camera);
-        ray.origin.set(cameraX, cameraY, this.cameraNear);
-        ray.direction.set(0, 0, -1);
+        var ray = this.projector.pickingRay(new THREE.Vector2(coords.x/this.width, coords.y/this.height), this.camera);
         var intersections = ray.intersectObjects(this.clickableObjects);
+        Log.debug('castRay counts', {clickable:this.clickableObjects.length, intersects: intersections.length});
+        Log.debug('castRay ray', ray);
         return intersections;
     },
     moveCamera : function(deltaX, deltaY)
@@ -278,6 +270,7 @@ function onMouseUp(event)
     
     var worldCoords = turtlesUI.getWorldCoords(eventCoords);
 	World.createBuilding(worldCoords[0]);
+    turtlesUI.castRay(worldCoords[0]);
     
     mouseIsDown = false;
     mouseDidMove = false;
