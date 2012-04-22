@@ -17,4 +17,11 @@ git dongs -inmymouth (prints ascii dicks)
               / / )    __,--  /%\
               \__/_,-'%(%  ;  %)%
                       %\%,   %\
-                        '--%'         
+                        '--%'       
+
+DEALING WITH CROSS-ORIGIN ERRORS IN CHROME:
+
+When running the project on localhost (from a folder) chrome will complain that the image resources on textures violate cross-origin policy.  To resolve this, do either one of two things:
+
+1) Run chrome with the argument '--allow-file-access-from-files'
+2) Run the project over a web server.
