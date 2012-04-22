@@ -107,10 +107,11 @@ Turtles.World.prototype = {
 		return true;
 	},
 	
-	// Get the closest building that does not yet have full occupancy, if one can be found.
+	// Forget it, we need speed.  Get a random building.  It's not in order, so this algorithm will essentially be random.
+    // it'll be closest if we bother to sort the list after every frame... which I don't know if we want to do.
 	getClosestUnoccupiedBuilding: function(platePosition) {
-		var lastValidBuilding = null;
-		
+        var lastValidBuilding = null;
+        
 		// Iterate through the buildings, looking for the two closest ones... and then compare them
 		// for the true closest.
 		for(var buildingIndex = 0; buildingIndex < this.buildings.length; buildingIndex++) {
@@ -159,26 +160,13 @@ Turtles.World.prototype = {
 		
 		building.platePosition = person.goalPosition;
 		building.build(person);
-		
-		var foundPosition = false;
-		
-		for (var sortedBuildingIndex = 0; sortedBuildingIndex < this.buildings.length; sortedBuildingIndex++) {
-			var compareBuilding = this.buildings[sortedBuildingIndex];
-			
-			if (compareBuilding.platePosition > building.platePosition) {
-				this.buildings.splice(sortedBuildingIndex, 0, building);
-				foundPosition = true;
-				break;
-			}
-		}
-		
-		if (!foundPosition) {
-			this.buildings.push(building);
-		}
+        
+        this.buildings.push(building);
 		
 		return building;
 	},
-
+    
+    
     checkWinState: function() {
         return false;
     },
