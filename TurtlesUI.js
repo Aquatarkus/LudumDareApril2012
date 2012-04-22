@@ -386,38 +386,3 @@ function animate() {
 }
 
 animate();
-
-/*
-function addTexturedCube()
-{
-	//Add a cube body.
-	var cubeWidth = 16;
-	var cubeSd = new b2BoxDef();
-	cubeSd.extents.Set(cubeWidth, cubeWidth);
-	cubeSd.density = 4.0;
-	var cubeBd = new b2BodyDef();
-	cubeBd.AddShape(cubeSd);
-	cubeBd.position.Set(-100, 300);
-	var cubeBody = pWorld.CreateBody(cubeBd);
-    cubeActor = new Actor(cubeBody);
-	
-	//We have to create a mesh from scratch beacuse of how the CubeGeometry object works.
-    var buildingTexture = THREE.ImageUtils.loadTexture('./textures/building0.png');
-	var buildingMaterial = new THREE.MeshBasicMaterial({map: buildingTexture});
-	var otherSideMaterials = new THREE.MeshBasicMaterial({color: 0xF20A4C});
-	var materials = [
-		otherSideMaterials,
-		otherSideMaterials,
-		otherSideMaterials,
-		otherSideMaterials,
-		buildingMaterial, //Positive Z face materialis in position 4.
-		otherSideMaterials];
-	var cubeMesh = new THREE.Mesh(new THREE.CubeGeometry(cubeWidth, cubeWidth, 10, 1, 1, 1, materials), new THREE.MeshFaceMaterial());
-	cubeActor.mesh = cubeMesh
-	turtlesUI.addClickableObject(cubeMesh);
-	
-	actors.push(cubeActor);
-}
-
-addTexturedCube();
-*/
