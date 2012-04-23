@@ -310,7 +310,7 @@ function onMouseUp(event)
     event.preventDefault();
     var eventCoords = getEventCoords(event);
     Log.event('onMouseUp', eventCoords);
-    
+
     var worldCoords = turtlesUI.getWorldCoords(eventCoords);
     
     // if(!mouseDidMove)

@@ -44,21 +44,27 @@ Assumes:
 Turtles.Person = function() {
 	Turtles.GameEntity.call(this);
 	this.isPhysicsSimulated = true,
-	this.density = .1;
-	this.width = 0.07;
-	this.height = 0.1;
-	this.shape = "CIRCLE";
-	this.color = 0xffffff;
+	this.density = 1;
+	this.width = 1;
+	this.height = 3;
+    this.width = 3;
+    this.shape = "BOX";
+	this.color = 0xff3333;
 	this.alpha = 0;
 	this.categoryBits = 0x0004;
 	this.maskBits = 0x0001;
 	this.platterPosition = 0;
-	this.moveSpeed = 5.0;
+	this.moveSpeed = 25.0;
 	this.maxEnergy = 5.0;
 	this.energy = 5.0;
 	this.state = "IDLE";
-	this.goalPlatterPosition = 0;
+	this.goalPlatterPosition = null;
 	this.goalObject = null;
+    this.lastMoveDirection = 0;
+
+    this.texture = Turtles.Person.prototype.personTexture;
+    this.animFrameCount = 8;
+    this.animFrameLength = 150;
 };
 
 
@@ -78,6 +84,16 @@ Turtles.Person.prototype.addToSimulationAt = function(x, y) {
     this.init();
     this.goalPlatterPosition = null;
     this.lastMoveDirection = 0;
+    // todo: ask alex (updates stop processing on new people)
+    //World.people.push(this);
+};
+
+Turtles.Person.prototype.removeFromSimulation = function() {
+    Turtles.GameEntity.prototype.removeFromSimulation.call(this);
+
+    this.goalPlatterPosition = null;
+    this.lastMoveDirection = 0;
+
 };
 
 Turtles.Person.prototype.removeFromSimulation = function() {
@@ -104,7 +120,7 @@ Turtles.Person.prototype.isOnTerrain = function() {
 
 Turtles.Person.prototype.checkForSleepState = function() {
     var result = false;
-    
+
     if (this.energy <= 0) {
         var building = World.getClosestUnoccupiedBuilding(this.platterPosition);
         
@@ -143,7 +159,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
         }
     }
     
-	// Update energy.
+    // Update energy.
 	if (this.state != "SLEEP") {
 		this.energy -=  World.energyDrainRate * deltaMs;
 	}
@@ -170,12 +186,12 @@ Turtles.Person.prototype.update = function(deltaMs) {
 		case "IDLE":
             if (!this.checkForSleepState()) {
                 this.state = "MOVE_TO_BUILD_SITE";
-				this.goalPlatterPosition = World.getBuildPosition();
+                this.goalPlatterPosition = World.getBuildPosition();
                 console.log("move to build site");
             }
 			break;
 		case "MOVE_TO_BUILD_SITE":
-			if ((this.platterPosition == this.goalPlatterPosition) || (this.lastMoveDirection != direction && this.lastMoveDirection != 0)) {
+            if ((this.platterPosition == this.goalPlatterPosition) || (this.lastMoveDirection != direction && this.lastMoveDirection != 0)) {
 				var building = World.initBuilding(this);
                 if (building) {
                     this.goalObject = building;
@@ -186,27 +202,28 @@ Turtles.Person.prototype.update = function(deltaMs) {
                     // We can't build anymore, wait for further commands... or just try to build another next iteration, whatever floats your boat.
                     this.state = "IDLE";
                 }
-			}
+            }
 			break;
 		case "BUILD":
 			break;
 		case "MOVE_TO_SLEEP":
-			if (this.platterPosition == this.goalPlatterPosition) {
-				this.goalObject.occupy(self);
+            if ((this.platterPosition == this.goalPlatterPosition) || (this.lastMoveDirection != direction && this.lastMoveDirection != 0)) {
+				this.goalObject.occupy(this);
 				this.state = "SLEEP";
                 this.removeFromSimulation();
                 console.log("Entered sleep");
-			}
+            }
 			break;
 		case "SLEEP":
 			this.energy +=  this.goalObject.energyChargeRate * deltaMs;
 			if (this.energy >= this.maxEnergy) {
-				this.goalObject.unoccupy(this);
-			}
+                this.goalObject.unoccupy(this);
+            }
 			break;
 		case "PANIC":
 			break;
 	}
+    
     switch(this.state) {
         case "PANIC":
         case "SLEEP":
@@ -221,5 +238,6 @@ Turtles.Person.prototype.update = function(deltaMs) {
             }
             break;
     }
-    
 };
+
+Turtles.Person.prototype.personTexture = THREE.ImageUtils.loadTexture('textures/PersonStrip.png');

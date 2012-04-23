@@ -6,6 +6,9 @@ Turtles.MeteorSpawner = function(coords) {
 
     // set up arrow/swinging (use global object; only one can appear at a time)
     self.meteorMesh = Turtles.Meteor.prototype.meteorMesh;
+    self.meteorMesh.geometry.dynamic = true;
+    self.meteorMesh.dynamic = true;
+
     self.meteorMesh.position.set(coords.x, coords.y, 0.0);
     self.meteorMesh.rotation.x = Math.PI / 2.0;
     
@@ -26,8 +29,11 @@ Turtles.MeteorSpawner.prototype = {
 
     update: function(stepTime) {
         this.arrowTime += stepTime;
-        this.arrowMesh.rotation.y = this.arrowSpan * Math.sin((Math.PI / 600.0) * this.arrowTime);
+        this.arrowMesh.rotation.y = this.arrowSpan * Math.sin(this.arrowTime / 500.0);
         this.meteorMesh.rotation.y += stepTime / 600.0;
+        var meteorMeshScale = 1.0 + 0.25 * Math.sin(this.arrowTime / 250.0);
+        this.meteorMesh.scale.x = meteorMeshScale;
+        this.meteorMesh.scale.z = meteorMeshScale;
     },
 
     spawn: function() {
