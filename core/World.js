@@ -35,6 +35,13 @@ Turtles.World = function() {
     this.maxWorldX = 1000;
     this.maxWorldY = 1000;
     this.peopleQueue = [];
+
+    this.playerScore = 0;
+    // primes make the counter go crazy
+    this.scoreValuePerBuildingPerTick = 100129;
+    this.scoreValuePerLivingPersonPerTick = 111641;
+    this.scoreValuePerBuildingConstruction = 611953;
+
 };
 
 
@@ -166,7 +173,7 @@ Turtles.World.prototype = {
 	createPerson: function(x, y) {
         return null;
         // Don't make any more people if we've hit our limit.
-        if (this.peopleQueue.length == 0) {
+        if (this.people.length >= this.maxPeople) {
             return null;
         }
         
@@ -273,10 +280,22 @@ Turtles.World.prototype = {
 		
 		return building;
 	},
-    
-    
-    checkWinState: function() {
-        return false;
+
+    scorePanelElement: document.getElementById('scorePanel'),
+
+    updateScorePanel: function() {
+        // calculate score delta
+        var scoreDelta = 
+              this.scoreValuePerBuildingPerTick * this.buildings.length
+            + this.scoreValuePerLivingPersonPerTick * this.people.length;
+
+        this.increaseScore(scoreDelta);
+    },
+
+    increaseScore: function(points) {
+        this.playerScore += points;
+
+        this.scorePanelElement.innerHTML = 'SCORE: ' + this.playerScore + '<br />Living people: ' + this.people.length + '<br />Buildings: ' + this.buildings.length;
     },
 
     update: function() {
@@ -287,27 +306,6 @@ Turtles.World.prototype = {
         this.platter.update(this.stepLength);
         this.turtle.update(this.stepLength);
         
-        /*
-        for (var contact = this.platter.physicsBody.GetContactList(); contact; contact = contact.GetNext())
-        {
-            var platter = this.platter;
-            if (platter.terrain.indexOf(contact) > -1)
-            {
-                platter.terrain.push(contact);
-                var jointDef = new b2DistanceJointDef();
-                jointDef.body1 = platter;
-                jointDef.body2 = contact;
-                jointDef.collideConnected = true; // bump and grind
-                jointDef.anchorPoint1 = platter.m_position;
-                jointDef.anchorPoint2 = contact.m_position;
-                
-                // roll it
-                World.pWorld.CreateJoint(jointDef);
-                
-                // light it
-            }
-        }
-        */
         // terrain
         for (var i = 0; i < this.terrain.length; i++)
         {
@@ -333,7 +331,8 @@ Turtles.World.prototype = {
                 if (this.spawner) {
             this.spawner.update(this.stepLength);
         }
-                
+
+        this.updateScorePanel();
         this.destroyCrap(this.terrain);
         this.destroyCrap(this.people);
         this.destroyCrap(this.effects);

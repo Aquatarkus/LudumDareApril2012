@@ -14,13 +14,9 @@
             margin: 0px;
             overflow: hidden;
 		}
-		div.instructions
-		{
-			position: fixed;
-			bottom: 0px;
-			left: 0px;
-			width: 300px;
-			text-align: left;
+        div.panel
+        {
+            text-align: left;
 			color: white;
 			font-family: monospace;
 			font-weight:bold;
@@ -32,7 +28,22 @@
 			padding-left: 5px;
 			margin: 5px;
 			pointer-events: none;
+        }
+        #instructionsElement
+		{
+			position: fixed;
+			bottom: 0px;
+			left: 0px;
+			width: 300px;
 		}
+
+        #scorePanel
+        {
+            position: fixed;
+            top: 0px;
+            right: 0px;
+            width: 200px;
+        }
     </style>
 <body>
     <div    id="TurtlesElement" 
@@ -60,7 +71,7 @@
                        pointer-events:none;">
                 Debug
         </div>
-		<div	id="instructionsElement" class="instructions">
+		<div	id="instructionsElement" class="panel">
 		"The great turtle giveth, and he taketh away"; if the world is getting out of balance,
 		click the mouse to fire a meteor.  What lies below?  It's turtles, all the way down!
 		</div>
@@ -69,6 +80,9 @@
                        text-align: center; color: white; font-size:large;
                        pointer-events:none;">
                 Feedback
+        </div>
+        <div id="scorePanel" class="panel">
+            &nbsp;
         </div>
 		<script src="Box2D/lib/prototype-1.6.0.2.js"></script>
 		<script src='Box2D/js/box2d/common/b2Settings.js'></script>
