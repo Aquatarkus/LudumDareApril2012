@@ -74,7 +74,7 @@ Turtles.Person.prototype = new Turtles.GameEntity();
 Turtles.Person.prototype.constructor = Turtles.Person;
 
 Turtles.Person.prototype.buildComplete = function(building) {
-    this.addToSimulationAt(building.x, building.y);
+    this.addToSimulationAt(building.x, building.y + this.height);
 };
 
 Turtles.Person.prototype.addToSimulationAt = function(x, y) {
@@ -146,7 +146,6 @@ Turtles.Person.prototype.update = function(deltaMs) {
         if (this.isOnTerrain(this)) {
             if (this.state == "PANIC") {
                 this.state = "IDLE";
-                this.goalPlatterPosition = null;
                 this.lastMoveDirection = 0;
             }
         } else {
@@ -156,7 +155,6 @@ Turtles.Person.prototype.update = function(deltaMs) {
 				this.screamTickCounter++;
 			}
             this.state = "PANIC";
-            this.goalPlatterPosition = null;
         }
 	}
     // Update energy.
@@ -185,7 +183,9 @@ Turtles.Person.prototype.update = function(deltaMs) {
 		case "IDLE":
             if (!this.checkForSleepState()) {
                 this.state = "MOVE_TO_BUILD_SITE";
-                this.goalPlatterPosition = World.getBuildPosition();
+                if (!this.goalPlatterPosition) {
+                    this.goalPlatterPosition = World.getBuildPosition();
+                }
                 // console.log("move to build site");
             }
 			break;
