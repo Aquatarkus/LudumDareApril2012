@@ -20,10 +20,6 @@ Turtles.Meteor = function() {
 
 Turtles.Meteor.prototype = new Turtles.Effect();
 Turtles.Meteor.prototype.constructor = Turtles.Meteor;
-Turtles.Meteor.prototype.update = function(stepTime) {
-    Turtles.Effect.prototype.update.call(this, stepTime);
-};
-
 Turtles.Meteor.prototype.meteorTexture = THREE.ImageUtils.loadTexture('textures/Meteor1.png');
 Turtles.Meteor.prototype.meteorMaterial = new THREE.MeshBasicMaterial({ map: Turtles.Meteor.prototype.meteorTexture });
 Turtles.Meteor.prototype.meteorMesh = new THREE.Mesh(new THREE.PlaneGeometry(35, 35), Turtles.Meteor.prototype.meteorMaterial);

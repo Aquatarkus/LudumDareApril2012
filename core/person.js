@@ -45,9 +45,10 @@ Turtles.Person = function() {
 	Turtles.GameEntity.call(this);
 	this.isPhysicsSimulated = true,
 	this.density = 1;
-	this.width = 10;
-	this.height = 10;
-	this.shape = "BOX";
+	this.width = 1;
+	this.height = 3;
+    this.width = 3;
+    this.shape = "BOX";
 	this.color = 0xff3333;
 	this.alpha = 0;
 	this.categoryBits = 0x0004;
@@ -63,13 +64,15 @@ Turtles.Person = function() {
 
     this.texture = Turtles.Person.prototype.personTexture;
     this.animFrameCount = 8;
-    this.animFrameLength = 100;
+    this.animFrameLength = 150;
 };
 
 
 Turtles.Person.prototype = new Turtles.GameEntity();
 
 Turtles.Person.prototype.constructor = Turtles.Person;
+
+Turtles.Meteor.prototype.texture = THREE.ImageUtils.loadTexture('textures/Meteor1.png');
 
 Turtles.Person.prototype.buildComplete = function(building) {
     this.addToSimulationAt(building.x, building.y);
@@ -85,6 +88,14 @@ Turtles.Person.prototype.addToSimulationAt = function(x, y) {
     this.lastMoveDirection = 0;
     // todo: ask alex (updates stop processing on new people)
     //World.people.push(this);
+};
+
+Turtles.Person.prototype.removeFromSimulation = function() {
+    Turtles.GameEntity.prototype.removeFromSimulation.call(this);
+
+    this.goalPlatterPosition = null;
+    this.lastMoveDirection = 0;
+
 };
 
 Turtles.Person.prototype.removeFromSimulation = function() {
@@ -111,7 +122,7 @@ Turtles.Person.prototype.isOnTerrain = function() {
 
 Turtles.Person.prototype.checkForSleepState = function() {
     var result = false;
-    
+
     if (this.energy <= 0) {
         var building = World.getClosestUnoccupiedBuilding(this.platterPosition);
         
@@ -128,8 +139,6 @@ Turtles.Person.prototype.checkForSleepState = function() {
 };
 
 Turtles.Person.prototype.update = function(deltaMs) {
-    Turtles.GameEntity.prototype.update.call(this, deltaMs);
-    
     if (this.checkForDeath()) {
         return;
     }
@@ -152,13 +161,11 @@ Turtles.Person.prototype.update = function(deltaMs) {
         }
     }
     
-    
-	// Update energy.
+    // Update energy.
 	if (this.state != "SLEEP") {
-		this.energy -=  (deltaMs / World.energyDrainRate);
+		this.energy -=  World.energyDrainRate * deltaMs;
 	}
-    
-    
+
     var direction = 0;
     
     switch(this.state) {
@@ -181,12 +188,12 @@ Turtles.Person.prototype.update = function(deltaMs) {
 		case "IDLE":
             if (!this.checkForSleepState()) {
                 this.state = "MOVE_TO_BUILD_SITE";
-				this.goalPlatterPosition = World.getBuildPosition();
+                this.goalPlatterPosition = World.getBuildPosition();
                 console.log("move to build site");
             }
 			break;
 		case "MOVE_TO_BUILD_SITE":
-			if ((this.platterPosition == this.goalPlatterPosition) || (this.lastMoveDirection != direction && this.lastMoveDirection != 0)) {
+            if ((this.platterPosition == this.goalPlatterPosition) || (this.lastMoveDirection != direction && this.lastMoveDirection != 0)) {
 				var building = World.initBuilding(this);
                 if (building) {
                     this.goalObject = building;
@@ -197,28 +204,27 @@ Turtles.Person.prototype.update = function(deltaMs) {
                     // We can't build anymore, wait for further commands... or just try to build another next iteration, whatever floats your boat.
                     this.state = "IDLE";
                 }
-			}
+            }
 			break;
 		case "BUILD":
 			break;
 		case "MOVE_TO_SLEEP":
-			if ((this.platterPosition == this.goalPlatterPosition) || (this.lastMoveDirection != direction && this.lastMoveDirection != 0)) {
+            if ((this.platterPosition == this.goalPlatterPosition) || (this.lastMoveDirection != direction && this.lastMoveDirection != 0)) {
 				this.goalObject.occupy(this);
 				this.state = "SLEEP";
                 this.removeFromSimulation();
                 console.log("Entered sleep");
-			}
+            }
 			break;
 		case "SLEEP":
 			this.energy +=  this.goalObject.energyChargeRate * deltaMs;
 			if (this.energy >= this.maxEnergy) {
-				this.goalObject.unoccupy(this);
-			}
+                this.goalObject.unoccupy(this);
+            }
 			break;
 		case "PANIC":
 			break;
 	}
-    
     
     switch(this.state) {
         case "PANIC":
@@ -234,8 +240,6 @@ Turtles.Person.prototype.update = function(deltaMs) {
             }
             break;
     }
-    
 };
-
 
 Turtles.Person.prototype.personTexture = THREE.ImageUtils.loadTexture('textures/PersonStrip.png');

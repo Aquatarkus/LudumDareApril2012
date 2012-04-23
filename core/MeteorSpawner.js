@@ -8,6 +8,7 @@ Turtles.MeteorSpawner = function(coords) {
     self.meteorMesh = Turtles.Meteor.prototype.meteorMesh;
     self.meteorMesh.geometry.dynamic = true;
     self.meteorMesh.dynamic = true;
+
     self.meteorMesh.position.set(coords.x, coords.y, 0.0);
     self.meteorMesh.rotation.x = Math.PI / 2.0;
     
