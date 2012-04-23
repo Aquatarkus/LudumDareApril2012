@@ -166,7 +166,6 @@ Turtles.GameEntity.prototype.updateSimulation = function() {
 
 Turtles.GameEntity.prototype.update = function(timeElapsed) {
     this.updateSimulation();
-    
 
     if (this.checkForDeath()) {
         return;
