@@ -300,7 +300,6 @@ function onMouseMove(event)
     {
         event.preventDefault();
         var eventCoords = getEventCoords(event);
-        // Log.event('onMouseMove', eventCoords);
         
         var oldWorldCoords = turtlesUI.getWorldCoords(oldEventCoords);
         var worldCoords = turtlesUI.getWorldCoords(eventCoords);

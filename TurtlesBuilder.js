@@ -190,13 +190,13 @@ Turtles.Builder.prototype =
     },
     onMove : function(worldCoords, oldWorldCoords)
     {
-        Log.debug('onMove coords',{wc:worldCoords, owc:oldWorldCoords});
+        // Log.debug('onMove coords',{wc:worldCoords, owc:oldWorldCoords});
         var deltaWorldCoords = {x:worldCoords.x-oldWorldCoords.x,
                                 y:worldCoords.y-oldWorldCoords.y};
         switch (this.state)
         {
             case Turtles.BuilderStates.MoveCamera:
-                Log.debug('onMoveCamera', deltaWorldCoords);
+                // Log.debug('onMoveCamera', deltaWorldCoords);
                 turtlesUI.moveCamera(deltaWorldCoords);
                 break;
             case Turtles.BuilderStates.MoveObject:
