@@ -29,7 +29,6 @@ Turtles.World = function() {
     
     this.maxPeople = 20;
     this.maxBuildings = 50;
-
 	this.pWorld = null;
     this.minWorldX = -1000;
     this.minWorldY = -1000;
@@ -72,28 +71,8 @@ Turtles.World.prototype = {
             World.initOnPlatter(person);
             World.people.push(person);
         }, 1000);
-        
-        //init fulcrum
-		var fulcrumShapeDef = new b2BoxDef();
-        fulcrumShapeDef.extents.Set(1, 1);
-        fulcrumShapeDef.density = 0;
-		//fulcrumShapeDef.collisionCategoryBits = 0x0004;
-		//fulcrumShapeDef.collisionMaskBits = 0x0002;
-		fulcrumShapeDef.groupIndex = -2;
-		var fulcrumBodyDef = new b2BodyDef();
-		fulcrumBodyDef.AddShape(fulcrumShapeDef);
-		fulcrumBodyDef.position.Set(0, this.turtle.height/4);
-		var fulcrumBody = this.pWorld.CreateBody(fulcrumBodyDef);
 		
-		//join platter to fulcrum.
-		var fulcrumJointDef = new b2RevoluteJointDef();
-		fulcrumJointDef.body1 = this.platter.physicsBody;
-		fulcrumJointDef.body2 = fulcrumBody;
-		fulcrumJointDef.anchorPoint.Set(fulcrumBody.m_position.x, fulcrumBody.m_position.y);
-		fulcrumJointDef.lowerAngle = -Math.PI / 6;
-		fulcrumJointDef.upperAngle = Math.PI / 6;
-		fulcrumJointDef.enableLimit = true;
-		this.pWorld.CreateJoint(fulcrumJointDef);
+		SoundManager.playChillMusic();
 	},
 	
     constructor: Turtles.World,
@@ -336,7 +315,7 @@ Turtles.World.prototype = {
         this.destroyCrap(this.people);
         this.destroyCrap(this.effects);
         this.destroyCrap(this.buildings);
-        
+
         if (this.spawner) {
             this.spawner.update(this.stepLength);
         }
