@@ -73,7 +73,7 @@ Turtles.Person.prototype = new Turtles.GameEntity();
 Turtles.Person.prototype.constructor = Turtles.Person;
 
 Turtles.Person.prototype.buildComplete = function(building) {
-    this.addToSimulationAt(building.x, building.y);
+    this.addToSimulationAt(building.x, building.y + this.height);
 };
 
 Turtles.Person.prototype.addToSimulationAt = function(x, y) {

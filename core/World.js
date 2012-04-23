@@ -71,30 +71,15 @@ Turtles.World.prototype = {
         this.platter.init();
 		this.platter.initFulcrumJoint();
 		this.platter.terrain = [];
-        
-        setTimeout(function() {
+    
+        Turtles.Person.prototype.personTexture = THREE.ImageUtils.loadTexture('textures/personStrip.png', {}, function() {
             for (var peopleSpawn = 0; peopleSpawn < 20; peopleSpawn++) {
                 var person = new Turtles.Person();
                 person.platterPosition = Math.random();
-                World.initOnPlatter(person);
-                //World.people.push(person);
-                //person.removeFromSimulation();
+                World.initOnPlatter(person, World.people);
             }
-        }, 1000);
+        });
         
-        World.people = [];
-		/*
-        setTimeout(function() {
-            //init seed person
-            var person = World.peopleQueue.pop();
-            person.platterPosition = 0.5;
-            World.initOnPlatter(person);
-            
-            person = World.peopleQueue.pop();
-            person.platterPosition = 0.1;
-            World.initOnPlatter(person);
-        }, 1000);
-        */
         //init fulcrum
 		var fulcrumShapeDef = new b2BoxDef();
         fulcrumShapeDef.extents.Set(1, 1);
@@ -120,14 +105,6 @@ Turtles.World.prototype = {
     },
     
     getPlatterPosition: function(x, y) {
-        /*
-        var geometry = new THREE.Geometry();
-        geometry.vertices.push(new THREE.Vertex(World.platter.mesh.position));
-        geometry.vertices.push(new THREE.Vertex(World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(100, 0, 0))));
-        var material = new THREE.MeshBasicMaterial({color: 0xff33ff, wireframe:true });
-        var debugline = new THREE.Line(geometry, material);
-        turtlesUI.addObject(debugline);
-        */
         //World.platter.mesh.position
         var vectorAligned = World.platter.mesh.matrix.multiplyVector3(new THREE.Vector3(1, 0, 0));
         var vectorComp = new THREE.Vector3();
@@ -171,23 +148,20 @@ Turtles.World.prototype = {
 	},
 	
 	createPerson: function(x, y) {
-        return null;
         // Don't make any more people if we've hit our limit.
         if (this.people.length >= this.maxPeople) {
             return null;
         }
         
 		var newPerson = this.peopleQueue.pop();
-        person = World.peopleQueue.pop();
-            person.platterPosition = 0.1;
+        if (newPerson) {
+            newPerson.x = x;
+            newPerson.y = y;
+            newPerson.platterPosition = World.getPlatterPosition(x, y);
+            newPerson.destroy = false;
             
-		
-		newPerson.x = x;
-		newPerson.y = y;
-		newPerson.platterPosition = World.getPlatterPosition(x, y);
-		
-        World.initOnPlatter(person);
-		
+            World.initOnPlatter(newPerson, World.people);
+		}
 		return newPerson;
 	},
 
@@ -260,24 +234,22 @@ Turtles.World.prototype = {
 		return Math.random();
 	},
     
-    initOnPlatter: function(newPlatterObject) {
+    initOnPlatter: function(newPlatterObject, arrayToAdd) {
         var platterVector = World.getCoordinatesFromPlatterPosition(newPlatterObject.platterPosition, World.platter.height);
         newPlatterObject.x = platterVector.x + newPlatterObject.width;
         newPlatterObject.y = platterVector.y + newPlatterObject.height;
         newPlatterObject.init();
         newPlatterObject.mesh.rotation.z = newPlatterObject.physicsBody.m_rotation = World.platter.physicsBody.m_rotation;
-        this.people.push(newPlatterObject);
+        arrayToAdd.push(newPlatterObject);
     },
 
 	// Instantiate a building and assign the builder.
 	initBuilding: function(person) {
 		var building = new Turtles.Building();
 		building.platterPosition = person.goalPlatterPosition;
-        World.initOnPlatter(building);
+        World.initOnPlatter(building, this.buildings);
 		building.build(person);
         
-        this.buildings.push(building);
-		
 		return building;
 	},
 
@@ -328,13 +300,14 @@ Turtles.World.prototype = {
         for (var i = 0; i < this.buildings.length; i++) {
             this.buildings[i].update(this.stepLength);
         }
-                if (this.spawner) {
+        
+        if (this.spawner) {
             this.spawner.update(this.stepLength);
         }
 
         this.updateScorePanel();
         this.destroyCrap(this.terrain);
-        this.destroyCrap(this.people);
+        this.destroyCrap(this.people, this.peopleQueue);
         this.destroyCrap(this.effects);
         this.destroyCrap(this.buildings);
 

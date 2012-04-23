@@ -164,6 +164,20 @@ Turtles.GameEntity.prototype.updateSimulation = function() {
     }
 };
 
+Turtles.GameEntity.prototype.isOnTerrain = function() {
+    var list = this.physicsBody.GetContactList();
+    
+    while (list) {
+        if (list.other === World.platter.physicsBody) {
+            return true;
+        }
+        
+        list = list.next;
+    }
+    
+    return false;
+};
+
 Turtles.GameEntity.prototype.update = function(timeElapsed) {
     this.updateSimulation();
 
