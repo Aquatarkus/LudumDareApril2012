@@ -30,7 +30,7 @@ Turtles.World = function() {
 	// How long it takes, in ms, for a single unit of energy to be drained from a person.
     this.energyDrainRate = 0.01;
     
-    this.maxPeople = 20;
+    this.maxPeople = 50;
     this.maxBuildings = 50;
 	this.pWorld = null;
     this.minWorldX = -1000;
@@ -87,7 +87,7 @@ Turtles.World.prototype = {
 		this.platter.terrain = [];
     
         Turtles.Person.prototype.personTexture = THREE.ImageUtils.loadTexture('textures/personStrip.png', {}, function() {
-            for (var peopleSpawn = 0; peopleSpawn < 20; peopleSpawn++) {
+            for (var peopleSpawn = 0; peopleSpawn < World.maxPeople; peopleSpawn++) {
                 var person = new Turtles.Person();
                 person.platterPosition = Math.random();
                 World.initOnPlatter(person, World.people);
