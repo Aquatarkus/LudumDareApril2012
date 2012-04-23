@@ -90,6 +90,10 @@ Turtles.Building.prototype.unoccupy = function(person) {
 };
 
 Turtles.Building.prototype.build = function(person) {
+	//Sound FX
+	SoundManager.playBuildingSound();
+	
+	//Build that shit.
     this.occupiers.push(person);
     this.builder = person;
 	this.buildTimeElapsed = 0;
@@ -99,6 +103,7 @@ Turtles.Building.prototype.build = function(person) {
 
 Turtles.Building.prototype.update = function(timeElapsedInMs) {
     if (this.checkForDeath()) {
+		SoundManager.playExplosionSound();
         return;
     }
     

@@ -39,7 +39,12 @@ Turtles.MeteorSpawner.prototype = {
     },
 
     spawn: function() {
-        var meteor = new Turtles.Meteor();
+		//Sound fx
+		SoundManager.playMeteorSound();
+		SoundManager.playMeteorMusic();
+        
+		//Spawn the meteor
+		var meteor = new Turtles.Meteor();
         meteor.x = this.x;
         meteor.y = this.y;
         meteor.linearVelocity

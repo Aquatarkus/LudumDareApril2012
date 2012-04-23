@@ -316,20 +316,10 @@ Turtles.World.prototype = {
         this.destroyCrap(this.effects);
         this.destroyCrap(this.buildings);
 
-        if (this.spawner) {
-            this.spawner.update(this.stepLength);
-        }
-        
-        for (var i = this.terrain.length; i >= 0; i--) {
-            if (this.destroy) {
-                this.terrain
-            }
-        }
-        
-        this.destroyCrap(this.terrain);
-        this.destroyCrap(this.people);
-        this.destroyCrap(this.effects);
-        this.destroyCrap(this.buildings);
+		//Re-adjust the music
+		if (this.effects.length === 0 && this.platter.isStableish){
+			SoundManager.playChillMusic();
+		}
     },
     
     destroyCrap: function(array) {
