@@ -35,6 +35,7 @@ Turtles.World = function() {
     this.minWorldY = -1000;
     this.maxWorldX = 1000;
     this.maxWorldY = 1000;
+    this.peopleQueue = [];
 };
 
 
@@ -64,15 +65,30 @@ Turtles.World.prototype = {
         this.platter.init();
 		this.platter.initFulcrumJoint();
 		this.platter.terrain = [];
-		
+        
         setTimeout(function() {
-            //init seed person
-            var person = new Turtles.Person();
-            person.platterPosition = 0.5;
-            World.initOnPlatter(person);
-            World.people.push(person);
+            for (var peopleSpawn = 0; peopleSpawn < 20; peopleSpawn++) {
+                var person = new Turtles.Person();
+                person.platterPosition = Math.random();
+                World.initOnPlatter(person);
+                //World.people.push(person);
+                //person.removeFromSimulation();
+            }
         }, 1000);
         
+        World.people = [];
+		/*
+        setTimeout(function() {
+            //init seed person
+            var person = World.peopleQueue.pop();
+            person.platterPosition = 0.5;
+            World.initOnPlatter(person);
+            
+            person = World.peopleQueue.pop();
+            person.platterPosition = 0.1;
+            World.initOnPlatter(person);
+        }, 1000);
+        */
         //init fulcrum
 		var fulcrumShapeDef = new b2BoxDef();
         fulcrumShapeDef.extents.Set(1, 1);
@@ -157,20 +173,23 @@ Turtles.World.prototype = {
 	},
 	
 	createPerson: function(x, y) {
+        return null;
         // Don't make any more people if we've hit our limit.
-        if (this.people.length >= this.maxPeople) {
+        if (this.peopleQueue.length == 0) {
             return null;
         }
         
-		var newPerson = new Turtles.Person();
+		var newPerson = this.peopleQueue.pop();
+        person = World.peopleQueue.pop();
+            person.platterPosition = 0.1;
+            
 		
 		newPerson.x = x;
 		newPerson.y = y;
 		newPerson.platterPosition = World.getPlatterPosition(x, y);
-		newPerson.init();
-        
-		this.people.push(newPerson);
-
+		
+        World.initOnPlatter(person);
+		
 		return newPerson;
 	},
 
@@ -249,13 +268,11 @@ Turtles.World.prototype = {
         newPlatterObject.y = platterVector.y + newPlatterObject.height;
         newPlatterObject.init();
         newPlatterObject.mesh.rotation.z = newPlatterObject.physicsBody.m_rotation = World.platter.physicsBody.m_rotation;
+        this.people.push(newPlatterObject);
     },
 
 	// Instantiate a building and assign the builder.
 	initBuilding: function(person) {
-		//$TODO - How are we going to initialize the new physics objects we need?  I think
-		//		  World is going to need some kind of method to initiate generic physics objects, or
-		//		  Actors need the responsibility.
 		var building = new Turtles.Building();
 		building.platterPosition = person.goalPlatterPosition;
         World.initOnPlatter(building);
@@ -326,37 +343,20 @@ Turtles.World.prototype = {
             this.spawner.update(this.stepLength);
         }
         
-        for (var i = this.terrain.length; i >= 0; i--) {
-            if (this.destroy) {
-                this.terrain
-            }
-        }
         
         this.destroyCrap(this.terrain);
-        this.destroyCrap(this.people);
-        this.destroyCrap(this.effects);
-        this.destroyCrap(this.buildings);
-        
-        if (this.spawner) {
-            this.spawner.update(this.stepLength);
-        }
-        
-        for (var i = this.terrain.length; i >= 0; i--) {
-            if (this.destroy) {
-                this.terrain
-            }
-        }
-        
-        this.destroyCrap(this.terrain);
-        this.destroyCrap(this.people);
+        this.destroyCrap(this.people, this.peopleQueue);
         this.destroyCrap(this.effects);
         this.destroyCrap(this.buildings);
     },
     
-    destroyCrap: function(array) {
+    destroyCrap: function(array, queue) {
         for (var i = array.length - 1; i >= 0; i--) {
             if (array[i].destroy) {
                 array[i].removeFromSimulation();
+                if (queue) {
+                    queue.push(array[i]);
+                }
                 array.splice(i, 1);
             }
         }

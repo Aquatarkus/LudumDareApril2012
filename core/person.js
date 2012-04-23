@@ -45,7 +45,6 @@ Turtles.Person = function() {
 	Turtles.GameEntity.call(this);
 	this.isPhysicsSimulated = true,
 	this.density = 0.1;
-	this.width = 1;
 	this.height = 3;
     this.width = 3;
     this.shape = "BOX";
@@ -61,6 +60,7 @@ Turtles.Person = function() {
 	this.goalPlatterPosition = null;
 	this.goalObject = null;
     this.lastMoveDirection = 0;
+    this.z = 1;
 
     this.texture = Turtles.Person.prototype.personTexture;
     this.animFrameCount = 8;
@@ -77,11 +77,9 @@ Turtles.Person.prototype.buildComplete = function(building) {
 };
 
 Turtles.Person.prototype.addToSimulationAt = function(x, y) {
+    Turtles.GameEntity.prototype.addToSimulationAt.call(this, x, y);
     this.state = "IDLE";
 	this.goalObject = null;
-    this.x = x;
-    this.y = y;
-    this.init();
     this.goalPlatterPosition = null;
     this.lastMoveDirection = 0;
 };
@@ -92,13 +90,6 @@ Turtles.Person.prototype.removeFromSimulation = function() {
     this.goalPlatterPosition = null;
     this.lastMoveDirection = 0;
 
-};
-
-Turtles.Person.prototype.removeFromSimulation = function() {
-    Turtles.GameEntity.prototype.removeFromSimulation.call(this);
-
-    this.goalPlatterPosition = null;
-    this.lastMoveDirection = 0;
 };
 
 Turtles.Person.prototype.isOnTerrain = function() {
@@ -190,6 +181,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
 			break;
 		case "MOVE_TO_BUILD_SITE":
             if ((this.platterPosition == this.goalPlatterPosition) || (this.lastMoveDirection != direction && this.lastMoveDirection != 0)) {
+                var building = null;
 				var building = World.initBuilding(this);
                 if (building) {
                     this.goalObject = building;
@@ -238,4 +230,4 @@ Turtles.Person.prototype.update = function(deltaMs) {
     }
 };
 
-Turtles.Person.prototype.personTexture = THREE.ImageUtils.loadTexture('textures/PersonStrip.png');
+Turtles.Person.prototype.personTexture = THREE.ImageUtils.loadTexture('textures/personStrip.png');
