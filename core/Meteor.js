@@ -9,7 +9,7 @@ Turtles.Meteor = function() {
     self.width = 20.0;
     self.height = 20.0;
     // hack: should be circle, bug in gameentity
-    self.shape = 'BOX';
+    self.shape = 'CIRCLE';
     self.color = 0xff9900;
     self.alpha = 1.0;
 
