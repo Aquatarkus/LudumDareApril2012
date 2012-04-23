@@ -61,6 +61,7 @@ Turtles.Person = function() {
 	this.goalObject = null;
     this.lastMoveDirection = 0;
     this.z = 1;
+	this.screamTickCounter = 0;
 
     this.texture = Turtles.Person.prototype.personTexture;
     this.animFrameCount = 8;
@@ -135,6 +136,12 @@ Turtles.Person.prototype.update = function(deltaMs) {
 
         this.platterPosition = World.getPlatterPosition(this.x, this.y);
         
+		if (this.screamTickCounter > 0)
+		{
+			this.screamTickCounter++;
+			this.screamTickCounter = this.screamTickCounter % 300;
+		}
+		
         // Check for panic/exiting panic.
         if (this.isOnTerrain(this)) {
             if (this.state == "PANIC") {
@@ -143,6 +150,11 @@ Turtles.Person.prototype.update = function(deltaMs) {
                 this.lastMoveDirection = 0;
             }
         } else {
+			if (this.screamTickCounter === 0)
+			{
+				SoundManager.playDeathSound();
+				this.screamTickCounter++;
+			}
             this.state = "PANIC";
             this.goalPlatterPosition = null;
         }
