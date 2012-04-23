@@ -44,6 +44,8 @@ Turtles.UI = function(element, width, height, cameraHeight)
     this.cameraNear = -100;
     this.cameraFar = 100;
     this.cameraFrame = {x:0, y:85, width:1, height:cameraHeight};
+    this.cameraMaxWidth = 1000;
+    this.cameraMaxHeight = 1000;
     
     // ray casting
     this.projector = new THREE.Projector();
@@ -140,6 +142,7 @@ Turtles.UI.prototype =
         // renderer
         this.width = width;
         this.height = height;
+        this.aspectRatio = this.width / this.height;
         this.renderer.setSize(this.width, this.height);
         
         Log.debug('Turtles.UI resize', {width:width, height:height});
@@ -214,6 +217,18 @@ Turtles.UI.prototype =
     {
         this.cameraFrame.width *= scaleFactor;
         this.cameraFrame.height *= scaleFactor;
+        
+        if(this.cameraFrame.width > this.cameraMaxWidth)
+        {
+            this.cameraFrame.width = this.cameraMaxWidth;
+            this.cameraFrame.height = this.cameraMaxWidth / this.aspectRatio;
+        }
+        else if (this.cameraFrame.height > this.cameraMaxHeight)
+        {
+            this.cameraFrame.height = this.cameraMaxHeight;
+            this.cameraFrame.width = this.aspectRatio * this.cameraMaxHeight;
+        }
+        
         this.updateCamera();
     },
     registerOnClickWorld : function(onClick)
@@ -385,15 +400,6 @@ stats = new Stats();
 stats.domElement.style.position = 'absolute';
 stats.domElement.style.top = '0px';
 TurtlesElement.appendChild( stats.domElement );
-
-// light
-var ambientLight = new THREE.AmbientLight(0x7f7f7f);
-turtlesUI.addObject(ambientLight);
-
-// sun
-var sunLight = new THREE.PointLight(0xffffff, 1);
-sunLight.position.set(-100, 200, 0);
-turtlesUI.addObject(sunLight);
 
 var renderer = turtlesUI.renderer;
 var scene = turtlesUI.scene;
