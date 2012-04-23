@@ -44,6 +44,11 @@
             right: 0px;
             width: 200px;
         }
+
+        #scoreDisplay
+        {
+            position: absolute;
+        }
     </style>
 <body>
     <div    id="TurtlesElement" 
@@ -82,7 +87,9 @@
                 Feedback
         </div>
         <div id="scorePanel" class="panel">
-            &nbsp;
+            SCORE: <span id="scoreDisplay">0</span><br />
+            Living People: <span id="scorePanelPeopleCount">0</span><br />
+            Buildings: <span id="scorePanelBuildingCount">0</span>
         </div>
 		<script src="Box2D/lib/prototype-1.6.0.2.js"></script>
 		<script src='Box2D/js/box2d/common/b2Settings.js'></script>

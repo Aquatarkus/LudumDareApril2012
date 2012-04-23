@@ -282,8 +282,11 @@ Turtles.World.prototype = {
 	},
 
     scorePanelElement: document.getElementById('scorePanel'),
+    scoreDisplayElement: document.getElementById('scoreDisplay'),
+    scorePanelPeopleCountDisplayElement: document.getElementById('scorePanelPeopleCount'),
+    scorePanelBuildingCountDisplayElement: document.getElementById('scorePanelBuildingCount'),
 
-    updateScorePanel: function() {
+    updateScore: function() {
         // calculate score delta
         var scoreDelta = 
               this.scoreValuePerBuildingPerTick * this.buildings.length
@@ -295,7 +298,9 @@ Turtles.World.prototype = {
     increaseScore: function(points) {
         this.playerScore += points;
 
-        this.scorePanelElement.innerHTML = 'SCORE: ' + this.playerScore + '<br />Living people: ' + this.people.length + '<br />Buildings: ' + this.buildings.length;
+        this.scoreDisplayElement.innerText = this.playerScore;
+        this.scorePanelPeopleCountDisplayElement.innerText = this.people.length;
+        this.scorePanelBuildingCountDisplayElement.innerText = this.buildings.length;
     },
 
     update: function() {
@@ -332,7 +337,7 @@ Turtles.World.prototype = {
             this.spawner.update(this.stepLength);
         }
 
-        this.updateScorePanel();
+        this.updateScore();
         this.destroyCrap(this.terrain);
         this.destroyCrap(this.people);
         this.destroyCrap(this.effects);
