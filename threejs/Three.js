@@ -1,7 +1,7 @@
 // Three.js - http://github.com/mrdoob/three.js
 'use strict';var THREE=THREE||{REVISION:"49dev"};
 var self = self || {};
-var window = window || {};
+// var window = window || {};
 if(!self.Int32Array)self.Int32Array=Array,self.Float32Array=Array;
 (function(){for(var a=0,b=["ms","moz","webkit","o"],c=0;c<b.length&&!window.requestAnimationFrame;++c)window.requestAnimationFrame=window[b[c]+"RequestAnimationFrame"],window.cancelAnimationFrame=window[b[c]+"CancelAnimationFrame"]||window[b[c]+"CancelRequestAnimationFrame"];if(!window.requestAnimationFrame)window.requestAnimationFrame=function(b){var c=(new Date).getTime(),f=Math.max(0,16-(c-a)),g=window.setTimeout(function(){b(c+f)},f);a=c+f;return g};if(!window.cancelAnimationFrame)window.cancelAnimationFrame=
 function(a){clearTimeout(a)}})();THREE.Clock=function(a){this.autoStart=void 0!==a?a:!0;this.elapsedTime=this.oldTime=this.startTime=0;this.running=!1};THREE.Clock.prototype.start=function(){this.oldTime=this.startTime=Date.now();this.running=!0};THREE.Clock.prototype.stop=function(){this.getElapsedTime();this.running=!1};THREE.Clock.prototype.getElapsedTime=function(){return this.elapsedTime+=this.getDelta()};

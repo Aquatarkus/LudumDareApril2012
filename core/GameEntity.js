@@ -78,7 +78,6 @@ Turtles.GameEntity = function() {
     this.mesh = null;
     this.physicsBodyDef = null;
     this.physicsBody = null;
-    this.actor = null;
     this.texture = null;
     this.joints = [];
     this.isInSimulation = false;
@@ -96,17 +95,23 @@ Turtles.GameEntity = function() {
 };
 
 Turtles.GameEntity.prototype.init = function() {
-//    this._createPhysicsBody();
-//    this._createMesh();
     if (!this.isInSimulation) {
         this._createPhysicsBody();
-        this._createMesh();
+        
+        if (!this.mesh) {
+            this._createMesh();
+        } else {
+            turtlesUI.addClickableObject(this.mesh);
+        }
+        
         this.isInSimulation = true;
+        this.updateSimulation();
+        
     }
 
     // for uv anims
     if (this.animFrameCount > 1) {
-        console.log('initting for animation');
+        // console.log('initting for animation');
         this.animFrameWidth = 1.0 / this.animFrameCount;
 
         // hack: force first update to fire
@@ -122,6 +127,7 @@ Turtles.GameEntity.prototype.addToSimulationAt = function(x, y) {
 };
 
 Turtles.GameEntity.prototype.removeFromSimulation = function() {
+    
     if (this.isInSimulation) {
         if (this.physicsBody) {
             World.pWorld.DestroyBody(this.physicsBody);
@@ -129,8 +135,10 @@ Turtles.GameEntity.prototype.removeFromSimulation = function() {
         if (this.mesh) {
             turtlesUI.removeObject(this.mesh);
         }
+        
         this.isInSimulation = false;
     }
+    
 };
 
 Turtles.GameEntity.prototype.checkForDeath = function() {
@@ -141,15 +149,28 @@ Turtles.GameEntity.prototype.checkForDeath = function() {
     return this.destroy;
 };
 
+Turtles.GameEntity.prototype.updateSimulation = function() {
+    if (this.isInSimulation) {
+        if (this.physicsBody) {
+            var pos = this.physicsBody.m_position;
+            if (this.mesh) {
+                this.mesh.position.x = pos.x;
+                this.mesh.position.y = pos.y;
+                this.mesh.rotation.z = this.physicsBody.m_rotation;
+                this.x = this.mesh.position.x;
+                this.y = this.mesh.position.y;
+            }
+        }    
+    }
+};
+
 Turtles.GameEntity.prototype.update = function(timeElapsed) {
-    var pos = this.physicsBody.m_position;
-    this.mesh.position.x = pos.x;
-    this.mesh.position.y = pos.y;
+    this.updateSimulation();
+
     if (this.checkForDeath()) {
         return;
     }
     
-    this.mesh.rotation.z = this.physicsBody.m_rotation;
 
     // sprite animation
     if (this.texture && this.animFrameCount > 1) {
@@ -179,15 +200,6 @@ Turtles.GameEntity.prototype.update = function(timeElapsed) {
         }
     }
 
-    if (this.isInSimulation) {
-        var pos = this.physicsBody.m_position;
-        this.mesh.position.x = pos.x;
-        this.mesh.position.y = pos.y;
-        this.x = this.mesh.position.x;
-        this.y = this.mesh.position.y;
-        
-        this.mesh.rotation.z = this.physicsBody.m_rotation;
-    }
 };
 
 Turtles.GameEntity.prototype._createMesh = function(){

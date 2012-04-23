@@ -14,6 +14,9 @@ Turtles.World = function() {
     
     // additions to the terrain
     this.terrain = [];
+    
+    // turtles all the way down
+    this.turtles = [];
 
     // effects placed by the player
     this.effects = [];
@@ -22,10 +25,10 @@ Turtles.World = function() {
     this.pendingEffect = null;
     
     // How long it takes, in ms, for a building to be built or iterate to the next level.
-    this.buildTimePerLevel = 1500;
+    this.buildTimePerLevel = 500;
 	
 	// How long it takes, in ms, for a single unit of energy to be drained from a person.
-    this.energyDrainRate = 500.0;
+    this.energyDrainRate = 0.01;
     
     this.maxPeople = 20;
     this.maxBuildings = 50;
@@ -34,6 +37,14 @@ Turtles.World = function() {
     this.minWorldY = -1000;
     this.maxWorldX = 1000;
     this.maxWorldY = 1000;
+    this.peopleQueue = [];
+
+    this.playerScore = 0;
+    // primes make the counter go crazy
+    this.scoreValuePerBuildingPerTick = 100129;
+    this.scoreValuePerLivingPersonPerTick = 111641;
+    this.scoreValuePerBuildingConstruction = 611953;
+
 };
 
 
@@ -56,6 +67,17 @@ Turtles.World.prototype = {
         this.turtle.y = 0;
         this.turtle.init();
         
+        // turtles all the way down
+        var turtleCount = 10;
+        for (var i = 1; i <= turtleCount; i++)
+        {
+            var downTurtle = new Turtles.Turtle();
+            downTurtle.x = 0;
+            downTurtle.y = -62*i;
+            downTurtle.init();
+            this.turtles.push(downTurtle);
+        }
+        
 		//init platter
 		this.platter = new Turtles.Platter();
 		this.platter.x = 0;
@@ -63,14 +85,41 @@ Turtles.World.prototype = {
         this.platter.init();
 		this.platter.initFulcrumJoint();
 		this.platter.terrain = [];
-		
+        
+        setTimeout(function() {
+            for (var peopleSpawn = 0; peopleSpawn < 20; peopleSpawn++) {
+                var person = new Turtles.Person();
+                person.platterPosition = Math.random();
+                World.initOnPlatter(person);
+                //World.people.push(person);
+                //person.removeFromSimulation();
+            }
+        }, 1000);
+        
+        World.people = [];
+		/*
         setTimeout(function() {
             //init seed person
-            var person = new Turtles.Person();
+            var person = World.peopleQueue.pop();
             person.platterPosition = 0.5;
             World.initOnPlatter(person);
-            World.people.push(person);
+            
+            person = World.peopleQueue.pop();
+            person.platterPosition = 0.1;
+            World.initOnPlatter(person);
         }, 1000);
+        */
+        //init fulcrum
+		var fulcrumShapeDef = new b2BoxDef();
+        fulcrumShapeDef.extents.Set(1, 1);
+        fulcrumShapeDef.density = 0;
+		//fulcrumShapeDef.collisionCategoryBits = 0x0004;
+		//fulcrumShapeDef.collisionMaskBits = 0x0002;
+		fulcrumShapeDef.groupIndex = -2;
+		var fulcrumBodyDef = new b2BodyDef();
+		fulcrumBodyDef.AddShape(fulcrumShapeDef);
+		fulcrumBodyDef.position.Set(0, this.turtle.height/4);
+		var fulcrumBody = this.pWorld.CreateBody(fulcrumBodyDef);
 		
 		SoundManager.playChillMusic();
 	},
@@ -136,20 +185,23 @@ Turtles.World.prototype = {
 	},
 	
 	createPerson: function(x, y) {
+        return null;
         // Don't make any more people if we've hit our limit.
         if (this.people.length >= this.maxPeople) {
             return null;
         }
         
-		var newPerson = new Turtles.Person();
+		var newPerson = this.peopleQueue.pop();
+        person = World.peopleQueue.pop();
+            person.platterPosition = 0.1;
+            
 		
 		newPerson.x = x;
 		newPerson.y = y;
 		newPerson.platterPosition = World.getPlatterPosition(x, y);
-		newPerson.init();
-        
-		this.people.push(newPerson);
-
+		
+        World.initOnPlatter(person);
+		
 		return newPerson;
 	},
 
@@ -228,13 +280,11 @@ Turtles.World.prototype = {
         newPlatterObject.y = platterVector.y + newPlatterObject.height;
         newPlatterObject.init();
         newPlatterObject.mesh.rotation.z = newPlatterObject.physicsBody.m_rotation = World.platter.physicsBody.m_rotation;
+        this.people.push(newPlatterObject);
     },
 
 	// Instantiate a building and assign the builder.
 	initBuilding: function(person) {
-		//$TODO - How are we going to initialize the new physics objects we need?  I think
-		//		  World is going to need some kind of method to initiate generic physics objects, or
-		//		  Actors need the responsibility.
 		var building = new Turtles.Building();
 		building.platterPosition = person.goalPlatterPosition;
         World.initOnPlatter(building);
@@ -244,10 +294,27 @@ Turtles.World.prototype = {
 		
 		return building;
 	},
-    
-    
-    checkWinState: function() {
-        return false;
+
+    scorePanelElement: document.getElementById('scorePanel'),
+    scoreDisplayElement: document.getElementById('scoreDisplay'),
+    scorePanelPeopleCountDisplayElement: document.getElementById('scorePanelPeopleCount'),
+    scorePanelBuildingCountDisplayElement: document.getElementById('scorePanelBuildingCount'),
+
+    updateScore: function() {
+        // calculate score delta
+        var scoreDelta = 
+              this.scoreValuePerBuildingPerTick * this.buildings.length
+            + this.scoreValuePerLivingPersonPerTick * this.people.length;
+
+        this.increaseScore(scoreDelta);
+    },
+
+    increaseScore: function(points) {
+        this.playerScore += points;
+
+        this.scoreDisplayElement.innerText = this.playerScore;
+        this.scorePanelPeopleCountDisplayElement.innerText = this.people.length;
+        this.scorePanelBuildingCountDisplayElement.innerText = this.buildings.length;
     },
 
     update: function() {
@@ -258,32 +325,19 @@ Turtles.World.prototype = {
         this.platter.update(this.stepLength);
         this.turtle.update(this.stepLength);
         
-        /*
-        for (var contact = this.platter.physicsBody.GetContactList(); contact; contact = contact.GetNext())
-        {
-            var platter = this.platter;
-            if (platter.terrain.indexOf(contact) > -1)
-            {
-                platter.terrain.push(contact);
-                var jointDef = new b2DistanceJointDef();
-                jointDef.body1 = platter;
-                jointDef.body2 = contact;
-                jointDef.collideConnected = true; // bump and grind
-                jointDef.anchorPoint1 = platter.m_position;
-                jointDef.anchorPoint2 = contact.m_position;
-                
-                // roll it
-                World.pWorld.CreateJoint(jointDef);
-                
-                // light it
-            }
-        }
-        */
         // terrain
         for (var i = 0; i < this.terrain.length; i++)
         {
             var terrainPiece = this.terrain[i];
             terrainPiece.update(this.stepLength);
+            
+        }
+        
+        // turtles
+        for (var i = 0; i < this.turtles.length; i++)
+        {
+            var turtle = this.turtles[i];
+            turtle.update(this.stepLength);
             
         }
         
@@ -304,38 +358,26 @@ Turtles.World.prototype = {
                 if (this.spawner) {
             this.spawner.update(this.stepLength);
         }
-        
-        for (var i = this.terrain.length; i >= 0; i--) {
-            if (this.destroy) {
-                this.terrain
-            }
-        }
-        
+
+        this.updateScore();
         this.destroyCrap(this.terrain);
         this.destroyCrap(this.people);
         this.destroyCrap(this.effects);
         this.destroyCrap(this.buildings);
 
-        if (this.spawner) {
-            this.spawner.update(this.stepLength);
-        }
-        
-        for (var i = this.terrain.length; i >= 0; i--) {
-            if (this.destroy) {
-                this.terrain
-            }
-        }
-        
-        this.destroyCrap(this.terrain);
-        this.destroyCrap(this.people);
-        this.destroyCrap(this.effects);
-        this.destroyCrap(this.buildings);
+		//Re-adjust the music
+		if (this.effects.length === 0 && this.platter.isStableish){
+			SoundManager.playChillMusic();
+		}
     },
     
-    destroyCrap: function(array) {
+    destroyCrap: function(array, queue) {
         for (var i = array.length - 1; i >= 0; i--) {
             if (array[i].destroy) {
                 array[i].removeFromSimulation();
+                if (queue) {
+                    queue.push(array[i]);
+                }
                 array.splice(i, 1);
             }
         }

@@ -44,8 +44,7 @@ Assumes:
 Turtles.Person = function() {
 	Turtles.GameEntity.call(this);
 	this.isPhysicsSimulated = true,
-	this.density = 1;
-	this.width = 1;
+	this.density = 0.1;
 	this.height = 3;
     this.width = 3;
     this.shape = "BOX";
@@ -61,6 +60,8 @@ Turtles.Person = function() {
 	this.goalPlatterPosition = null;
 	this.goalObject = null;
     this.lastMoveDirection = 0;
+    this.z = 1;
+	this.screamTickCounter = 0;
 
     this.texture = Turtles.Person.prototype.personTexture;
     this.animFrameCount = 8;
@@ -77,20 +78,12 @@ Turtles.Person.prototype.buildComplete = function(building) {
 };
 
 Turtles.Person.prototype.addToSimulationAt = function(x, y) {
+    Turtles.GameEntity.prototype.addToSimulationAt.call(this, x, y);
     this.state = "IDLE";
 	this.goalObject = null;
     this.x = x;
     this.y = y;
     this.init();
-    this.goalPlatterPosition = null;
-    this.lastMoveDirection = 0;
-    // todo: ask alex (updates stop processing on new people)
-    //World.people.push(this);
-};
-
-Turtles.Person.prototype.removeFromSimulation = function() {
-    Turtles.GameEntity.prototype.removeFromSimulation.call(this);
-
     this.goalPlatterPosition = null;
     this.lastMoveDirection = 0;
 };
@@ -143,6 +136,12 @@ Turtles.Person.prototype.update = function(deltaMs) {
 
         this.platterPosition = World.getPlatterPosition(this.x, this.y);
         
+		if (this.screamTickCounter > 0)
+		{
+			this.screamTickCounter++;
+			this.screamTickCounter = this.screamTickCounter % 300;
+		}
+		
         // Check for panic/exiting panic.
         if (this.isOnTerrain(this)) {
             if (this.state == "PANIC") {
@@ -151,6 +150,11 @@ Turtles.Person.prototype.update = function(deltaMs) {
                 this.lastMoveDirection = 0;
             }
         } else {
+			if (this.screamTickCounter === 0)
+			{
+				SoundManager.playDeathSound();
+				this.screamTickCounter++;
+			}
             this.state = "PANIC";
             this.goalPlatterPosition = null;
         }
@@ -182,17 +186,18 @@ Turtles.Person.prototype.update = function(deltaMs) {
             if (!this.checkForSleepState()) {
                 this.state = "MOVE_TO_BUILD_SITE";
                 this.goalPlatterPosition = World.getBuildPosition();
-                console.log("move to build site");
+                // console.log("move to build site");
             }
 			break;
 		case "MOVE_TO_BUILD_SITE":
             if ((this.platterPosition == this.goalPlatterPosition) || (this.lastMoveDirection != direction && this.lastMoveDirection != 0)) {
+                var building = null;
 				var building = World.initBuilding(this);
                 if (building) {
                     this.goalObject = building;
                     this.state = "BUILD";
                     this.removeFromSimulation();
-                    console.log("building");
+                    // console.log("building");
                 } else {
                     // We can't build anymore, wait for further commands... or just try to build another next iteration, whatever floats your boat.
                     this.state = "IDLE";
@@ -206,7 +211,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
 				this.goalObject.occupy(this);
 				this.state = "SLEEP";
                 this.removeFromSimulation();
-                console.log("Entered sleep");
+                // console.log("Entered sleep");
             }
 			break;
 		case "SLEEP":
@@ -234,4 +239,4 @@ Turtles.Person.prototype.update = function(deltaMs) {
     }
 };
 
-Turtles.Person.prototype.personTexture = THREE.ImageUtils.loadTexture('textures/PersonStrip.png');
+Turtles.Person.prototype.personTexture = THREE.ImageUtils.loadTexture('textures/personStrip.png');

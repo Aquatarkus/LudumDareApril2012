@@ -4,7 +4,7 @@ var THREE = THREE || {
     REVISION: "49dev"
 };
 var self = self || {};
-var window = window || {};
+// var window = window || {};
 if (!self.Int32Array) self.Int32Array = Array, self.Float32Array = Array;
 (function () {
     for (var a = 0, b = ["ms", "moz", "webkit", "o"], c = 0; c < b.length && !window.requestAnimationFrame; ++c) window.requestAnimationFrame = window[b[c] + "RequestAnimationFrame"], window.cancelAnimationFrame = window[b[c] + "CancelAnimationFrame"] || window[b[c] + "CancelRequestAnimationFrame"];

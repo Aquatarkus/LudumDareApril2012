@@ -1,10 +1,10 @@
 // TurtlesUI.js
 // LudumDare420
 
-var TurtleElement = document.getElementById('TurtleElement');
+var TurtlesElement = document.getElementById('TurtlesElement');
 var gameElement = document.getElementById('gameElement');
-var debugElement = document.getElementById('debugElement');
-var feedbackElement = document.getElementById('feedbackElement');
+// var debugElement = document.getElementById('debugElement');
+// var feedbackElement = document.getElementById('feedbackElement');
 
 var Stats = Stats || {};
 var THREE = THREE || {};
@@ -17,24 +17,24 @@ var Log =
     {
         var log = '(DEBUG) '+ tag + ': ' + JSON.stringify(message);
         console.log(log);
-        debugElement.innerHTML = log;
+        // debugElement.innerHTML = log;
     },
     feedback : function(message)
     {
         console.log('(FEEDBACK) ' + message);
-        feedbackElement.innerHTML = message;
+        // feedbackElement.innerHTML = message;
     },
     error : function(tag, message)
     {
         var log = '(Error) '+ tag + ': ' + JSON.stringify(message);
         console.log(log);
-        debugElement.innerHTML = log;
+        // debugElement.innerHTML = log;
     },
     event : function(tag, message)
     {
         var log = '(EVENT) ' + tag + ': ' + JSON.stringify(message);
         console.log(log);
-        debugElement.innerHTML = log;
+        // debugElement.innerHTML = log;
     }
 };
 
@@ -44,6 +44,8 @@ Turtles.UI = function(element, width, height, cameraHeight)
     this.cameraNear = -100;
     this.cameraFar = 100;
     this.cameraFrame = {x:0, y:85, width:1, height:cameraHeight};
+    this.cameraMaxWidth = 1000;
+    this.cameraMaxHeight = 1000;
     
     // ray casting
     this.projector = new THREE.Projector();
@@ -108,7 +110,7 @@ Turtles.UI.prototype =
         this.objects.push(object);
         this.scene.add(object);
         
-        Log.debug('TurtleUI addObject position', object.position);
+        // Log.debug('TurtleUI addObject position', object.position);
     },
     addClickableObject : function(clickableObject)
     {
@@ -140,6 +142,7 @@ Turtles.UI.prototype =
         // renderer
         this.width = width;
         this.height = height;
+        this.aspectRatio = this.width / this.height;
         this.renderer.setSize(this.width, this.height);
         
         Log.debug('Turtles.UI resize', {width:width, height:height});
@@ -214,6 +217,18 @@ Turtles.UI.prototype =
     {
         this.cameraFrame.width *= scaleFactor;
         this.cameraFrame.height *= scaleFactor;
+        
+        if(this.cameraFrame.width > this.cameraMaxWidth)
+        {
+            this.cameraFrame.width = this.cameraMaxWidth;
+            this.cameraFrame.height = this.cameraMaxWidth / this.aspectRatio;
+        }
+        else if (this.cameraFrame.height > this.cameraMaxHeight)
+        {
+            this.cameraFrame.height = this.cameraMaxHeight;
+            this.cameraFrame.width = this.aspectRatio * this.cameraMaxHeight;
+        }
+        
         this.updateCamera();
     },
     registerOnClickWorld : function(onClick)
@@ -274,7 +289,7 @@ function onMouseDown(event)
 {
     event.preventDefault();
     oldEventCoords = getEventCoords(event);
-    Log.event('onMouseDown', oldEventCoords);
+    // Log.event('onMouseDown', oldEventCoords);
     mouseIsDown = true;
     mouseDidMove = false;
 }
@@ -285,7 +300,6 @@ function onMouseMove(event)
     {
         event.preventDefault();
         var eventCoords = getEventCoords(event);
-        // Log.event('onMouseMove', eventCoords);
         
         var oldWorldCoords = turtlesUI.getWorldCoords(oldEventCoords);
         var worldCoords = turtlesUI.getWorldCoords(eventCoords);
@@ -309,7 +323,7 @@ function onMouseUp(event)
 {
     event.preventDefault();
     var eventCoords = getEventCoords(event);
-    Log.event('onMouseUp', eventCoords);
+    // Log.event('onMouseUp', eventCoords);
 
     var worldCoords = turtlesUI.getWorldCoords(eventCoords);
     
@@ -385,15 +399,6 @@ stats = new Stats();
 stats.domElement.style.position = 'absolute';
 stats.domElement.style.top = '0px';
 TurtlesElement.appendChild( stats.domElement );
-
-// light
-var ambientLight = new THREE.AmbientLight(0x7f7f7f);
-turtlesUI.addObject(ambientLight);
-
-// sun
-var sunLight = new THREE.PointLight(0xffffff, 1);
-sunLight.position.set(-100, 200, 0);
-turtlesUI.addObject(sunLight);
 
 var renderer = turtlesUI.renderer;
 var scene = turtlesUI.scene;
