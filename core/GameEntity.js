@@ -3,7 +3,6 @@
 Turtles.geometryFromShape = function(shape)
 {
     var shapeGeometry = null;
-    var depth = 20;
     switch (shape.m_type)
     {
         case b2Shape.e_circleShape:
@@ -16,43 +15,18 @@ Turtles.geometryFromShape = function(shape)
                 shapeGeometry = new THREE.SphereGeometry(r, segments, segments);
             }
             break;
-        case b2Shape.e_boxShape:
-            {
-                var box = shape;
-                var extents = box.extents;
-                shapeGeometry = new THREE.CubeGeometry(extents.x, extents.y, depth);
-            }
-            break;
         case b2Shape.e_polyShape:
             {
                 var poly = shape;
-                if (poly.m_localOBB.extents)
-                {
-                    var extents = poly.m_localOBB.extents;
-                    shapeGeometry = new THREE.CubeGeometry(2*extents.x, 2*extents.y, depth);
-                }
-                else
-                {
-                    // Triangle
-                    var triangleShape = new THREE.Shape();
-                    var vertexCount = poly.vertexCount;
-                    for (var i = 0; i < vertexCount; i++)
-                    {
-                        var polyVertex = poly.vertices[i];
-                        var vertexPos = new THREE.Vertex3(polyVertex.x, polyVertex.y, 0);
-                        var shapeVertex = new THREE.Vertex(vertexPos);
-  
-                        triangleShape.lineTo(polyVertex.x, polyVertex.y);
-                        shapeGeometry.vertices.push(shapeVertex);
-                    }
-                    triangleShape.lineTo(0, 0);
-                    var trianglePoints = triangleShape.createPointsGeometry();
-                    
-                    shapeGeometry = new THREE.Geometry();
-                    shapeGeometry.vertices = trianglePoints;
-                    
-                    Log.debug('trianglePoints', trianglePoints);
-                }
+                var extents = poly.m_localOBB.extents;
+                shapeGeometry = new THREE.PlaneGeometry(2*extents.x, 2*extents.y);
+				
+				//The geometry of a plane needs to be corrected due to a hard-coding of
+				//the normal vector in THREE.PlaneGeometry.  We must rotate every vertice 
+				//by 90-degrees on the X-axis so the plane is normal to +Z.
+				var planeRotationMatrix = new THREE.Matrix4();
+				planeRotationMatrix.makeRotationX(Math.PI / 2);
+				shapeGeometry.applyMatrix(planeRotationMatrix);
             }
             break;
         default:
@@ -70,30 +44,19 @@ Turtles.meshFromBody = function(body, hexColor, texture)
     var meshGeometry = null;
     var meshMaterial = null;
     var mesh = null;
+	
+	meshGeometry = Turtles.geometryFromShape(shape);
     if (texture)
     {
-        var textureMaterial = new THREE.MeshBasicMaterial(
+        meshMaterial = new THREE.MeshBasicMaterial(
         {
             map: texture,
             transparent: true
         });
-        var otherSideMaterials = new THREE.MeshBasicMaterial({color: 0xF20A4C});
-        var materials = [
-		otherSideMaterials,
-		otherSideMaterials,
-		otherSideMaterials,
-		otherSideMaterials,
-		textureMaterial, //Positive Z face materialis in position 4.
-		otherSideMaterials];
-        
-        var extents = shape.m_localOBB.extents;
-        meshGeometry = new THREE.CubeGeometry(2*extents.x, 2*extents.y, 20, 1, 1, 1, materials);
-        meshMaterial = new THREE.MeshFaceMaterial();
     }
     else
-    {
-        meshGeometry = Turtles.geometryFromShape(shape);
-        meshMaterial = new THREE.MeshBasicMaterial({color:hexColor, wireframe:true});
+    {		
+        meshMaterial = new THREE.MeshBasicMaterial({color:hexColor});
     }
     mesh = new THREE.Mesh(meshGeometry, meshMaterial);
     return mesh;
@@ -107,7 +70,10 @@ Turtles.GameEntity = function() {
 	this.shape = "BOX";
 	this.x = 0.0;
 	this.y = 0.0;
+	this.z = 0;
 	this.color = 0xffffff;
+	this.categoryBits = 0xffff;
+	this.maskBits = 0xffff;
 	this.alpha = 0;
     this.mesh = null;
     this.physicsBodyDef = null;
@@ -115,6 +81,8 @@ Turtles.GameEntity = function() {
     this.actor = null;
     this.texture = null;
     this.joints = [];
+    this.isInSimulation = false;
+    this.destroy = false;
 };
 
 Turtles.GameEntity.prototype = {
@@ -122,22 +90,63 @@ Turtles.GameEntity.prototype = {
 };
 
 Turtles.GameEntity.prototype.init = function() {
-    this._createPhysicsBody();
-    this._createMesh();
+    if (!this.isInSimulation) {
+        this._createPhysicsBody();
+        this._createMesh();
+        this.isInSimulation = true;
+    }
+};
+
+Turtles.GameEntity.prototype.addToSimulationAt = function(x, y) {
+    this.x = x;
+    this.y = y;
+    this.init();
+};
+
+Turtles.GameEntity.prototype.removeFromSimulation = function() {
+    if (this.isInSimulation) {
+        if (this.physicsBody) {
+            World.pWorld.DestroyBody(this.physicsBody);
+        }
+        if (this.mesh) {
+            turtlesUI.removeObject(this.mesh);
+        }
+        this.isInSimulation = false;
+    }
+};
+
+Turtles.GameEntity.prototype.checkForDeath = function() {
+    if (this.y <= World.minWorldY * 0.8) {
+        this.destroy = true;
+    }
+    
+    return this.destroy;
 };
 
 Turtles.GameEntity.prototype.update = function(timeElapsed) {
     var pos = this.physicsBody.m_position;
     this.mesh.position.x = pos.x;
     this.mesh.position.y = pos.y;
+    if (this.checkForDeath()) {
+        return;
+    }
     
-    this.mesh.rotation.z = this.physicsBody.m_rotation;
+    if (this.isInSimulation) {
+        var pos = this.physicsBody.m_position;
+        this.mesh.position.x = pos.x;
+        this.mesh.position.y = pos.y;
+        this.x = this.mesh.position.x;
+        this.y = this.mesh.position.y;
+        
+        this.mesh.rotation.z = this.physicsBody.m_rotation;
+    }
 };
 
 Turtles.GameEntity.prototype._createMesh = function(){
     
     this.mesh = Turtles.meshFromBody(this.physicsBody, this.color, this.texture);
-    if(this.rotation)
+    this.mesh.position.z = this.z;
+	if(this.rotation)
     {
         this.mesh.rotation = this.rotation;
     }
@@ -178,6 +187,12 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
             alert("Unknown entity type '" + this.shape + "'.");
             break;
     }
+    //physicsShapeDef.friction = 99;
+	physicsShapeDef.categoryBits = this.categoryBits;
+	physicsShapeDef.maskBits = this.maskBits;
+	if (this.friction) {
+		physicsShapeDef.friction = this.friction;
+	}
     this.physicsBodyDef = new b2BodyDef();
     this.physicsBodyDef.AddShape(physicsShapeDef);
     this.physicsBodyDef.position.Set(this.x, this.y);

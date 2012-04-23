@@ -15,8 +15,41 @@
             overflow: hidden;
         }
     </style>
-	
-	<!--[if IE]><script type="text/javascript" src="lib/excanvas.js"></script><![endif]-->
+</head>
+<body>
+    <div    id="TurtlesElement" 
+            style="position: absolute; top: 0px; width: 100%; height: 100%;
+                   background-color: black; ">
+        <div    id="gameElement"
+                style="position: absolute; width:100%; height:100%;
+                       background-color:#000000; ">
+        </div>
+        <div    id="titleElement"
+                style="position: absolute; top: 10px; width: 100%;
+                       text-align: center; color: white; font-size:xx-large;
+                       pointer-events:none;">
+                Turtles All The Way Down
+        </div>
+        <div    id="subtitleElement"
+                style="position: absolute; top: 45px; width: 100%;
+                text-align: center; color: white; font-size:large;
+                pointer-events:none;">
+                Ludum Dare 4/20
+        </div>
+        <div    id="debugElement"
+                style="position: absolute; bottom: 0px; width: 100%; 
+                       text-align: center; color: white; font-size:small;
+                       pointer-events:none;">
+                Debug
+        </div>
+        <div    id="feedbackElement"
+                style="position: absolute; top: 70px; width: 100%; 
+                       text-align: center; color: white; font-size:large;
+                       pointer-events:none;">
+                Feedback
+        </div>
+    </div>
+    <!--[if IE]><script type="text/javascript" src="lib/excanvas.js"></script><![endif]-->
     <script src="Box2D/lib/prototype-1.6.0.2.js"></script>
     <script src='Box2D/js/box2d/common/b2Settings.js'></script>
     <script src='Box2D/js/box2d/common/math/b2Vec2.js'></script>
@@ -82,52 +115,19 @@
     <script src='Box2D/js/box2d/dynamics/joints/b2PulleyJointDef.js'></script>
     <script src='Box2D/js/box2d/dynamics/joints/b2RevoluteJoint.js'></script>
     <script src='Box2D/js/box2d/dynamics/joints/b2RevoluteJointDef.js'></script>
-</head>
-<body>
-    <div    id="TurtlesElement" 
-            style="position: absolute; top: 0px; width: 100%; height: 100%;
-                   background-color: black; ">
-        <div    id="gameElement"
-                style="position: absolute; width:100%; height:100%;
-                       background-color:#000000; ">
-        </div>
-        <div    id="titleElement"
-                style="position: absolute; top: 10px; width: 100%;
-                       text-align: center; color: white; font-size:xx-large;
-                       pointer-events:none;">
-                Turtles All The Way Down
-        </div>
-        <div    id="subtitleElement"
-                style="position: absolute; top: 45px; width: 100%;
-                text-align: center; color: white; font-size:large;
-                pointer-events:none;">
-                Ludum Dare 4/20
-        </div>
-        <div    id="debugElement"
-                style="position: absolute; bottom: 0px; width: 100%; 
-                       text-align: center; color: white; font-size:small;
-                       pointer-events:none;">
-                Debug
-        </div>
-        <div    id="feedbackElement"
-                style="position: absolute; top: 70px; width: 100%; 
-                       text-align: center; color: white; font-size:large;
-                       pointer-events:none;">
-                Feedback
-        </div>
-			
-		<script src="threejs/ThreePretty.js"></script>
-		<script src="threejs/RequestAnimationFrame.js"></script>
-		<script src="threejs/Stats.js"></script>
-		<script src="core/Turtles.js"></script>
-		<script src="core/GameEntity.js"></script>
-		<script src="core/Building.js"></script>
-		<script src="core/Effect.js"></script>
-		<script src="core/Person.js"></script>
-		<script src="core/Platter.js"></script>
-		<script src="core/Turtle.js"></script>
-		<script src="core/World.js"></script>
-		<script src="TurtlesUI.js"></script>
-    </div>
+    <script src="threejs/ThreePretty.js"></script>
+    <script src="threejs/RequestAnimationFrame.js"></script>
+    <script src="threejs/Stats.js"></script>
+    <script src="core/Turtles.js"></script>
+    <script src="core/GameEntity.js"></script>
+    <script src="core/Building.js"></script>
+    <script src="core/Effect.js"></script>
+    <script src="core/Meteor.js"></script>
+    <script src="core/MeteorSpawner.js"></script>
+    <script src="core/Person.js"></script>
+    <script src="core/Platter.js"></script>
+    <script src="core/Turtle.js"></script>
+    <script src="core/World.js"></script>
+    <script src="TurtlesUI.js"></script>
 </body>
 </html>

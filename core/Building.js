@@ -25,44 +25,53 @@
 
 Turtles.BuildingTexture = THREE.ImageUtils.loadTexture('textures/Building3.png');
 
+
 Turtles.Building = function() {
     Turtles.GameEntity.call(this);
 
-    var self = this;
-	self.platterPosition = 0;
+    this.platterPosition = 0;
 	// Build properties
-	self.builder = null;
-	self.isBuilt = false;
-	self.level = 0;
-	self.buildTimeElapsed = 0;
+	this.builder = null;
+	this.isBuilt = false;
+	this.level = 0;
+	this.buildTimeElapsed = 0;
+	this.friction = .5;
+    this.categoryBits = 0x0008;
+	this.maskBits = 0xfffd;
     
 	// Occupency properties
-	self.occupiers = [];
-	self.maxOccupancy = 1;
+	this.occupiers = [];
+	this.maxOccupancy = 1;
 	
 	// Recharge properties
-	self.energyChargeRate = 1.0;
+	this.energyChargeRate = 1.0;
 
     // Custom physics properties
-    self.densityPerFloor = 1.0;
-    self.lengthPerFloor = 1.0;
+    this.densityPerFloor = 1.0;
+    this.lengthPerFloor = 1.0;
 
 	// GameEntity properties
-	self.density = 1.0;
-    self.width = 3.0;
-    self.height = 3.0;
-    self.shape = 'BOX';
-    self.x = 0.0;
-    self.y = 0.0;
-    self.color = 0x0000ff;
-    self.alpha = 1.0;
+	this.density = 0.2;
+    this.width = 3.0;
+    this.height = 3.0;
+    this.shape = 'BOX';
+    this.x = 0.0;
+    this.y = 0.0;
+    this.color = 0x0000ff;
+    this.alpha = 1.0;
     
-    self.texture = Turtles.BuildingTexture;
+    this.texture = Turtles.BuildingTexture;
 };
 
 Turtles.Building.prototype = new Turtles.GameEntity();
 Turtles.Building.prototype.constructor = Turtles.Building;
 
+
+Turtles.Building.prototype.init = function() {
+    Turtles.GameEntity.prototype.init.call(this);
+    
+    this.physicsBody.m_friction = 99;
+};
 
 Turtles.Building.prototype.occupy = function(person) {
     this.occupiers.push(person);
@@ -77,6 +86,7 @@ Turtles.Building.prototype.unoccupy = function(person) {
 	if (index > -1) {
 		this.occupiers.splice(index, 1);
 	}
+    person.addToSimulationAt(this.x, this.y);
 };
 
 Turtles.Building.prototype.build = function(person) {
@@ -88,6 +98,10 @@ Turtles.Building.prototype.build = function(person) {
 };
 
 Turtles.Building.prototype.update = function(timeElapsedInMs) {
+    if (this.checkForDeath()) {
+        return;
+    }
+    
     Turtles.GameEntity.prototype.update.call(this, timeElapsedInMs);
 	if (!this.isBuilt) {
 		this.buildTimeElapsed += timeElapsedInMs;
@@ -102,8 +116,16 @@ Turtles.Building.prototype.update = function(timeElapsedInMs) {
 Turtles.Building.prototype.levelUp = function() {
     // building complete; builder leaves
     if (this.builder) {
-        this.builder.buildComplete(self);
+        this.builder.buildComplete(this);
     }
+    
+    // Make a new person for the successful building/upgrade effort.
+    var newPerson = World.createPerson(this.x, this.y);
+    
+    if (newPerson) {
+        this.onSpawnOccupant(newPerson);
+    }
+    
 	this.isBuilt = true;
 	this.level++;
 
@@ -122,9 +144,10 @@ Turtles.Building.prototype.levelUp = function() {
 	this.builder = null;
 };
 
-Turtles.Building.prototype.spawnPerson = function() {
-    var person = World.createPerson(this.x, this.y);
+Turtles.Building.prototype.onSpawnOccupant = function(person) {
     person.state = 'SLEEP';
     person.energy = 0.0;
+    person.removeFromSimulation();
+    person.goalObject = this;
     this.occupiers.push(person);
 };
