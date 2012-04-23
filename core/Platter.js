@@ -1,3 +1,5 @@
+Turtles.PlatterTexture = THREE.ImageUtils.loadTexture('textures/TerrainTexture0.png');
+
 Turtles.Platter = function() {
     Turtles.GameEntity.call(this);
     this.isPhysicsSimulated = true,
@@ -16,6 +18,8 @@ Turtles.Platter = function() {
 	this.fulcrumJoint = null
     this.mesh = null;
 	this.isStableish = true; //Is the platform 'stable'-ish?
+	
+	this.texture = Turtles.PlatterTexture;
 };
 
 Turtles.Platter.prototype = new Turtles.GameEntity();

@@ -29,6 +29,11 @@
 			margin: 5px;
 			pointer-events: none;
         }
+        div.panel a
+        {
+            color: #999900;
+        }
+
         #instructionsElement
 		{
 			position: fixed;
@@ -43,6 +48,18 @@
             top: 0px;
             right: 0px;
             width: 200px;
+        }
+
+        #attributions
+        {
+            position: fixed;
+            bottom: 0px;
+            right: 0px;
+            width: 250px;
+        }
+        #attributions a
+        {
+			pointer-events: auto;
         }
 
         #scoreDisplay
@@ -78,6 +95,10 @@
             SCORE: <span id="scoreDisplay">0</span><br />
             Living People: <span id="scorePanelPeopleCount">0</span><br />
             Buildings: <span id="scorePanelBuildingCount">0</span>
+        </div>
+        <div    id="attributions" class="panel">
+            sounds from a bunch of places: <a href="http://soundbible.com/" target="_blank">SoundBible.com</a>, <a href="http://www.freesfx.co.uk/" target="_blank">freeSFX</a>, and <a href="http://www.shockwave-sound.com/" target="_blank">Shockwave-Sound.com</a><br />
+            dubstep and other music from SoundCloud: <a href="http://soundcloud.com/jamesabels/random-beat-01" target="_blank">1</a> (which we modified) <a href="http://soundcloud.com/dubflow/rabbitfight-mp3" target="_blank">2</a> <a href="http://soundcloud.com/exploratorysurgery/electro-beat-crushed-to-bits" target="_blank">3</a> <a href="http://soundcloud.com/slimgus/secret-level" target="_blank">4</a>
         </div>
 		<script src="Box2D/lib/prototype-1.6.0.2.js"></script>
 		<script src='Box2D/js/box2d/common/b2Settings.js'></script>
@@ -160,6 +181,22 @@
 		<audio id="scream14" src="sound/scream14.ogg" style="display: none;" preload="auto"></audio>	
 		<audio id="scream15" src="sound/scream15.ogg" style="display: none;" preload="auto"></audio>	
 		<audio id="scream16" src="sound/scream16.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="scream16" src="sound/scream16.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="scream17" src="sound/scream17.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream18" src="sound/scream18.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream19" src="sound/scream19.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream20" src="sound/scream20.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream21" src="sound/scream21.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream22" src="sound/scream22.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream23" src="sound/scream23.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream24" src="sound/scream24.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream25" src="sound/scream25.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream26" src="sound/scream26.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream27" src="sound/scream27.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream28" src="sound/scream28.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream29" src="sound/scream29.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream30" src="sound/scream30.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream31" src="sound/scream31.ogg" style="display: none;" preload="auto"></audio>	
 		<audio id="building1" src="sound/building1.mp3" style="display: none;" preload="auto"></audio>	
 		<audio id="building2" src="sound/building2.mp3" style="display: none;" preload="auto"></audio>	
 		<audio id="building3" src="sound/building3.mp3" style="display: none;" preload="auto"></audio>	

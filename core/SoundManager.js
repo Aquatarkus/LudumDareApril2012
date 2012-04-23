@@ -8,10 +8,10 @@ Turtles.SoundManager = function() {
 	
 	//init screams
 	var i = 1;
-	var numScreams = 16;
+	var numScreams = 31;
 	for (; i < numScreams; i++){
 		this.screams.push(document.getElementById("scream" + i));
-		this.screams[i - 1].volume = 0.2; //screams so fuckin loud
+		this.screams[i - 1].volume = 0.05; //screams so fuckin loud
 	}
 	
 	//init building sounds
@@ -19,7 +19,7 @@ Turtles.SoundManager = function() {
 	var numBuildingSounds = 3;
 	for (; i < numBuildingSounds; i++){
 		this.buildingSounds.push(document.getElementById("building" + i));
-		this.buildingSounds[i - 1].volume = 0.1;
+		this.buildingSounds[i - 1].volume = 0.2;
 	}
 	
 	//init explosions; fuck yeah
