@@ -167,14 +167,16 @@ Turtles.GameEntity.prototype.update = function(timeElapsed) {
             this.currentFrameIndex = (this.currentFrameIndex + 1) % this.animFrameCount;
 
             this.mesh.geometry.dynamic = true;
+            var leftU = this.lastMoveDirection == 1 ? 0 : 1;
+            var rightU = this.lastMoveDirection == 1 ? 1 : 0;
             for (var i = 0; i < this.mesh.geometry.faceVertexUvs[0].length; i++) {
-                this.mesh.geometry.faceVertexUvs[0][i][0].u = this.animFrameWidth * this.currentFrameIndex;
+                this.mesh.geometry.faceVertexUvs[0][i][0].u = this.animFrameWidth * (this.currentFrameIndex + leftU);
                 this.mesh.geometry.faceVertexUvs[0][i][0].v = 0;
-                this.mesh.geometry.faceVertexUvs[0][i][1].u = this.animFrameWidth * this.currentFrameIndex;
+                this.mesh.geometry.faceVertexUvs[0][i][1].u = this.animFrameWidth * (this.currentFrameIndex + leftU);
                 this.mesh.geometry.faceVertexUvs[0][i][1].v = 1;
-                this.mesh.geometry.faceVertexUvs[0][i][2].u = this.animFrameWidth * (this.currentFrameIndex + 1);
+                this.mesh.geometry.faceVertexUvs[0][i][2].u = this.animFrameWidth * (this.currentFrameIndex + rightU);
                 this.mesh.geometry.faceVertexUvs[0][i][2].v = 1;
-                this.mesh.geometry.faceVertexUvs[0][i][3].u = this.animFrameWidth * (this.currentFrameIndex + 1);
+                this.mesh.geometry.faceVertexUvs[0][i][3].u = this.animFrameWidth * (this.currentFrameIndex + rightU);
                 this.mesh.geometry.faceVertexUvs[0][i][3].v = 0;
             }
             this.mesh.geometry.__dirtyUvs = true;
