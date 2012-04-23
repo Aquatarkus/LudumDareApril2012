@@ -86,7 +86,7 @@ Turtles.Building.prototype.unoccupy = function(person) {
 	if (index > -1) {
 		this.occupiers.splice(index, 1);
 	}
-    person.addToSimulationAt(this.x, this.y);
+    person.addToSimulationAt(this.x, this.y + person.height);
 };
 
 Turtles.Building.prototype.build = function(person) {
@@ -115,6 +115,8 @@ Turtles.Building.prototype.update = function(timeElapsedInMs) {
 
 Turtles.Building.prototype.levelUp = function() {
     // building complete; builder leaves
+    World.increaseScore(World.scoreValuePerBuildingConstruction);
+    
     if (this.builder) {
         this.builder.buildComplete(this);
     }

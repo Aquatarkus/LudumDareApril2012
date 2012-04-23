@@ -44,8 +44,7 @@ Assumes:
 Turtles.Person = function() {
 	Turtles.GameEntity.call(this);
 	this.isPhysicsSimulated = true,
-	this.density = 1;
-	this.width = 1;
+	this.density = 0.1;
 	this.height = 3;
     this.width = 3;
     this.shape = "BOX";
@@ -61,6 +60,7 @@ Turtles.Person = function() {
 	this.goalPlatterPosition = null;
 	this.goalObject = null;
     this.lastMoveDirection = 0;
+    this.z = 1;
 
     this.texture = Turtles.Person.prototype.personTexture;
     this.animFrameCount = 8;
@@ -77,6 +77,7 @@ Turtles.Person.prototype.buildComplete = function(building) {
 };
 
 Turtles.Person.prototype.addToSimulationAt = function(x, y) {
+    Turtles.GameEntity.prototype.addToSimulationAt.call(this, x, y);
     this.state = "IDLE";
 	this.goalObject = null;
     this.x = x;
@@ -84,16 +85,6 @@ Turtles.Person.prototype.addToSimulationAt = function(x, y) {
     this.init();
     this.goalPlatterPosition = null;
     this.lastMoveDirection = 0;
-    // todo: ask alex (updates stop processing on new people)
-    //World.people.push(this);
-};
-
-Turtles.Person.prototype.removeFromSimulation = function() {
-    Turtles.GameEntity.prototype.removeFromSimulation.call(this);
-
-    this.goalPlatterPosition = null;
-    this.lastMoveDirection = 0;
-
 };
 
 Turtles.Person.prototype.removeFromSimulation = function() {
@@ -120,7 +111,6 @@ Turtles.Person.prototype.isOnTerrain = function() {
 
 Turtles.Person.prototype.checkForSleepState = function() {
     var result = false;
-
     if (this.energy <= 0) {
         var building = World.getClosestUnoccupiedBuilding(this.platterPosition);
         
@@ -140,7 +130,6 @@ Turtles.Person.prototype.update = function(deltaMs) {
     if (this.checkForDeath()) {
         return;
     }
-    
     if (this.isInSimulation) {
         Turtles.GameEntity.prototype.update.call(this, deltaMs);
 
@@ -157,13 +146,11 @@ Turtles.Person.prototype.update = function(deltaMs) {
             this.state = "PANIC";
             this.goalPlatterPosition = null;
         }
-    }
-    
+	}
     // Update energy.
 	if (this.state != "SLEEP") {
 		this.energy -=  World.energyDrainRate * deltaMs;
 	}
-
     var direction = 0;
     
     switch(this.state) {
@@ -192,6 +179,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
 			break;
 		case "MOVE_TO_BUILD_SITE":
             if ((this.platterPosition == this.goalPlatterPosition) || (this.lastMoveDirection != direction && this.lastMoveDirection != 0)) {
+                var building = null;
 				var building = World.initBuilding(this);
                 if (building) {
                     this.goalObject = building;
@@ -223,7 +211,6 @@ Turtles.Person.prototype.update = function(deltaMs) {
 		case "PANIC":
 			break;
 	}
-    
     switch(this.state) {
         case "PANIC":
         case "SLEEP":
@@ -240,4 +227,4 @@ Turtles.Person.prototype.update = function(deltaMs) {
     }
 };
 
-Turtles.Person.prototype.personTexture = THREE.ImageUtils.loadTexture('textures/PersonStrip.png');
+Turtles.Person.prototype.personTexture = THREE.ImageUtils.loadTexture('textures/personStrip.png');

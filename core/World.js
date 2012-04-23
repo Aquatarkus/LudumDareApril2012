@@ -25,19 +25,26 @@ Turtles.World = function() {
     this.pendingEffect = null;
     
     // How long it takes, in ms, for a building to be built or iterate to the next level.
-    this.buildTimePerLevel = 1500;
+    this.buildTimePerLevel = 500;
 	
 	// How long it takes, in ms, for a single unit of energy to be drained from a person.
-    this.energyDrainRate = 500.0;
+    this.energyDrainRate = 0.01;
     
     this.maxPeople = 20;
     this.maxBuildings = 50;
-
 	this.pWorld = null;
     this.minWorldX = -1000;
     this.minWorldY = -1000;
     this.maxWorldX = 1000;
     this.maxWorldY = 1000;
+    this.peopleQueue = [];
+
+    this.playerScore = 0;
+    // primes make the counter go crazy
+    this.scoreValuePerBuildingPerTick = 100129;
+    this.scoreValuePerLivingPersonPerTick = 111641;
+    this.scoreValuePerBuildingConstruction = 611953;
+
 };
 
 
@@ -78,15 +85,30 @@ Turtles.World.prototype = {
         this.platter.init();
 		this.platter.initFulcrumJoint();
 		this.platter.terrain = [];
-		
+        
         setTimeout(function() {
-            //init seed person
-            var person = new Turtles.Person();
-            person.platterPosition = 0.5;
-            World.initOnPlatter(person);
-            World.people.push(person);
+            for (var peopleSpawn = 0; peopleSpawn < 20; peopleSpawn++) {
+                var person = new Turtles.Person();
+                person.platterPosition = Math.random();
+                World.initOnPlatter(person);
+                //World.people.push(person);
+                //person.removeFromSimulation();
+            }
         }, 1000);
         
+        World.people = [];
+		/*
+        setTimeout(function() {
+            //init seed person
+            var person = World.peopleQueue.pop();
+            person.platterPosition = 0.5;
+            World.initOnPlatter(person);
+            
+            person = World.peopleQueue.pop();
+            person.platterPosition = 0.1;
+            World.initOnPlatter(person);
+        }, 1000);
+        */
         //init fulcrum
 		var fulcrumShapeDef = new b2BoxDef();
         fulcrumShapeDef.extents.Set(1, 1);
@@ -99,15 +121,7 @@ Turtles.World.prototype = {
 		fulcrumBodyDef.position.Set(0, this.turtle.height/4);
 		var fulcrumBody = this.pWorld.CreateBody(fulcrumBodyDef);
 		
-		//join platter to fulcrum.
-		var fulcrumJointDef = new b2RevoluteJointDef();
-		fulcrumJointDef.body1 = this.platter.physicsBody;
-		fulcrumJointDef.body2 = fulcrumBody;
-		fulcrumJointDef.anchorPoint.Set(fulcrumBody.m_position.x, fulcrumBody.m_position.y);
-		fulcrumJointDef.lowerAngle = -Math.PI / 6;
-		fulcrumJointDef.upperAngle = Math.PI / 6;
-		fulcrumJointDef.enableLimit = true;
-		this.pWorld.CreateJoint(fulcrumJointDef);
+		SoundManager.playChillMusic();
 	},
 	
     constructor: Turtles.World,
@@ -171,20 +185,23 @@ Turtles.World.prototype = {
 	},
 	
 	createPerson: function(x, y) {
+        return null;
         // Don't make any more people if we've hit our limit.
         if (this.people.length >= this.maxPeople) {
             return null;
         }
         
-		var newPerson = new Turtles.Person();
+		var newPerson = this.peopleQueue.pop();
+        person = World.peopleQueue.pop();
+            person.platterPosition = 0.1;
+            
 		
 		newPerson.x = x;
 		newPerson.y = y;
 		newPerson.platterPosition = World.getPlatterPosition(x, y);
-		newPerson.init();
-        
-		this.people.push(newPerson);
-
+		
+        World.initOnPlatter(person);
+		
 		return newPerson;
 	},
 
@@ -263,13 +280,11 @@ Turtles.World.prototype = {
         newPlatterObject.y = platterVector.y + newPlatterObject.height;
         newPlatterObject.init();
         newPlatterObject.mesh.rotation.z = newPlatterObject.physicsBody.m_rotation = World.platter.physicsBody.m_rotation;
+        this.people.push(newPlatterObject);
     },
 
 	// Instantiate a building and assign the builder.
 	initBuilding: function(person) {
-		//$TODO - How are we going to initialize the new physics objects we need?  I think
-		//		  World is going to need some kind of method to initiate generic physics objects, or
-		//		  Actors need the responsibility.
 		var building = new Turtles.Building();
 		building.platterPosition = person.goalPlatterPosition;
         World.initOnPlatter(building);
@@ -279,10 +294,22 @@ Turtles.World.prototype = {
 		
 		return building;
 	},
-    
-    
-    checkWinState: function() {
-        return false;
+
+    scorePanelElement: document.getElementById('scorePanel'),
+
+    updateScorePanel: function() {
+        // calculate score delta
+        var scoreDelta = 
+              this.scoreValuePerBuildingPerTick * this.buildings.length
+            + this.scoreValuePerLivingPersonPerTick * this.people.length;
+
+        this.increaseScore(scoreDelta);
+    },
+
+    increaseScore: function(points) {
+        this.playerScore += points;
+
+        this.scorePanelElement.innerHTML = 'SCORE: ' + this.playerScore + '<br />Living people: ' + this.people.length + '<br />Buildings: ' + this.buildings.length;
     },
 
     update: function() {
@@ -293,27 +320,6 @@ Turtles.World.prototype = {
         this.platter.update(this.stepLength);
         this.turtle.update(this.stepLength);
         
-        /*
-        for (var contact = this.platter.physicsBody.GetContactList(); contact; contact = contact.GetNext())
-        {
-            var platter = this.platter;
-            if (platter.terrain.indexOf(contact) > -1)
-            {
-                platter.terrain.push(contact);
-                var jointDef = new b2DistanceJointDef();
-                jointDef.body1 = platter;
-                jointDef.body2 = contact;
-                jointDef.collideConnected = true; // bump and grind
-                jointDef.anchorPoint1 = platter.m_position;
-                jointDef.anchorPoint2 = contact.m_position;
-                
-                // roll it
-                World.pWorld.CreateJoint(jointDef);
-                
-                // light it
-            }
-        }
-        */
         // terrain
         for (var i = 0; i < this.terrain.length; i++)
         {
@@ -347,38 +353,26 @@ Turtles.World.prototype = {
                 if (this.spawner) {
             this.spawner.update(this.stepLength);
         }
-        
-        for (var i = this.terrain.length; i >= 0; i--) {
-            if (this.destroy) {
-                this.terrain
-            }
-        }
-        
+
+        this.updateScorePanel();
         this.destroyCrap(this.terrain);
         this.destroyCrap(this.people);
         this.destroyCrap(this.effects);
         this.destroyCrap(this.buildings);
-        
+
         if (this.spawner) {
             this.spawner.update(this.stepLength);
         }
         
-        for (var i = this.terrain.length; i >= 0; i--) {
-            if (this.destroy) {
-                this.terrain
-            }
-        }
-        
-        this.destroyCrap(this.terrain);
-        this.destroyCrap(this.people);
-        this.destroyCrap(this.effects);
-        this.destroyCrap(this.buildings);
     },
     
-    destroyCrap: function(array) {
+    destroyCrap: function(array, queue) {
         for (var i = array.length - 1; i >= 0; i--) {
             if (array[i].destroy) {
                 array[i].removeFromSimulation();
+                if (queue) {
+                    queue.push(array[i]);
+                }
                 array.splice(i, 1);
             }
         }

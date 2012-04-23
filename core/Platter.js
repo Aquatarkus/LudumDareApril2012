@@ -65,6 +65,6 @@ Turtles.Platter.prototype.update = function(stepMs){
 	{
 		var jointSpeed = this.fulcrumJoint.GetJointSpeed(1.0/60.0);
 		var jointAngle = this.fulcrumJoint.GetJointAngle(1.0/60.0);
-		this.fulcrumJoint.SetMotorSpeed(-500 * jointAngle);
+		this.fulcrumJoint.SetMotorSpeed(-5000000);
 	}
 }
