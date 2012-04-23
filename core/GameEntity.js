@@ -26,8 +26,33 @@ Turtles.geometryFromShape = function(shape)
         case b2Shape.e_polyShape:
             {
                 var poly = shape;
-                var extents = poly.m_localOBB.extents;
-                shapeGeometry = new THREE.CubeGeometry(2*extents.x, 2*extents.y, depth);
+                if (poly.m_localOBB.extents)
+                {
+                    var extents = poly.m_localOBB.extents;
+                    shapeGeometry = new THREE.CubeGeometry(2*extents.x, 2*extents.y, depth);
+                }
+                else
+                {
+                    // Triangle
+                    var triangleShape = new THREE.Shape();
+                    var vertexCount = poly.vertexCount;
+                    for (var i = 0; i < vertexCount; i++)
+                    {
+                        var polyVertex = poly.vertices[i];
+                        var vertexPos = new THREE.Vertex3(polyVertex.x, polyVertex.y, 0);
+                        var shapeVertex = new THREE.Vertex(vertexPos);
+  
+                        triangleShape.lineTo(polyVertex.x, polyVertex.y);
+                        shapeGeometry.vertices.push(shapeVertex);
+                    }
+                    triangleShape.lineTo(0, 0);
+                    var trianglePoints = triangleShape.createPointsGeometry();
+                    
+                    shapeGeometry = new THREE.Geometry();
+                    shapeGeometry.vertices = trianglePoints;
+                    
+                    Log.debug('trianglePoints', trianglePoints);
+                }
             }
             break;
         default:
@@ -125,7 +150,8 @@ Turtles.GameEntity.prototype._createMesh = function(){
 Turtles.GameEntity.prototype._createPhysicsBody = function() {
     
     var physicsShapeDef = null;
-    switch(this.shape) {
+    switch(this.shape)
+    {
         case "BOX":
             physicsShapeDef = new b2BoxDef();
             physicsShapeDef.extents.Set(this.width, this.height);
@@ -135,6 +161,18 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
             physicsShapeDef = new b2CircleDef();
             physicsShapeDef.radius = this.width/2;
             physicsShapeDef.density = this.density;
+            break;
+        case "TRIANGLE":
+            physicsShapeDef = new b2PolyDef();
+            physicsShapeDef.vertexCount = 3;
+            physicsShapeDef.vertices[0].x = 0;
+            physicsShapeDef.vertices[0].y = 0;
+            physicsShapeDef.vertices[1].x = 5;
+            physicsShapeDef.vertices[1].y = 0;
+            physicsShapeDef.vertices[2].x = 5;
+            physicsShapeDef.vertices[2].y = 2;
+            physicsShapeDef.vertices[0].x = 0;
+            // physicsShapeDef.extents = new b2Vec2(5.0, 2.0);
             break;
         default:
             alert("Unknown entity type '" + this.shape + "'.");

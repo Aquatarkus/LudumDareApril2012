@@ -17,6 +17,7 @@ Turtles.BuilderStates =
     DeleteObject : 'State: Delete Object',
     AddBoxTerrain : 'State: Add Box Terrain',
     AddCircleTerrain : 'State: Add Circle Terrain',
+    AddTriangleTerrain : 'State: Add Triangle Terrain',
     ToggleObjectPhysics : 'State: Toggle Object Physics',
     ToggleObjectMass : 'State: Toggle Object Mass'
 };
@@ -154,6 +155,17 @@ Turtles.Builder.prototype =
                 circleTerrain.init();
                 World.terrain.push(circleTerrain);
                 break;
+            case Turtles.BuilderStates.AddTriangleTerrain:
+                var triangleTerrain = new Turtles.GameEntity();
+                triangleTerrain.density = 1.0;
+                triangleTerrain.width = 5;
+                triangleTerrain.height = 2;
+                triangleTerrain.shape = "TRIANGLE";
+                triangleTerrain.x = worldCoords.x;
+                triangleTerrain.y = worldCoords.y;
+                triangleTerrain.init();
+                World.terrain.push(triangleTerrain);
+                break;
             case Turtles.BuilderStates.ToggleObjectPhysics:
                 var intersections = turtlesUI.castRay(worldCoords);
                 for (var i = 0; i < intersections.length; i++)
@@ -273,6 +285,11 @@ function onStateAddBoxTerrain()
 function onStateAddCircleTerrain()
 {
     turtlesBuilder.setState(Turtles.BuilderStates.AddCircleTerrain);
+}
+
+function onStateAddTriangleTerrain()
+{
+    turtlesBuilder.setState(Turtles.BuilderStates.AddTriangleTerrain);
 }
 
 function onStateToggleObjectPhysics()
