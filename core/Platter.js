@@ -15,6 +15,7 @@ Turtles.Platter = function() {
 	this.friction = 1;
 	this.fulcrumJoint = null
     this.mesh = null;
+	this.isStableish = true; //Is the platform 'stable'-ish?
 };
 
 Turtles.Platter.prototype = new Turtles.GameEntity();
@@ -36,7 +37,6 @@ Turtles.Platter.prototype.initFulcrumJoint = function (){
 		var fulcrumBodyDef = new b2BodyDef();
 		fulcrumBodyDef.AddShape(fulcrumShapeDef);
 		fulcrumBodyDef.position.Set(0, this.physicsBody.m_position.y);
-		//fulcrumBodyDef.position.Set(0, turtle.height/4);
 		var fulcrumBody = pWorld.CreateBody(fulcrumBodyDef);
 		
 		//join platter to fulcrum.
@@ -53,7 +53,6 @@ Turtles.Platter.prototype.initFulcrumJoint = function (){
 		return this.fulcrumJoint;
 }
 
-
 //A custom update method for the platter that adjusts its angular velocity,
 //so the world doesn't flip shit right away.
 Turtles.Platter.prototype.update = function(stepMs){
@@ -66,5 +65,7 @@ Turtles.Platter.prototype.update = function(stepMs){
 		var jointSpeed = this.fulcrumJoint.GetJointSpeed(1.0/60.0);
 		var jointAngle = this.fulcrumJoint.GetJointAngle(1.0/60.0);
 		this.fulcrumJoint.SetMotorSpeed(-5000000);
+		this.isStableish = (Math.abs(jointSpeed) < (Math.PI / 12)) && (Math.abs(jointAngle) < (Math.PI / 8));
+		this.fulcrumJoint.SetMotorSpeed(-500 * jointAngle);
 	}
 }

@@ -360,10 +360,10 @@ Turtles.World.prototype = {
         this.destroyCrap(this.effects);
         this.destroyCrap(this.buildings);
 
-        if (this.spawner) {
-            this.spawner.update(this.stepLength);
-        }
-        
+		//Re-adjust the music
+		if (this.effects.length === 0 && this.platter.isStableish){
+			SoundManager.playChillMusic();
+		}
     },
     
     destroyCrap: function(array, queue) {
