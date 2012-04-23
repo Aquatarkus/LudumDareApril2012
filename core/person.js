@@ -93,7 +93,6 @@ Turtles.Person.prototype.removeFromSimulation = function() {
 
     this.goalPlatterPosition = null;
     this.lastMoveDirection = 0;
-
 };
 
 Turtles.Person.prototype.removeFromSimulation = function() {
@@ -120,7 +119,6 @@ Turtles.Person.prototype.isOnTerrain = function() {
 
 Turtles.Person.prototype.checkForSleepState = function() {
     var result = false;
-
     if (this.energy <= 0) {
         var building = World.getClosestUnoccupiedBuilding(this.platterPosition);
         
@@ -140,7 +138,6 @@ Turtles.Person.prototype.update = function(deltaMs) {
     if (this.checkForDeath()) {
         return;
     }
-    
     if (this.isInSimulation) {
         Turtles.GameEntity.prototype.update.call(this, deltaMs);
 
@@ -157,13 +154,11 @@ Turtles.Person.prototype.update = function(deltaMs) {
             this.state = "PANIC";
             this.goalPlatterPosition = null;
         }
-    }
-    
+	}
     // Update energy.
 	if (this.state != "SLEEP") {
 		this.energy -=  World.energyDrainRate * deltaMs;
 	}
-
     var direction = 0;
     
     switch(this.state) {
@@ -223,7 +218,6 @@ Turtles.Person.prototype.update = function(deltaMs) {
 		case "PANIC":
 			break;
 	}
-    
     switch(this.state) {
         case "PANIC":
         case "SLEEP":

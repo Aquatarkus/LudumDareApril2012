@@ -13,9 +13,27 @@
             background-color: #000000;
             margin: 0px;
             overflow: hidden;
-        }
+		}
+		div.instructions
+		{
+			position: fixed;
+			bottom: 0px;
+			left: 0px;
+			width: 300px;
+			text-align: left;
+			color: white;
+			font-family: monospace;
+			font-weight:bold;
+			background-color: rgba(102,255,102,.3);
+			border: 1px solid white;
+			padding-top: 1px;
+			padding-bottom: 2px;
+			padding-right: 5px;
+			padding-left: 5px;
+			margin: 5px;
+			pointer-events: none;
+		}
     </style>
-</head>
 <body>
     <div    id="TurtlesElement" 
             style="position: absolute; top: 0px; width: 100%; height: 100%;
@@ -42,92 +60,125 @@
                        pointer-events:none;">
                 Debug
         </div>
+		<div	id="instructionsElement" class="instructions">
+		"The great turtle giveth, and he taketh away"; if the world is getting out of balance,
+		click the mouse to fire a meteor.  What lies below?  It's turtles, all the way down!
+		</div>
         <div    id="feedbackElement"
                 style="position: absolute; top: 70px; width: 100%; 
                        text-align: center; color: white; font-size:large;
                        pointer-events:none;">
                 Feedback
         </div>
+		<script src="Box2D/lib/prototype-1.6.0.2.js"></script>
+		<script src='Box2D/js/box2d/common/b2Settings.js'></script>
+		<script src='Box2D/js/box2d/common/math/b2Vec2.js'></script>
+		<script src='Box2D/js/box2d/common/math/b2Mat22.js'></script>
+		<script src='Box2D/js/box2d/common/math/b2Math.js'></script>
+		<script src='Box2D/js/box2d/collision/b2AABB.js'></script>
+		<script src='Box2D/js/box2d/collision/b2Bound.js'></script>
+		<script src='Box2D/js/box2d/collision/b2BoundValues.js'></script>
+		<script src='Box2D/js/box2d/collision/b2Pair.js'></script>
+		<script src='Box2D/js/box2d/collision/b2PairCallback.js'></script>
+		<script src='Box2D/js/box2d/collision/b2BufferedPair.js'></script>
+		<script src='Box2D/js/box2d/collision/b2PairManager.js'></script>
+		<script src='Box2D/js/box2d/collision/b2BroadPhase.js'></script>
+		<script src='Box2D/js/box2d/collision/b2Collision.js'></script>
+		<script src='Box2D/js/box2d/collision/Features.js'></script>
+		<script src='Box2D/js/box2d/collision/b2ContactID.js'></script>
+		<script src='Box2D/js/box2d/collision/b2ContactPoint.js'></script>
+		<script src='Box2D/js/box2d/collision/b2Distance.js'></script>
+		<script src='Box2D/js/box2d/collision/b2Manifold.js'></script>
+		<script src='Box2D/js/box2d/collision/b2OBB.js'></script>
+		<script src='Box2D/js/box2d/collision/b2Proxy.js'></script>
+		<script src='Box2D/js/box2d/collision/ClipVertex.js'></script>
+		<script src='Box2D/js/box2d/collision/shapes/b2Shape.js'></script>
+		<script src='Box2D/js/box2d/collision/shapes/b2ShapeDef.js'></script>
+		<script src='Box2D/js/box2d/collision/shapes/b2BoxDef.js'></script>
+		<script src='Box2D/js/box2d/collision/shapes/b2CircleDef.js'></script>
+		<script src='Box2D/js/box2d/collision/shapes/b2CircleShape.js'></script>
+		<script src='Box2D/js/box2d/collision/shapes/b2MassData.js'></script>
+		<script src='Box2D/js/box2d/collision/shapes/b2PolyDef.js'></script>
+		<script src='Box2D/js/box2d/collision/shapes/b2PolyShape.js'></script>
+		<script src='Box2D/js/box2d/dynamics/b2Body.js'></script>
+		<script src='Box2D/js/box2d/dynamics/b2BodyDef.js'></script>
+		<script src='Box2D/js/box2d/dynamics/b2CollisionFilter.js'></script>
+		<script src='Box2D/js/box2d/dynamics/b2Island.js'></script>
+		<script src='Box2D/js/box2d/dynamics/b2TimeStep.js'></script>
+		<script src='Box2D/js/box2d/dynamics/contacts/b2ContactNode.js'></script>
+		<script src='Box2D/js/box2d/dynamics/contacts/b2Contact.js'></script>
+		<script src='Box2D/js/box2d/dynamics/contacts/b2ContactConstraint.js'></script>
+		<script src='Box2D/js/box2d/dynamics/contacts/b2ContactConstraintPoint.js'></script>
+		<script src='Box2D/js/box2d/dynamics/contacts/b2ContactRegister.js'></script>
+		<script src='Box2D/js/box2d/dynamics/contacts/b2ContactSolver.js'></script>
+		<script src='Box2D/js/box2d/dynamics/contacts/b2CircleContact.js'></script>
+		<script src='Box2D/js/box2d/dynamics/contacts/b2Conservative.js'></script>
+		<script src='Box2D/js/box2d/dynamics/contacts/b2NullContact.js'></script>
+		<script src='Box2D/js/box2d/dynamics/contacts/b2PolyAndCircleContact.js'></script>
+		<script src='Box2D/js/box2d/dynamics/contacts/b2PolyContact.js'></script>
+		<script src='Box2D/js/box2d/dynamics/b2ContactManager.js'></script>
+		<script src='Box2D/js/box2d/dynamics/b2World.js'></script>
+		<script src='Box2D/js/box2d/dynamics/b2WorldListener.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2JointNode.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2Joint.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2JointDef.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2DistanceJoint.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2DistanceJointDef.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2Jacobian.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2GearJoint.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2GearJointDef.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2MouseJoint.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2MouseJointDef.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2PrismaticJoint.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2PrismaticJointDef.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2PulleyJoint.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2PulleyJointDef.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2RevoluteJoint.js'></script>
+		<script src='Box2D/js/box2d/dynamics/joints/b2RevoluteJointDef.js'></script>
+		<audio id="scream1" src="sound/scream.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="scream2" src="sound/scream2.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream3" src="sound/scream3.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream4" src="sound/scream4.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream5" src="sound/scream5.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream6" src="sound/scream6.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream7" src="sound/scream7.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream8" src="sound/scream8.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="scream9" src="sound/scream9.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="scream10" src="sound/scream10.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream11" src="sound/scream11.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream12" src="sound/scream12.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream13" src="sound/scream13.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="scream14" src="sound/scream14.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream15" src="sound/scream15.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream16" src="sound/scream16.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="building1" src="sound/building1.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="building2" src="sound/building2.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="building3" src="sound/building3.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="explosion1" src="sound/explosion1.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="explosion2" src="sound/explosion2.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="explosion3" src="sound/explosion3.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="explosion4" src="sound/explosion4.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="explosion5" src="sound/explosion5.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="meteor" src="sound/meteor.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="music1" src="sound/electro beat crushed to bits.mp3" style="display: none;" preload="auto"></audio>		
+		<audio id="meteorDropMusic" src="sound/meteorDrop.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="music2" src="sound/rabbitfight.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="music3" src="sound/slimgus.mp3" style="display: none;" preload="auto"></audio>	
+		<script src="threejs/ThreePretty.js"></script>
+		<script src="threejs/RequestAnimationFrame.js"></script>
+		<script src="threejs/Stats.js"></script>
+		<script src="core/SoundManager.js"></script>
+		<script src="core/Turtles.js"></script>
+		<script src="core/GameEntity.js"></script>
+		<script src="core/Building.js"></script>
+		<script src="core/Effect.js"></script>
+		<script src="core/Meteor.js"></script>
+		<script src="core/MeteorSpawner.js"></script>
+		<script src="core/Person.js"></script>
+		<script src="core/Platter.js"></script>
+		<script src="core/Turtle.js"></script>
+		<script src="core/World.js"></script>
+		<script src="TurtlesUI.js"></script>
     </div>
-    <!--[if IE]><script type="text/javascript" src="lib/excanvas.js"></script><![endif]-->
-    <script src="Box2D/lib/prototype-1.6.0.2.js"></script>
-    <script src='Box2D/js/box2d/common/b2Settings.js'></script>
-    <script src='Box2D/js/box2d/common/math/b2Vec2.js'></script>
-    <script src='Box2D/js/box2d/common/math/b2Mat22.js'></script>
-    <script src='Box2D/js/box2d/common/math/b2Math.js'></script>
-    <script src='Box2D/js/box2d/collision/b2AABB.js'></script>
-    <script src='Box2D/js/box2d/collision/b2Bound.js'></script>
-    <script src='Box2D/js/box2d/collision/b2BoundValues.js'></script>
-    <script src='Box2D/js/box2d/collision/b2Pair.js'></script>
-    <script src='Box2D/js/box2d/collision/b2PairCallback.js'></script>
-    <script src='Box2D/js/box2d/collision/b2BufferedPair.js'></script>
-    <script src='Box2D/js/box2d/collision/b2PairManager.js'></script>
-    <script src='Box2D/js/box2d/collision/b2BroadPhase.js'></script>
-    <script src='Box2D/js/box2d/collision/b2Collision.js'></script>
-    <script src='Box2D/js/box2d/collision/Features.js'></script>
-    <script src='Box2D/js/box2d/collision/b2ContactID.js'></script>
-    <script src='Box2D/js/box2d/collision/b2ContactPoint.js'></script>
-    <script src='Box2D/js/box2d/collision/b2Distance.js'></script>
-    <script src='Box2D/js/box2d/collision/b2Manifold.js'></script>
-    <script src='Box2D/js/box2d/collision/b2OBB.js'></script>
-    <script src='Box2D/js/box2d/collision/b2Proxy.js'></script>
-    <script src='Box2D/js/box2d/collision/ClipVertex.js'></script>
-    <script src='Box2D/js/box2d/collision/shapes/b2Shape.js'></script>
-    <script src='Box2D/js/box2d/collision/shapes/b2ShapeDef.js'></script>
-    <script src='Box2D/js/box2d/collision/shapes/b2BoxDef.js'></script>
-    <script src='Box2D/js/box2d/collision/shapes/b2CircleDef.js'></script>
-    <script src='Box2D/js/box2d/collision/shapes/b2CircleShape.js'></script>
-    <script src='Box2D/js/box2d/collision/shapes/b2MassData.js'></script>
-    <script src='Box2D/js/box2d/collision/shapes/b2PolyDef.js'></script>
-    <script src='Box2D/js/box2d/collision/shapes/b2PolyShape.js'></script>
-    <script src='Box2D/js/box2d/dynamics/b2Body.js'></script>
-    <script src='Box2D/js/box2d/dynamics/b2BodyDef.js'></script>
-    <script src='Box2D/js/box2d/dynamics/b2CollisionFilter.js'></script>
-    <script src='Box2D/js/box2d/dynamics/b2Island.js'></script>
-    <script src='Box2D/js/box2d/dynamics/b2TimeStep.js'></script>
-    <script src='Box2D/js/box2d/dynamics/contacts/b2ContactNode.js'></script>
-    <script src='Box2D/js/box2d/dynamics/contacts/b2Contact.js'></script>
-    <script src='Box2D/js/box2d/dynamics/contacts/b2ContactConstraint.js'></script>
-    <script src='Box2D/js/box2d/dynamics/contacts/b2ContactConstraintPoint.js'></script>
-    <script src='Box2D/js/box2d/dynamics/contacts/b2ContactRegister.js'></script>
-    <script src='Box2D/js/box2d/dynamics/contacts/b2ContactSolver.js'></script>
-    <script src='Box2D/js/box2d/dynamics/contacts/b2CircleContact.js'></script>
-    <script src='Box2D/js/box2d/dynamics/contacts/b2Conservative.js'></script>
-    <script src='Box2D/js/box2d/dynamics/contacts/b2NullContact.js'></script>
-    <script src='Box2D/js/box2d/dynamics/contacts/b2PolyAndCircleContact.js'></script>
-    <script src='Box2D/js/box2d/dynamics/contacts/b2PolyContact.js'></script>
-    <script src='Box2D/js/box2d/dynamics/b2ContactManager.js'></script>
-    <script src='Box2D/js/box2d/dynamics/b2World.js'></script>
-    <script src='Box2D/js/box2d/dynamics/b2WorldListener.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2JointNode.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2Joint.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2JointDef.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2DistanceJoint.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2DistanceJointDef.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2Jacobian.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2GearJoint.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2GearJointDef.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2MouseJoint.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2MouseJointDef.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2PrismaticJoint.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2PrismaticJointDef.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2PulleyJoint.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2PulleyJointDef.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2RevoluteJoint.js'></script>
-    <script src='Box2D/js/box2d/dynamics/joints/b2RevoluteJointDef.js'></script>
-    <script src="threejs/ThreePretty.js"></script>
-    <script src="threejs/RequestAnimationFrame.js"></script>
-    <script src="threejs/Stats.js"></script>
-    <script src="core/Turtles.js"></script>
-    <script src="core/GameEntity.js"></script>
-    <script src="core/Building.js"></script>
-    <script src="core/Effect.js"></script>
-    <script src="core/Meteor.js"></script>
-    <script src="core/MeteorSpawner.js"></script>
-    <script src="core/Person.js"></script>
-    <script src="core/Platter.js"></script>
-    <script src="core/Turtle.js"></script>
-    <script src="core/World.js"></script>
-    <script src="TurtlesUI.js"></script>
 </body>
 </html>
