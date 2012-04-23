@@ -3,8 +3,8 @@
 
 var TurtlesElement = document.getElementById('TurtlesElement');
 var gameElement = document.getElementById('gameElement');
-var debugElement = document.getElementById('debugElement');
-var feedbackElement = document.getElementById('feedbackElement');
+// var debugElement = document.getElementById('debugElement');
+// var feedbackElement = document.getElementById('feedbackElement');
 
 var Stats = Stats || {};
 var THREE = THREE || {};
@@ -17,24 +17,24 @@ var Log =
     {
         var log = '(DEBUG) '+ tag + ': ' + JSON.stringify(message);
         console.log(log);
-        debugElement.innerHTML = log;
+        // debugElement.innerHTML = log;
     },
     feedback : function(message)
     {
         console.log('(FEEDBACK) ' + message);
-        feedbackElement.innerHTML = message;
+        // feedbackElement.innerHTML = message;
     },
     error : function(tag, message)
     {
         var log = '(Error) '+ tag + ': ' + JSON.stringify(message);
         console.log(log);
-        debugElement.innerHTML = log;
+        // debugElement.innerHTML = log;
     },
     event : function(tag, message)
     {
         var log = '(EVENT) ' + tag + ': ' + JSON.stringify(message);
         console.log(log);
-        debugElement.innerHTML = log;
+        // debugElement.innerHTML = log;
     }
 };
 
