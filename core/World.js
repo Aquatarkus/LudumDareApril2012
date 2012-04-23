@@ -301,8 +301,7 @@ Turtles.World.prototype = {
         for (var i = 0; i < this.buildings.length; i++) {
             this.buildings[i].update(this.stepLength);
         }
-
-        if (this.spawner) {
+                if (this.spawner) {
             this.spawner.update(this.stepLength);
         }
         
@@ -325,8 +324,39 @@ Turtles.World.prototype = {
                 array.splice(i, 1);
             }
         }
+    },
+    removeJoint : function(joint)
+    {
+        joint.m_body1.gameEntity.removeJoint(joint);
+        joint.m_body2.gameEntity.removeJoint(joint);
+        this.pWorld.DestroyJoint(joint);
+    },
+    removeJoints : function(gameEntity)
+    {
+        // deep tokes
+        var joints = gameEntity.joints;
+        for (var i = joints.length-1; i >= 0; --i)
+        {
+            var joint = joints[i];
+            this.removeJoint(joint);
+        }
+    },
+    addJoint : function(entityA, anchorA, entityB, anchorB)
+    {
+        // roll it
+        var jointDef = new b2DistanceJointDef();
+        jointDef.body1 = entityA.physicsBody;
+        jointDef.body2 = entityB.physicsBody;
+        jointDef.collideConnected = true; // bump and grind
+        jointDef.anchorPoint1 = anchorA;
+        jointDef.anchorPoint2 = anchorB;
+        
+        // light it
+        var joint = World.pWorld.CreateJoint(jointDef);
+        
+        entityA.addJoint(joint);
+        entityB.addJoint(joint);
     }
-	
 };
 
 

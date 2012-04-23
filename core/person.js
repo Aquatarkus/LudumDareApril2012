@@ -66,8 +66,6 @@ Turtles.Person.prototype = new Turtles.GameEntity();
 
 Turtles.Person.prototype.constructor = Turtles.Person;
 
-Turtles.Meteor.prototype.texture = THREE.ImageUtils.loadTexture('textures/Meteor1.png');
-
 Turtles.Person.prototype.buildComplete = function(building) {
     this.addToSimulationAt(building.x, building.y);
 };

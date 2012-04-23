@@ -80,6 +80,7 @@ Turtles.GameEntity = function() {
     this.physicsBody = null;
     this.actor = null;
     this.texture = null;
+    this.joints = [];
     this.isInSimulation = false;
     this.destroy = false;
 };
@@ -158,7 +159,8 @@ Turtles.GameEntity.prototype._createMesh = function(){
 Turtles.GameEntity.prototype._createPhysicsBody = function() {
     
     var physicsShapeDef = null;
-    switch(this.shape) {
+    switch(this.shape)
+    {
         case "BOX":
             physicsShapeDef = new b2BoxDef();
             physicsShapeDef.extents.Set(this.width, this.height);
@@ -168,6 +170,18 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
             physicsShapeDef = new b2CircleDef();
             physicsShapeDef.radius = this.width/2;
             physicsShapeDef.density = this.density;
+            break;
+        case "TRIANGLE":
+            physicsShapeDef = new b2PolyDef();
+            physicsShapeDef.vertexCount = 3;
+            physicsShapeDef.vertices[0].x = 0;
+            physicsShapeDef.vertices[0].y = 0;
+            physicsShapeDef.vertices[1].x = 5;
+            physicsShapeDef.vertices[1].y = 0;
+            physicsShapeDef.vertices[2].x = 5;
+            physicsShapeDef.vertices[2].y = 2;
+            physicsShapeDef.vertices[0].x = 0;
+            // physicsShapeDef.extents = new b2Vec2(5.0, 2.0);
             break;
         default:
             alert("Unknown entity type '" + this.shape + "'.");
@@ -183,8 +197,21 @@ Turtles.GameEntity.prototype._createPhysicsBody = function() {
     this.physicsBodyDef.AddShape(physicsShapeDef);
     this.physicsBodyDef.position.Set(this.x, this.y);
     this.physicsBody = World.pWorld.CreateBody(this.physicsBodyDef);
-    
+    this.physicsBody.gameEntity = this;
     return this.physicsBody;
+};
+
+Turtles.GameEntity.prototype.addJoint = function(joint)
+{
+    // stash it
+    this.joints.push(joint);
+};
+
+Turtles.GameEntity.prototype.removeJoint = function(joint)
+{
+    // burn it
+    var jointIndex = this.joints.indexOf(joint);
+    this.joints.splice(jointIndex, 1);
 };
 
 // blaze-a-blaze
@@ -208,4 +235,4 @@ Turtles.GameEntity.prototype.fixWithJoint = function(entity)
         
         // light it
     }
-}
+};
