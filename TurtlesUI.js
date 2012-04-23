@@ -1,7 +1,7 @@
 // TurtlesUI.js
 // LudumDare420
 
-var TurtleElement = document.getElementById('TurtleElement');
+var TurtlesElement = document.getElementById('TurtlesElement');
 var gameElement = document.getElementById('gameElement');
 var debugElement = document.getElementById('debugElement');
 var feedbackElement = document.getElementById('feedbackElement');
