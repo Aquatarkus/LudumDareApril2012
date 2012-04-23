@@ -43,7 +43,7 @@ Turtles.UI = function(element, width, height, cameraHeight)
     // camera bounds
     this.cameraNear = -100;
     this.cameraFar = 100;
-    this.cameraFrame = {x:0, y:0, width:1, height:cameraHeight};
+    this.cameraFrame = {x:0, y:85, width:1, height:cameraHeight};
     
     // ray casting
     this.projector = new THREE.Projector();
