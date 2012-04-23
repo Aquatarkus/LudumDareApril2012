@@ -142,15 +142,18 @@ Turtles.GameEntity.prototype.checkForDeath = function() {
 };
 
 Turtles.GameEntity.prototype.update = function(timeElapsed) {
-    var pos = this.physicsBody.m_position;
-    this.mesh.position.x = pos.x;
-    this.mesh.position.y = pos.y;
+    if (this.physicsBody) {
+        var pos = this.physicsBody.m_position;
+        this.mesh.position.x = pos.x;
+        this.mesh.position.y = pos.y;
+        this.mesh.rotation.z = this.physicsBody.m_rotation;
+    }
+    
 
     if (this.checkForDeath()) {
         return;
     }
     
-    this.mesh.rotation.z = this.physicsBody.m_rotation;
 
     // sprite animation
     if (this.texture && this.animFrameCount > 1) {
@@ -178,7 +181,7 @@ Turtles.GameEntity.prototype.update = function(timeElapsed) {
         }
     }
 
-    if (this.isInSimulation) {
+    if (this.isInSimulation && this.physicsBody) {
         var pos = this.physicsBody.m_position;
         this.mesh.position.x = pos.x;
         this.mesh.position.y = pos.y;

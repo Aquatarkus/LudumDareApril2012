@@ -22,3 +22,11 @@ Turtles.GameEntity.call(this);
 Turtles.Turtle.prototype = new Turtles.GameEntity();
 
 Turtles.Turtle.prototype.constructor = Turtles.Turtle;
+
+Turtles.Turtle.prototype.init = function() {
+    Turtles.GameEntity.prototype.init.call(this);
+    
+    World.pWorld.DestroyBody(this.physicsBody);
+    this.mesh.position.x = this.x;
+    this.mesh.position.y = this.y;
+};

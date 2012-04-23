@@ -4,7 +4,7 @@ Turtles.Meteor = function() {
     var self = this;
 
     // GameEntity properties
-	self.density = 1.0;
+	self.density = 10.0;
     // hack (compare width/height to PlaneGeometry defs here and in MeteorSpawner)
     self.width = 20.0;
     self.height = 20.0;

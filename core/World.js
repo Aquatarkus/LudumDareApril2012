@@ -22,10 +22,10 @@ Turtles.World = function() {
     this.pendingEffect = null;
     
     // How long it takes, in ms, for a building to be built or iterate to the next level.
-    this.buildTimePerLevel = 1500;
+    this.buildTimePerLevel = 500;
 	
 	// How long it takes, in ms, for a single unit of energy to be drained from a person.
-    this.energyDrainRate = 500.0;
+    this.energyDrainRate = 0.01;
     
     this.maxPeople = 20;
     this.maxBuildings = 50;

@@ -44,7 +44,7 @@ Assumes:
 Turtles.Person = function() {
 	Turtles.GameEntity.call(this);
 	this.isPhysicsSimulated = true,
-	this.density = 1;
+	this.density = 0.1;
 	this.width = 1;
 	this.height = 3;
     this.width = 3;
@@ -84,8 +84,6 @@ Turtles.Person.prototype.addToSimulationAt = function(x, y) {
     this.init();
     this.goalPlatterPosition = null;
     this.lastMoveDirection = 0;
-    // todo: ask alex (updates stop processing on new people)
-    //World.people.push(this);
 };
 
 Turtles.Person.prototype.removeFromSimulation = function() {
