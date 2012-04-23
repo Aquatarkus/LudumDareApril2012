@@ -73,7 +73,6 @@ Turtles.World.prototype = {
         }, 1000);
 		
 		SoundManager.playChillMusic();
-		SoundManager.playDeath();
 	},
 	
     constructor: Turtles.World,

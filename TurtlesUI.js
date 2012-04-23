@@ -291,7 +291,6 @@ function onMouseUp(event)
     event.preventDefault();
     var eventCoords = getEventCoords(event);
     Log.event('onMouseUp', eventCoords);
-
     if (World.spawner) {
         World.spawner.spawn();
     } else {

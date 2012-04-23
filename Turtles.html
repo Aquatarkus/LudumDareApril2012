@@ -13,7 +13,26 @@
             background-color: #000000;
             margin: 0px;
             overflow: hidden;
-        }
+		}
+		div.instructions
+		{
+			position: fixed;
+			bottom: 0px;
+			left: 0px;
+			width: 300px;
+			text-align: left;
+			color: white;
+			font-family: monospace;
+			font-weight:bold;
+			background-color: rgba(102,255,102,.3);
+			border: 1px solid white;
+			padding-top: 1px;
+			padding-bottom: 2px;
+			padding-right: 5px;
+			padding-left: 5px;
+			margin: 5px;
+			pointer-events: none;
+		}
     </style>
 	
 	<!--[if IE]><script type="text/javascript" src="lib/excanvas.js"></script><![endif]-->
@@ -109,14 +128,42 @@
                        pointer-events:none;">
                 Debug
         </div>
+		<div	id="instructionsElement" class="instructions">
+		"The great turtle giveth, and he taketh away"; if the world is getting out of balance,
+		click the mouse to fire a meteor.  What lies below?  It's turtles, all the way down!
+		</div>
         <div    id="feedbackElement"
                 style="position: absolute; top: 70px; width: 100%; 
                        text-align: center; color: white; font-size:large;
                        pointer-events:none;">
                 Feedback
         </div>
-		<audio id="wilhelmScream" src="sound/WilhelmScream_64kb.mp3" style="display: none;" preload="auto"></audio>	
-		<audio id="music1" src="sound/electro beat crushed to bits.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="scream1" src="sound/scream.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="scream2" src="sound/scream2.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream3" src="sound/scream3.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream4" src="sound/scream4.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream5" src="sound/scream5.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream6" src="sound/scream6.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream7" src="sound/scream7.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream8" src="sound/scream8.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="scream9" src="sound/scream9.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="scream10" src="sound/scream10.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream11" src="sound/scream11.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream12" src="sound/scream12.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream13" src="sound/scream13.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="scream14" src="sound/scream14.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream15" src="sound/scream15.ogg" style="display: none;" preload="auto"></audio>	
+		<audio id="scream16" src="sound/scream16.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="building1" src="sound/building1.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="building2" src="sound/building2.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="building3" src="sound/building3.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="explosion1" src="sound/explosion1.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="explosion2" src="sound/explosion2.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="explosion3" src="sound/explosion3.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="explosion4" src="sound/explosion4.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="explosion5" src="sound/explosion5.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="meteor" src="sound/meteor.mp3" style="display: none;" preload="auto"></audio>	
+		<audio id="music1" src="sound/electro beat crushed to bits.mp3" style="display: none;" preload="auto"></audio>		
 		<audio id="meteorDropMusic" src="sound/meteorDrop.mp3" style="display: none;" preload="auto"></audio>	
 		<audio id="music2" src="sound/rabbitfight.mp3" style="display: none;" preload="auto"></audio>	
 		<audio id="music3" src="sound/slimgus.mp3" style="display: none;" preload="auto"></audio>	
