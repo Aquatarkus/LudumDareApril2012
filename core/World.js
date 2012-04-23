@@ -14,6 +14,9 @@ Turtles.World = function() {
     
     // additions to the terrain
     this.terrain = [];
+    
+    // turtles all the way down
+    this.turtles = [];
 
     // effects placed by the player
     this.effects = [];
@@ -63,6 +66,17 @@ Turtles.World.prototype = {
         this.turtle.x = 0;
         this.turtle.y = 0;
         this.turtle.init();
+        
+        // turtles all the way down
+        var turtleCount = 10;
+        for (var i = 1; i <= turtleCount; i++)
+        {
+            var downTurtle = new Turtles.Turtle();
+            downTurtle.x = 0;
+            downTurtle.y = -62*i;
+            downTurtle.init();
+            this.turtles.push(downTurtle);
+        }
         
 		//init platter
 		this.platter = new Turtles.Platter();
@@ -254,8 +268,11 @@ Turtles.World.prototype = {
 	},
 
     scorePanelElement: document.getElementById('scorePanel'),
+    scoreDisplayElement: document.getElementById('scoreDisplay'),
+    scorePanelPeopleCountDisplayElement: document.getElementById('scorePanelPeopleCount'),
+    scorePanelBuildingCountDisplayElement: document.getElementById('scorePanelBuildingCount'),
 
-    updateScorePanel: function() {
+    updateScore: function() {
         // calculate score delta
         var scoreDelta = 
               this.scoreValuePerBuildingPerTick * this.buildings.length
@@ -267,7 +284,9 @@ Turtles.World.prototype = {
     increaseScore: function(points) {
         this.playerScore += points;
 
-        this.scorePanelElement.innerHTML = 'SCORE: ' + this.playerScore + '<br />Living people: ' + this.people.length + '<br />Buildings: ' + this.buildings.length;
+        this.scoreDisplayElement.innerText = this.playerScore;
+        this.scorePanelPeopleCountDisplayElement.innerText = this.people.length;
+        this.scorePanelBuildingCountDisplayElement.innerText = this.buildings.length;
     },
 
     update: function() {
@@ -283,6 +302,14 @@ Turtles.World.prototype = {
         {
             var terrainPiece = this.terrain[i];
             terrainPiece.update(this.stepLength);
+            
+        }
+        
+        // turtles
+        for (var i = 0; i < this.turtles.length; i++)
+        {
+            var turtle = this.turtles[i];
+            turtle.update(this.stepLength);
             
         }
         
@@ -305,16 +332,16 @@ Turtles.World.prototype = {
             this.spawner.update(this.stepLength);
         }
 
-        this.updateScorePanel();
+        this.updateScore();
         this.destroyCrap(this.terrain);
         this.destroyCrap(this.people, this.peopleQueue);
         this.destroyCrap(this.effects);
         this.destroyCrap(this.buildings);
 
-        if (this.spawner) {
-            this.spawner.update(this.stepLength);
-        }
-        
+		//Re-adjust the music
+		if (this.effects.length === 0 && this.platter.isStableish){
+			SoundManager.playChillMusic();
+		}
     },
     
     destroyCrap: function(array, queue) {

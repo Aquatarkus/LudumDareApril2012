@@ -44,6 +44,11 @@
             right: 0px;
             width: 200px;
         }
+
+        #scoreDisplay
+        {
+            position: absolute;
+        }
     </style>
 <body>
     <div    id="TurtlesElement" 
@@ -65,24 +70,14 @@
                 pointer-events:none;">
                 Ludum Dare 4/20
         </div>
-        <div    id="debugElement"
-                style="position: absolute; bottom: 0px; width: 100%; 
-                       text-align: center; color: white; font-size:small;
-                       pointer-events:none;">
-                Debug
-        </div>
 		<div	id="instructionsElement" class="panel">
 		"The great turtle giveth, and he taketh away"; if the world is getting out of balance,
 		click the mouse to fire a meteor.  What lies below?  It's turtles, all the way down!
 		</div>
-        <div    id="feedbackElement"
-                style="position: absolute; top: 70px; width: 100%; 
-                       text-align: center; color: white; font-size:large;
-                       pointer-events:none;">
-                Feedback
-        </div>
         <div id="scorePanel" class="panel">
-            &nbsp;
+            SCORE: <span id="scoreDisplay">0</span><br />
+            Living People: <span id="scorePanelPeopleCount">0</span><br />
+            Buildings: <span id="scorePanelBuildingCount">0</span>
         </div>
 		<script src="Box2D/lib/prototype-1.6.0.2.js"></script>
 		<script src='Box2D/js/box2d/common/b2Settings.js'></script>
@@ -174,11 +169,9 @@
 		<audio id="explosion4" src="sound/explosion4.mp3" style="display: none;" preload="auto"></audio>	
 		<audio id="explosion5" src="sound/explosion5.mp3" style="display: none;" preload="auto"></audio>	
 		<audio id="meteor" src="sound/meteor.mp3" style="display: none;" preload="auto"></audio>	
-		<audio id="music1" src="sound/electro beat crushed to bits.mp3" style="display: none;" preload="auto"></audio>		
 		<audio id="meteorDropMusic" src="sound/meteorDrop.mp3" style="display: none;" preload="auto"></audio>	
-		<audio id="music2" src="sound/rabbitfight.mp3" style="display: none;" preload="auto"></audio>	
 		<audio id="music3" src="sound/slimgus.mp3" style="display: none;" preload="auto"></audio>	
-		<script src="threejs/ThreePretty.js"></script>
+		<script src="threejs/Three.js"></script>
 		<script src="threejs/RequestAnimationFrame.js"></script>
 		<script src="threejs/Stats.js"></script>
 		<script src="core/SoundManager.js"></script>
