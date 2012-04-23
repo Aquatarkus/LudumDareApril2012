@@ -59,6 +59,9 @@ Turtles.Building = function() {
     this.y = 0.0;
     this.color = 0x0000ff;
     this.alpha = 1.0;
+    this.evictCount = 0;
+    this.doEvictCountdown = false;
+    this.evictOn = 50;
     
     this.texture = Turtles.BuildingTexture;
 };
@@ -102,10 +105,26 @@ Turtles.Building.prototype.build = function(person) {
 };
 
 Turtles.Building.prototype.update = function(timeElapsedInMs) {
+    
     if (this.checkForDeath()) {
 		SoundManager.playExplosionSound();
         return;
     }
+    
+    if (!this.isOnTerrain()) {
+        this.doEvictCountdown = true;
+        this.evictCount += timeElapsedInMs;
+        
+        if (this.evictCount >= this.evictOn) {
+            for (var i = this.occupiers.length - 1; i >= 0; i--) {
+                var person = this.occupiers[i];
+                this.unoccupy(person);
+            }
+        }
+    }
+    this.doEvictCountdown = false;
+    this.evictCount = 0;
+    
     
     Turtles.GameEntity.prototype.update.call(this, timeElapsedInMs);
 	if (!this.isBuilt) {
