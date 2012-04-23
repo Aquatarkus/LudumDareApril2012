@@ -1,4 +1,3 @@
-
 // TurtlesUI.js
 // LudumDare420
 
@@ -58,6 +57,26 @@ Turtles.UI = function(element, width, height, cameraHeight)
     // camera
     this.camera = new THREE.OrthographicCamera(-1,1,-1,1,this.cameraNear,this.cameraFar);
     this.scene.add(this.camera);
+    
+    // starfield
+    var starCount = 1000;
+    var starGeometry = new THREE.Geometry();
+    var starMaterial = new THREE.ParticleBasicMaterial(
+    {
+        color: 0xffffff
+    });
+    for (var i = 0; i < starCount; i++)
+    {
+        var starX = Math.random()*1000-500;
+        var starY = Math.random()*1000-500;
+        var starZ = -40;
+        var star = new THREE.Vertex(new THREE.Vector3(starX, starY, starZ));
+        starGeometry.vertices.push(star);
+    }
+    
+    var starSystem = new THREE.ParticleSystem(starGeometry, starMaterial);
+    // starSystem.sortParticles = true;
+    this.addObject(starSystem);
     
     // renderer
     this.renderer = new THREE.WebGLRenderer();
@@ -292,21 +311,18 @@ function onMouseUp(event)
     var eventCoords = getEventCoords(event);
     Log.event('onMouseUp', eventCoords);
 
+    var worldCoords = turtlesUI.getWorldCoords(eventCoords);
+    
+    // if(!mouseDidMove)
+    // {
+    //     turtlesUI.onClick(worldCoords[0]);
+    // }
+
     if (World.spawner) {
         World.spawner.spawn();
     } else {
-        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
         World.setSpawner(new Turtles.MeteorSpawner(worldCoords[0]));
     }
-//    if (World.selectedEffect && !World.pendingEffect) {
-//        var worldCoords = turtlesUI.getWorldCoords(eventCoords);
-//        World.createEffect(worldCoords[0]);
-//    } else {
-//        var pendingEffect = World.pendingEffect;
-//        if (pendingEffect) {
-//            pendingEffect.execute();
-//        }
-//    }
 
     mouseIsDown = false;
     mouseDidMove = false;
@@ -383,10 +399,12 @@ var renderer = turtlesUI.renderer;
 var scene = turtlesUI.scene;
 var camera = turtlesUI.camera;
 
+var SoundManager = new Turtles.SoundManager();
 var World = new Turtles.World();
 World.init();
 
-function animate() {
+function animate()
+{
 	requestAnimationFrame(animate);
     World.update();
     turtlesUI.draw();

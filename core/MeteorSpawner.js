@@ -15,7 +15,9 @@ Turtles.MeteorSpawner = function(coords) {
     self.arrowMesh = Turtles.MeteorSpawner.prototype.arrowMesh;
     self.arrowMesh.position.set(coords.x, coords.y, 1.0);
     self.arrowMesh.rotation.x = Math.PI / 2.0;
-    self.arrowTime = 0.0;
+    self.arrowPeriod = 1000.0;
+    // randomized for unpredictable start pos
+    self.arrowTime = Math.random() * self.arrowPeriod;
 
     // angle range (centered around straight down) that meteors can fire
     self.arrowSpan = Math.PI / 2.0;
@@ -29,7 +31,7 @@ Turtles.MeteorSpawner.prototype = {
 
     update: function(stepTime) {
         this.arrowTime += stepTime;
-        this.arrowMesh.rotation.y = this.arrowSpan * Math.sin(this.arrowTime / 500.0);
+        this.arrowMesh.rotation.y = this.arrowSpan * Math.sin(Math.PI * this.arrowTime / this.arrowPeriod);
         this.meteorMesh.rotation.y += stepTime / 600.0;
         var meteorMeshScale = 1.0 + 0.25 * Math.sin(this.arrowTime / 250.0);
         this.meteorMesh.scale.x = meteorMeshScale;
