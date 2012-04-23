@@ -61,12 +61,12 @@ Turtles.World.prototype = {
         this.turtle.init();
         
         // turtles all the way down
-        var turtleCount = 20;
+        var turtleCount = 10;
         for (var i = 1; i <= turtleCount; i++)
         {
             var downTurtle = new Turtles.Turtle();
             downTurtle.x = 0;
-            downTurtle.y = -50*i;
+            downTurtle.y = -62*i;
             downTurtle.init();
             this.turtles.push(downTurtle);
         }
@@ -319,6 +319,14 @@ Turtles.World.prototype = {
         {
             var terrainPiece = this.terrain[i];
             terrainPiece.update(this.stepLength);
+            
+        }
+        
+        // turtles
+        for (var i = 0; i < this.turtles.length; i++)
+        {
+            var turtle = this.turtles[i];
+            turtle.update(this.stepLength);
             
         }
         
