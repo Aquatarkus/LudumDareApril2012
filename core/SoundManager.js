@@ -8,7 +8,7 @@ Turtles.SoundManager = function() {
 	
 	//init screams
 	var i = 1;
-	var numScreams = 16;
+	var numScreams = 31;
 	for (; i < numScreams; i++){
 		this.screams.push(document.getElementById("scream" + i));
 		this.screams[i - 1].volume = 0.2; //screams so fuckin loud
