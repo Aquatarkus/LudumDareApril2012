@@ -16,7 +16,7 @@ Turtles.GameEntity.call(this);
     this.x = 0;
     this.y = 0;
 	
-	this.texture = Turtles.turtleTexture;
+	this.texture = THREE.ImageUtils.loadTexture('textures/FullFrontTurtle0.png');
 };
 
 Turtles.Turtle.prototype = new Turtles.GameEntity();

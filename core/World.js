@@ -14,6 +14,9 @@ Turtles.World = function() {
     
     // additions to the terrain
     this.terrain = [];
+    
+    // turtles all the way down
+    this.turtles = [];
 
     // effects placed by the player
     this.effects = [];
@@ -56,6 +59,17 @@ Turtles.World.prototype = {
         this.turtle.x = 0;
         this.turtle.y = 0;
         this.turtle.init();
+        
+        // turtles all the way down
+        var turtleCount = 20;
+        for (var i = 1; i <= turtleCount; i++)
+        {
+            var downTurtle = new Turtles.Turtle();
+            downTurtle.x = 0;
+            downTurtle.y = -50*i;
+            downTurtle.init();
+            this.turtles.push(downTurtle);
+        }
         
 		//init platter
 		this.platter = new Turtles.Platter();
