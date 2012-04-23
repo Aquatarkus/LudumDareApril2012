@@ -71,6 +71,9 @@ Turtles.World.prototype = {
             World.initOnPlatter(person);
             World.people.push(person);
         }, 1000);
+		
+		SoundManager.playChillMusic();
+		SoundManager.playDeath();
 	},
 	
     constructor: Turtles.World,

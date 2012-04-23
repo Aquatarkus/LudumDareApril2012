@@ -383,6 +383,7 @@ var renderer = turtlesUI.renderer;
 var scene = turtlesUI.scene;
 var camera = turtlesUI.camera;
 
+var SoundManager = new Turtles.SoundManager();
 var World = new Turtles.World();
 World.init();
 
