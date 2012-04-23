@@ -209,6 +209,8 @@ Turtles.World.prototype = {
 	getClosestUnoccupiedBuilding: function(platePosition) {
         var lastValidBuilding = null;
         
+        return (Math.random * (this.buildings.length - 1));
+        
 		// Iterate through the buildings, looking for the two closest ones... and then compare them
 		// for the true closest.
 		for(var buildingIndex = 0; buildingIndex < this.buildings.length; buildingIndex++) {
