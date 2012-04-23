@@ -111,7 +111,7 @@ Turtles.GameEntity.prototype.init = function() {
 
     // for uv anims
     if (this.animFrameCount > 1) {
-        console.log('initting for animation');
+        // console.log('initting for animation');
         this.animFrameWidth = 1.0 / this.animFrameCount;
 
         // hack: force first update to fire

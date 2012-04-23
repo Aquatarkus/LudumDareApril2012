@@ -186,7 +186,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
             if (!this.checkForSleepState()) {
                 this.state = "MOVE_TO_BUILD_SITE";
                 this.goalPlatterPosition = World.getBuildPosition();
-                console.log("move to build site");
+                // console.log("move to build site");
             }
 			break;
 		case "MOVE_TO_BUILD_SITE":
@@ -197,7 +197,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
                     this.goalObject = building;
                     this.state = "BUILD";
                     this.removeFromSimulation();
-                    console.log("building");
+                    // console.log("building");
                 } else {
                     // We can't build anymore, wait for further commands... or just try to build another next iteration, whatever floats your boat.
                     this.state = "IDLE";
@@ -211,7 +211,7 @@ Turtles.Person.prototype.update = function(deltaMs) {
 				this.goalObject.occupy(this);
 				this.state = "SLEEP";
                 this.removeFromSimulation();
-                console.log("Entered sleep");
+                // console.log("Entered sleep");
             }
 			break;
 		case "SLEEP":

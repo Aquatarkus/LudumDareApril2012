@@ -110,7 +110,7 @@ Turtles.UI.prototype =
         this.objects.push(object);
         this.scene.add(object);
         
-        Log.debug('TurtleUI addObject position', object.position);
+        // Log.debug('TurtleUI addObject position', object.position);
     },
     addClickableObject : function(clickableObject)
     {
@@ -289,7 +289,7 @@ function onMouseDown(event)
 {
     event.preventDefault();
     oldEventCoords = getEventCoords(event);
-    Log.event('onMouseDown', oldEventCoords);
+    // Log.event('onMouseDown', oldEventCoords);
     mouseIsDown = true;
     mouseDidMove = false;
 }
@@ -323,7 +323,7 @@ function onMouseUp(event)
 {
     event.preventDefault();
     var eventCoords = getEventCoords(event);
-    Log.event('onMouseUp', eventCoords);
+    // Log.event('onMouseUp', eventCoords);
 
     var worldCoords = turtlesUI.getWorldCoords(eventCoords);
     
